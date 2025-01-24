@@ -1,6 +1,6 @@
 {
   "name": "@docling/docling-core",
-  "version": "0.0.1-alpha-9",
+  "version": "0.0.1",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -36,12 +36,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DS4SD/docling-core-ts.git"
+    "url": "git+https://github.com/DS4SD/docling-ts.git"
   },
   "bugs": {
-    "url": "https://github.com/DS4SD/docling-core-ts/issues"
+    "url": "https://github.com/DS4SD/docling-ts/issues"
   },
-  "homepage": "https://github.com/DS4SD/docling-core-ts#readme",
+  "homepage": "https://github.com/DS4SD/docling-ts/tree/main/docling-core",
   "devDependencies": {
     "@eslint/js": "9.18.0",
     "@types/eslint__js": "8.42.3",
