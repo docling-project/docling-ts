@@ -1,0 +1,62 @@
+{
+  "name": "@docling/docling-core",
+  "version": "0.0.1-alpha-9",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "npm run lint-code ; npm run lint-styles",
+    "lint:fix": "npm run lint-code -- --fix ; npm run lint-styles -- --fix",
+    "lint-code": "eslint .",
+    "lint-styles": "stylelint --ignore-path .gitignore '**/*.{css,scss,sass}'"
+  },
+  "keywords": [
+    "typescript",
+    "library"
+  ],
+  "contributors": [
+    "Cesar Berrospi Ramis <ceb@zurich.ibm.com>",
+    "Valery Weber <vwe@zurich.ibm.com>",
+    "Peter Staar <taa@zurich.ibm.com>",
+    "Christoph Auer <cau@zurich.ibm.com>",
+    "Tiago Santana <tiago.santana@ibm.com>",
+    "Michele Dolfi <dol@zurich.ibm.com>",
+    "Kasper Dinkla <dkl@zurich.ibm.com>",
+    "Rafael Teixeira de Lima <rtdl@ibm.com>",
+    "Panos Vagenas <pva@zurich.ibm.com>"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DS4SD/docling-core-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DS4SD/docling-core-ts/issues"
+  },
+  "homepage": "https://github.com/DS4SD/docling-core-ts#readme",
+  "devDependencies": {
+    "@eslint/js": "9.18.0",
+    "@types/eslint__js": "8.42.3",
+    "eslint": "9.18.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "5.2.1",
+    "globals": "15.14.0",
+    "json-schema-to-typescript": "^15.0.3",
+    "prettier": "3.4.2",
+    "stylelint": "16.13.0",
+    "stylelint-config-standard": "37.0.0",
+    "stylelint-prettier": "5.0.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "8.19.1",
+    "vitest": "^2.1.8"
+  }
+}

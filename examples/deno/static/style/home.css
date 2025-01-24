@@ -1,0 +1,47 @@
+.brd-home {
+  height: 100vh;
+  padding: 3rem 0;
+}
+
+.brd-home,
+.brd-home * {
+  cursor: pointer;
+}
+
+.brd-home form {
+  width: fit-content;
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.brd-home label {
+  width: 100%;
+  color: white;
+  background-color: rgb(0, 56, 146);
+  line-height: 3rem;
+  text-align: center;
+}
+
+.brd-home input {
+  display: none;
+}
+
+.brd-home img {
+  max-width: 20rem;
+}
+
+.brd-home form.loading img {
+  animation: shake 0.5s ease-in-out alternate infinite;
+}
+
+@keyframes shake {
+  50% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
+}

@@ -1,0 +1,14 @@
+[tool.poetry]
+package-mode = false
+description = "This Python project is used for the generation of types. Refer to the NPM package.json for everything else."
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+pydantic-to-typescript = "^2.0.0"
+docling-core = "^2.14.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

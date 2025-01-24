@@ -1,0 +1,13 @@
+{
+  "imports": {
+    "docling": "npm:@docling/docling-core",
+    "fs": "jsr:@std/fs",
+    "hono": "npm:hono",
+    "lodash": "npm:lodash-es"
+  },
+  "compilerOptions": {
+    "jsx": "precompile",
+    "jsxImportSource": "hono/jsx",
+    "jsxImportSourceTypes": "hono/jsx"
+  }
+}
