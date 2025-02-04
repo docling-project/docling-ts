@@ -1,7 +1,7 @@
 {
   "name": "@docling/docling-core",
   "version": "0.0.2",
-  "description": "",
+  "description": "TypeScript definitions and functions for using Docling output.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
