@@ -10,7 +10,15 @@ export function localDocumentService(directory: string): DocumentService {
       // If not cached => Run conversion with Docling.
       if (!(await exists(jsonPath(file.name)))) {
         const command = new Deno.Command("docling", {
-          args: ["--to", "json", "--output", "conversions", docPath(file.name)],
+          args: [
+            "--to",
+            "json",
+            "--output",
+            "conversions",
+            // "--image-export-mode",
+            // "placeholder",
+            docPath(file.name),
+          ],
         });
         const { code } = await command.output();
 

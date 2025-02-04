@@ -1,0 +1,16 @@
+{
+  "include": ["../docling-components/src"],
+  "exclude": ["../docling-components/**/*.test.ts"],
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "declaration": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "outDir": "../docling-components/dist",
+    "rootDir": "../docling-components/src"
+  }
+}

@@ -12,6 +12,11 @@ export default function ({ children }: { children?: any }) {
         <title>Birder</title>
         <link rel="stylesheet" href="/static/style/conversion.css" />
         <link rel="stylesheet" href="/static/style/home.css" />
+
+        <script
+          type="module"
+          src="/node_modules/@docling/docling-components/dist/index.js"
+        />
       </head>
 
       <body>{children}</body>

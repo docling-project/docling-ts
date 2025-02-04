@@ -10,61 +10,47 @@ import {
   TextItem,
 } from './models';
 
+function isByLabel<D extends Partial<DocItem>>(...labels: D['label'][]) {
+  return function (item: object): item is D {
+    return isDocling.DocItem(item) && labels.includes(item.label);
+  };
+}
+
 export const isDoclingDocItem = {
-  ListItem(item: any): item is ListItem {
-    const labels: ListItem['label'][] = ['list_item'];
-
-    return isDocling.DocItem(item) && labels.includes(item.label as any);
-  },
-  PictureItem(item: any): item is PictureItem {
-    const labels: PictureItem['label'][] = ['picture'];
-
-    return isDocling.DocItem(item) && labels.includes(item.label as any);
-  },
-  SectionHeaderItem(item: any): item is SectionHeaderItem {
-    const labels: SectionHeaderItem['label'][] = ['section_header'];
-
-    return isDocling.DocItem(item) && labels.includes(item.label as any);
-  },
-  TableItem(item: any): item is TableItem {
-    const labels: TableItem['label'][] = ['document_index', 'table'];
-
-    return isDocling.DocItem(item) && labels.includes(item.label as any);
-  },
-  TextItem(item: any): item is TextItem {
-    const labels: TextItem['label'][] = [
-      'caption',
-      'checkbox_selected',
-      'checkbox_unselected',
-      'code',
-      'footnote',
-      'formula',
-      'page_footer',
-      'page_header',
-      'paragraph',
-      'reference',
-      'text',
-      'title',
-    ];
-
-    return isDocling.DocItem(item) && labels.includes(item.label as any);
-  },
+  ListItem: isByLabel<ListItem>('list_item'),
+  PictureItem: isByLabel<PictureItem>('picture'),
+  SectionHeaderItem: isByLabel<SectionHeaderItem>('section_header'),
+  TableItem: isByLabel<TableItem>('document_index', 'table'),
+  TextItem: isByLabel<TextItem>(
+    'caption',
+    'checkbox_selected',
+    'checkbox_unselected',
+    'code',
+    'footnote',
+    'formula',
+    'page_footer',
+    'page_header',
+    'paragraph',
+    'reference',
+    'text',
+    'title'
+  ),
 };
 
 export const isDocling = {
-  Document(item: any): item is DoclingDocument {
-    return item?.schema_name === 'DoclingDocument';
+  Document(item: object): item is DoclingDocument {
+    return 'schema_name' in item && item.schema_name === 'DoclingDocument';
   },
-  NodeItem(item: any): item is NodeItem {
+  NodeItem(item: object): item is NodeItem {
     return 'self_ref' in item;
   },
-  GroupItem(item: any): item is GroupItem {
+  GroupItem(item: object): item is GroupItem {
     return (
-      (isDocling.NodeItem(item) && item.self_ref === '#/body') ||
-      item.self_ref.startsWith('#/groups/')
+      isDocling.NodeItem(item) &&
+      (item.self_ref.startsWith('#/groups/') || item.self_ref === '#/body')
     );
   },
-  DocItem(item: any): item is DocItem {
+  DocItem(item: object): item is DocItem {
     return isDocling.NodeItem(item) && !isDocling.GroupItem(item);
   },
   ...isDoclingDocItem,

@@ -1,6 +1,6 @@
 # Docling TS
 
-Type/JavaScript utility libraries and examples for working with JSON output of [Docling](https://github.com/DS4SD/docling).
+Type/JavaScript libraries and examples for working with the JSON output format of [Docling](https://github.com/DS4SD/docling).
 
 > [!NOTE]
 > This is an unstable draft implementation that evolves quickly.
@@ -9,6 +9,6 @@ Type/JavaScript utility libraries and examples for working with JSON output of [
 
 The [docling-core](docling-core) package mirrors type definitions and utility functions of the [Docling Core](https://github.com/DS4SD/docling-core) library.
 
-## Examples
+## Docling Components
 
-Refer to the [example Deno web server](examples) to get started.
+The [docling-components](docling-components) package provides web components for displaying Docling JSON output.

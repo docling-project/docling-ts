@@ -1,0 +1,28 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="https://ds4sd.github.io/docling/assets/logo.png" />
+    <title>Birder</title>
+
+    <script type="module" src="/static/lib/docling-components/index.js"></script>
+    <script defer>
+        async function load() {
+            const response = await fetch("ccs.pdf.json");
+            const json = await response.json();
+            console.log(json);
+            console.log("Element:", document.getElementById("doc-view"))
+            document.getElementById("doc-view").document = json;
+        }
+
+        load();
+    </script>
+</head>
+
+<body>
+    <docling-pages id="doc-view" />
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+{
+  "name": "@docling/docling-components",
+  "version": "0.0.2",
+  "description": "A simple starter with svelteup",
+  "main": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "svelteup",
+    "format": "prettier --write --plugin-search-dir=. .",
+    "lint": "npm run lint-code ; npm run lint-styles",
+    "lint:fix": "npm run lint-code -- --fix ; npm run lint-styles -- --fix",
+    "lint-code": "eslint .",
+    "lint-styles": "stylelint --ignore-path .gitignore '**/*.{css,scss,sass}'"
+  },
+  "keywords": [
+    "html",
+    "markdown",
+    "pdf",
+    "ai",
+    "convert",
+    "xlsx",
+    "pdf-converter",
+    "docx",
+    "documents",
+    "pptx",
+    "pdf-to-text",
+    "tables",
+    "document-parser",
+    "pdf-to-json",
+    "document-parsing"
+  ],
+  "contributors": [
+    "Cesar Berrospi Ramis <ceb@zurich.ibm.com>",
+    "Valery Weber <vwe@zurich.ibm.com>",
+    "Peter Staar <taa@zurich.ibm.com>",
+    "Christoph Auer <cau@zurich.ibm.com>",
+    "Tiago Santana <tiago.santana@ibm.com>",
+    "Michele Dolfi <dol@zurich.ibm.com>",
+    "Kasper Dinkla <dkl@zurich.ibm.com>",
+    "Rafael Teixeira de Lima <rtdl@ibm.com>",
+    "Panos Vagenas <pva@zurich.ibm.com>"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DS4SD/docling-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DS4SD/docling-ts/issues"
+  },
+  "homepage": "https://github.com/DS4SD/docling-ts/tree/main/docling-components",
+  "dependencies": {
+    "@docling/docling-core": "^0.0.2",
+    "svelte": "^5.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-svelte": "^2.46.0",
+    "globals": "^15.12.0",
+    "prettier": "^3.4.2",
+    "stylelint": "^16.14.1",
+    "svelte-eslint-parser": "^0.43.0",
+    "svelteup": "^4.0.1",
+    "typescript-eslint": "^8.22.0"
+  }
+}

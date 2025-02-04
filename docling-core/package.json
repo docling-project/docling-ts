@@ -1,6 +1,6 @@
 {
   "name": "@docling/docling-core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -19,8 +19,21 @@
     "lint-styles": "stylelint --ignore-path .gitignore '**/*.{css,scss,sass}'"
   },
   "keywords": [
-    "typescript",
-    "library"
+    "html",
+    "markdown",
+    "pdf",
+    "ai",
+    "convert",
+    "xlsx",
+    "pdf-converter",
+    "docx",
+    "documents",
+    "pptx",
+    "pdf-to-text",
+    "tables",
+    "document-parser",
+    "pdf-to-json",
+    "document-parsing"
   ],
   "contributors": [
     "Cesar Berrospi Ramis <ceb@zurich.ibm.com>",

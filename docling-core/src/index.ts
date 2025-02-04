@@ -3,8 +3,8 @@ import { DoclingDocument, NodeItem, RefItem } from './types';
 
 export * from './types';
 
-export function* iterateItems(
-  doc: DoclingDocument,
+export function* iterateDocumentItems(
+  doc?: DoclingDocument,
   options: {
     root?: NodeItem;
     withGroups?: boolean;
@@ -12,7 +12,9 @@ export function* iterateItems(
     pageNo?: number;
   } = {}
 ): Generator<[NodeItem, number]> {
-  yield* traverse(options.root ?? doc.body!);
+  if (doc) {
+    yield* traverse(options.root ?? doc.body!);
+  }
 
   function* traverse(
     item: NodeItem,
@@ -23,7 +25,7 @@ export function* iterateItems(
       if (isDocling.DocItem(item)) {
         if (
           options.pageNo === undefined ||
-          item.prov?.some(prov => (prov.page_no === options.pageNo))
+          item.prov?.some(prov => prov.page_no === options.pageNo)
         ) {
           yield [item, level];
         }
@@ -39,7 +41,7 @@ export function* iterateItems(
 
     // Traverse children.
     for (const childRef of item.children ?? []) {
-      const child = resolveItem(childRef, doc);
+      const child = resolveDocumentItem(doc!, childRef);
 
       if (isDocling.NodeItem(child)) {
         yield* traverse(child, level + 1);
@@ -48,8 +50,14 @@ export function* iterateItems(
   }
 }
 
-export function resolveItem(item: RefItem, doc: DoclingDocument): NodeItem {
+export function resolveDocumentItem(
+  doc: DoclingDocument,
+  item: RefItem
+): NodeItem {
   const parts = item.$ref.split('/').slice(1);
 
-  return parts.reduce((item: any, p) => item[p], doc);
+  return parts.reduce(
+    (item: unknown, p) => (item as Record<string, NodeItem>)[p],
+    doc
+  ) as NodeItem;
 }
