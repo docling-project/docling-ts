@@ -2,6 +2,7 @@ import {
   DocItem,
   DoclingDocument,
   PageItem,
+  isDocling,
   iterateDocumentItems,
 } from '@docling/docling-core';
 
@@ -29,45 +30,69 @@ export function itemsByPagesOf(
   return pageToItems;
 }
 
-export function pagedItems(
-  doc?: DoclingDocument,
+export async function loadItems(
+  src?: string | DoclingDocument,
   filters: {
     items?: string | DocItem[];
   } = {}
-): { page: PageItem; items: DocItem[]; trimmed: boolean }[] {
+): Promise<{ page: PageItem; items: DocItem[]; trimmed: boolean }[]> {
+  let doc: DoclingDocument | undefined;
+  if (typeof src === 'string') {
+    const fetched = await fetch(src);
+    doc = await fetched.json();
+  } else if (typeof src === 'object' && isDocling.Document(src)) {
+    doc = src;
+  }
+
   const pages = pagesOf(doc);
-  const items = Array.isArray(filters.items)
-    ? filters.items
-    : (Array.from(iterateDocumentItems(doc)).map(
-        ([item]) => item
-      ) as DocItem[]);
+  const allItems = Array.from(iterateDocumentItems(doc)).map(
+    ([item]) => item
+  ) as DocItem[];
 
   // Filter by crop reference paths.
-  let retainedItems = items;
+  let retainedItems: DocItem[] = allItems;
   const cutPages = new Set<number>();
   if (typeof filters.items === 'string') {
-    const cropPaths = new Set(filters.items.split(',').map(s => s.trim()));
+    const cropPaths = new Set(
+      filters.items
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+    );
 
-    retainedItems = [];
-    for (const item of items) {
-      // Any scope in crop filters. For example: #/pictures and #/pictures/3
-      const refParts = item.self_ref.split('/');
-      const partialPaths: string[] = [];
-      for (let i = 2; i < refParts.length; i++) {
-        partialPaths.push(refParts.slice(0, i).join('/'));
+    if (cropPaths.size > 0) {
+      retainedItems = [];
+      for (const item of allItems) {
+        // Any scope in crop filters. For example: #/pictures and #/pictures/3
+        const refParts = item.self_ref.split('/');
+        const partialPaths: string[] = [];
+        for (let i = 2; i < refParts.length + 1; i++) {
+          partialPaths.push(refParts.slice(0, i).join('/'));
+        }
+
+        // Allow pages in crop filters as well.
+        item.prov?.forEach(p => partialPaths.push(`#/pages/${p.page_no}`));
+
+        if (partialPaths.some(p => cropPaths.has(p))) {
+          retainedItems.push(item);
+        } else {
+          item.prov?.forEach(p => cutPages.add(p.page_no));
+        }
       }
+    }
+  } else if (Array.isArray(filters.items)) {
+    retainedItems = [];
+    const allowedItems = new Set(filters.items);
 
-      // Allow pages in crop filters as well.
-      item.prov?.forEach(p => partialPaths.push(`#/pages/${p.page_no}`));
-
-      if (partialPaths.some(p => cropPaths.has(p))) {
+    for (const item of allItems) {
+      if (allowedItems.has(item)) {
         retainedItems.push(item);
       } else {
         item.prov?.forEach(p => cutPages.add(p.page_no));
       }
     }
   }
-
+  
   const pageToItems: Record<number, DocItem[]> = {};
   for (const p of pages) {
     pageToItems[p.page_no] = [];

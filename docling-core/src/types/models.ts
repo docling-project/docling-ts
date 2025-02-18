@@ -6,6 +6,10 @@
 */
 
 /**
+ * ContentLayer.
+ */
+export type ContentLayer = "body" | "furniture";
+/**
  * GroupLabel.
  */
 export type GroupLabel =
@@ -20,9 +24,102 @@ export type GroupLabel =
   | "key_value_area"
   | "comment_section";
 /**
+ * ContentLayer.
+ */
+export type ContentLayer1 = "body" | "furniture";
+/**
  * CoordOrigin.
  */
 export type CoordOrigin = "TOPLEFT" | "BOTTOMLEFT";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer2 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer3 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer4 = "body" | "furniture";
+/**
+ * CodeLanguageLabel.
+ */
+export type CodeLanguageLabel =
+  | "Ada"
+  | "Awk"
+  | "Bash"
+  | "bc"
+  | "C"
+  | "C#"
+  | "C++"
+  | "CMake"
+  | "COBOL"
+  | "CSS"
+  | "Ceylon"
+  | "Clojure"
+  | "Crystal"
+  | "Cuda"
+  | "Cython"
+  | "D"
+  | "Dart"
+  | "dc"
+  | "Dockerfile"
+  | "Elixir"
+  | "Erlang"
+  | "FORTRAN"
+  | "Forth"
+  | "Go"
+  | "HTML"
+  | "Haskell"
+  | "Haxe"
+  | "Java"
+  | "JavaScript"
+  | "Julia"
+  | "Kotlin"
+  | "Lisp"
+  | "Lua"
+  | "Matlab"
+  | "MoonScript"
+  | "Nim"
+  | "OCaml"
+  | "ObjectiveC"
+  | "Octave"
+  | "PHP"
+  | "Pascal"
+  | "Perl"
+  | "Prolog"
+  | "Python"
+  | "Racket"
+  | "Ruby"
+  | "Rust"
+  | "SML"
+  | "SQL"
+  | "Scala"
+  | "Scheme"
+  | "Swift"
+  | "TypeScript"
+  | "unknown"
+  | "VisualBasic"
+  | "XML"
+  | "YAML";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer5 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer6 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer7 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer8 = "body" | "furniture";
 /**
  * DocItemLabel.
  */
@@ -46,6 +143,14 @@ export type DocItemLabel =
   | "key_value_region"
   | "paragraph"
   | "reference";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer9 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer10 = "body" | "furniture";
 
 /**
  * DoclingDocument.
@@ -58,7 +163,7 @@ export interface DoclingDocument {
   furniture?: GroupItem;
   body?: GroupItem1;
   groups?: GroupItem2[];
-  texts?: (SectionHeaderItem | ListItem | TextItem)[];
+  texts?: (SectionHeaderItem | ListItem | TextItem | CodeItem)[];
   pictures?: PictureItem[];
   tables?: TableItem[];
   key_value_items?: KeyValueItem[];
@@ -76,12 +181,14 @@ export interface DocumentOrigin {
   uri?: string | null;
 }
 /**
+ * @deprecated
  * GroupItem.
  */
 export interface GroupItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer;
   name?: string;
   label?: GroupLabel;
 }
@@ -98,6 +205,7 @@ export interface GroupItem1 {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer;
   name?: string;
   label?: GroupLabel;
 }
@@ -108,6 +216,7 @@ export interface GroupItem2 {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer;
   name?: string;
   label?: GroupLabel;
 }
@@ -118,6 +227,7 @@ export interface SectionHeaderItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer1;
   label?: "section_header";
   prov?: ProvenanceItem[];
   orig: string;
@@ -153,6 +263,7 @@ export interface ListItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer2;
   label?: "list_item";
   prov?: ProvenanceItem[];
   orig: string;
@@ -167,11 +278,11 @@ export interface TextItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer3;
   label:
     | "caption"
     | "checkbox_selected"
     | "checkbox_unselected"
-    | "code"
     | "footnote"
     | "formula"
     | "page_footer"
@@ -185,12 +296,47 @@ export interface TextItem {
   text: string;
 }
 /**
+ * CodeItem.
+ */
+export interface CodeItem {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer4;
+  label?: "code";
+  prov?: ProvenanceItem[];
+  orig: string;
+  text: string;
+  captions?: RefItem[];
+  references?: RefItem[];
+  footnotes?: RefItem[];
+  image?: ImageRef | null;
+  code_language?: CodeLanguageLabel;
+}
+/**
+ * ImageRef.
+ */
+export interface ImageRef {
+  mimetype: string;
+  dpi: number;
+  size: Size;
+  uri: string;
+}
+/**
+ * Size.
+ */
+export interface Size {
+  width?: number;
+  height?: number;
+}
+/**
  * PictureItem.
  */
 export interface PictureItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer5;
   label?: "picture";
   prov?: ProvenanceItem[];
   captions?: RefItem[];
@@ -208,22 +354,6 @@ export interface PictureItem {
     | PicturePieChartData
     | PictureScatterChartData
   )[];
-}
-/**
- * ImageRef.
- */
-export interface ImageRef {
-  mimetype: string;
-  dpi: number;
-  size: Size;
-  uri: string;
-}
-/**
- * Size.
- */
-export interface Size {
-  width?: number;
-  height?: number;
 }
 /**
  * PictureClassificationData.
@@ -413,6 +543,7 @@ export interface TableItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer6;
   label?: "document_index" | "table";
   prov?: ProvenanceItem[];
   captions?: RefItem[];
@@ -456,6 +587,7 @@ export interface KeyValueItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer7;
   label?: "key_value_region";
   prov?: ProvenanceItem[];
 }
@@ -568,6 +700,7 @@ export interface DocItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer8;
   label: DocItemLabel;
   prov?: ProvenanceItem[];
 }
@@ -578,6 +711,7 @@ export interface FloatingItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer9;
   label: DocItemLabel;
   prov?: ProvenanceItem[];
   captions?: RefItem[];
@@ -592,6 +726,7 @@ export interface NodeItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
+  content_layer?: ContentLayer10;
 }
 /**
  * Table cell.

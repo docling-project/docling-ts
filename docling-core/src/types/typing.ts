@@ -1,4 +1,5 @@
 import {
+  CodeItem,
   DocItem,
   DoclingDocument,
   GroupItem,
@@ -17,6 +18,7 @@ function isByLabel<D extends Partial<DocItem>>(...labels: D['label'][]) {
 }
 
 export const isDoclingDocItem = {
+  CodeItem: isByLabel<CodeItem>('code'),
   ListItem: isByLabel<ListItem>('list_item'),
   PictureItem: isByLabel<PictureItem>('picture'),
   SectionHeaderItem: isByLabel<SectionHeaderItem>('section_header'),
@@ -25,7 +27,6 @@ export const isDoclingDocItem = {
     'caption',
     'checkbox_selected',
     'checkbox_unselected',
-    'code',
     'footnote',
     'formula',
     'page_footer',

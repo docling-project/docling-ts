@@ -32,6 +32,5 @@
 <style>
   svg {
     max-width: 100%;
-    border: 1px dotted rgb(220, 220, 220);
   }
 </style>

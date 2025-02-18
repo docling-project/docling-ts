@@ -1,0 +1,40 @@
+@import "https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css";
+@import "https://cdn.jsdelivr.net/gh/google/code-prettify@master/styles/sunburst.css";
+
+/* Pico customization. */
+:root {
+  --pico-border-radius: 0;
+  --pico-font-family: "IBM Plex Sans";
+  --pico-font-size: 16px;
+}
+
+/* Layout. */
+main {
+  padding: 1rem;
+  background-color: var(--pico-background-color);
+}
+
+form,
+fieldset {
+  --pico-spacing: 0;
+  margin-block-end: 0;
+}
+
+form.docling-img #columns,
+form.docling-table #trim,
+form.docling-table #backdrop {
+  display: none;
+}
+
+#snippet {
+  width: 100%;
+  padding: 1rem !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0;
+}
+
+#rendered {
+  padding: 2rem;
+  background-color: rgb(224, 224, 224);
+}

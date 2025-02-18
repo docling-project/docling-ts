@@ -37,13 +37,31 @@ Either download the package and serve it as part of the rest of the website, or 
 
 This component displays the converted document in context of its original form, by showing the full page renderings that are embedded in the conversion JSON (for specific input document formats). Each document item is shown as a bounding box on top of the page.
 
-Plain use:
+#### Plain use
+Similar to `<img>` you can point the component to the Docling JSON file.
 
 ```html
 <docling-img src="conversion.json" />
 ```
 
-You can narrow down the marked document items according to their reference path in the converted document:
+Or load the document programmatically:
+
+```html
+<script type="module">
+  const cmp = document.getElementById("cmp");
+
+  const fetched = await fetch("conversion.json")
+  const doc = await fetched.json();
+  cmp.src = doc;
+</script>
+...
+<docling-img id="cmp" pagenumbers />
+```
+
+
+#### Item filter and highlight
+
+Narrow down the marked document items according to their reference path in the converted document:
 
 ```html
 <docling-img src="conversion.json" items="#/pictures/3" />
@@ -51,20 +69,52 @@ You can narrow down the marked document items according to their reference path 
 
 Select entire item categories with `items="#/pictures"`, full pages with `items="#/pages/2"`, and unions with `items="#/pictures, #/tables"`.
 
-To emphasize or summarize these selections, you can suppress the non-selection into a page backdrop and/or trim out the pages without any selected items:
+Or select specific items programmatically:
+```html
+<script type="module">
+    const cmp = document.getElementById("cmp");
+    const fetched = await fetch("conversion.json")
+    const doc = await fetched.json();
+    cmp.src = doc;
+
+    // Select the first three tables.
+    cmp.items = doc.tables.slice(0, 3);
+</script>
+...
+<docling-img id="cmp" pagenumbers />
+```
+
+To emphasize item selections, you can suppress the non-selection into a page backdrop and/or trim out the pages without any selected items:
 
 ```html
 <docling-img src="conversion.json" items="#/pictures" trim="pages" backdrop />
 ```
 
-### docling-list
-
-This component displays the converted document as a vertical list of detected document items, with the parsed item contents on one side and a cropped provenance image on the other side (if available).
-
-Plain use:
-
+#### Tooltips
+Overlay a tooltip when you hover a parsed item on a page, showing its contents:
 ```html
-<docling-list src="conversion.json" />
+<docling-img src="conversion.json" tooltip="parsed" />
 ```
 
-You can select items with the `items` attributes, as described for the `docling-img` component. Selecting items will hide all non-selected items from view.
+### docling-table
+
+This component displays the converted document as a table of parsed document items, with columns for item contents and an image from the rendered document (if available).
+
+#### Plain use
+
+```html
+<docling-table src="conversion.json" />
+```
+
+You can select items with the `items` attributes, as described for the `docling-img` component. Selecting items will trim all non-selected items from view.
+
+#### Configure columns
+Select the columns that you want to have shown and in what order:
+```html
+<docling-table src="conversion.json" columns="parsed,image" />
+```
+
+You can use this to display the cropped image of a single document item as well:
+```html
+<docling-table src="conversion.json" columns="image" items="#/tables/2" />
+```

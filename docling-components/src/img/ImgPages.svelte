@@ -1,27 +1,28 @@
 <svelte:options customElement="docling-img" />
 
 <script lang="ts">
-  import { DocItem } from '@docling/docling-core';
-  import { pagedItems } from '../util';
+  import { CommonComponentProps } from '../props';
+  import { loadItems } from '../util';
   import Page from './ImgPage.svelte';
 
   let {
     src = '',
     items,
+    pagenumbers,
     trim,
-    backdrop = false,
+    backdrop,
+    tooltip,
+    alt,
+    itemPart,
+    itemStyle,
+    onclick,
   }: {
-    src?: string;
-    items?: string | DocItem[];
     trim?: 'pages';
-    backdrop?: boolean;
-  } = $props();
+    backdrop?: string;
+    tooltip?: string;
+  } & CommonComponentProps = $props();
 
-  const docPagedFetch = $derived(
-    fetch(src)
-      .then(d => d.json())
-      .then(d => pagedItems(d, { items }))
-  );
+  const docPagedFetch = $derived(loadItems(src, { items }));
 </script>
 
 {#await docPagedFetch}
@@ -34,22 +35,30 @@
         <Page
           page={page.page}
           items={page.items}
-          backdrop={backdrop && page.trimmed}
+          pagenumbers={pagenumbers !== undefined}
+          backdrop={backdrop !== undefined && page.trimmed}
+          {tooltip}
+          {itemPart}
+          {itemStyle}
+          {onclick}
         />
       {/if}
     {/each}
   </div>
 {:catch}
-  <p>Document load error</p>
+  <img {alt} src="none" />
 {/await}
 
 <style>
   div {
     width: fit-content;
     max-width: 100%;
+
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
+
+    color: black;
   }
 </style>

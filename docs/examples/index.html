@@ -1,0 +1,207 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="https://ds4sd.github.io/docling/assets/logo.png" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css" />
+    <title>Docling Component Examples</title>
+
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+    <script type="module">
+        import "https://unpkg.com/@docling/docling-components";
+
+        // URL params <-> form inputs.
+        const urlParams = new URLSearchParams(location.search);
+        const { component = 'docling-img', example = 'html' } = Object.fromEntries(urlParams);
+        urlParams.forEach((v, k) => document.getElementById(k).value = v);
+
+        const attributes = Array.from(urlParams)
+            .filter(([k, v]) => !["component", "example"].includes(k) && v.length > 0)
+            .map(([k, v]) => v === "true" ? k : `${k}="${v}"`).join(" ");
+
+        // Script snippet.
+        const scriptBody = {
+            "script-attributes": `
+            const cmp = document.getElementById("cmp");
+
+            // Load document.
+            const fetched = await fetch("example.pdf.json")
+            const doc = await fetched.json();
+            cmp.src = doc;
+
+            // Select the first three tables.
+            cmp.items = doc.tables.slice(0, 3);`,
+            "script-events": `
+            const cmp = document.getElementById("cmp");
+
+            cmp.onclick = function (event, page, item) {
+                alert('You clicked ' + item.self_ref + ' in page ' + page.page_no);
+            }`,
+            "style-item-part": `
+            const cmp = document.getElementById("cmp");
+            cmp.itemPart = (page, item) => item.self_ref.includes("pictures") ? "highlight" : "";`,
+            "style-item-style": `
+            const cmp = document.getElementById("cmp");
+
+            cmp.itemStyle = (page, item) => "text" in item ? "stroke: red; stroke-width: 3px;" : "";`
+        }[example];
+
+        const script = scriptBody ? `
+        [script type="module"]${scriptBody}
+        [/script]` : "";
+
+        // Style snippet.
+        const styleBody = {
+            "style-gallery": `
+            docling-img::part(pages) {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+                
+            docling-img::part(page) {
+                max-width: 20rem;
+                box-shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.2);
+            }`,
+            "style-page-numbers": `
+            ${component}::part(page-number-top) {
+                display: none;
+            }
+            
+            ${component}::part(page-number-bottom) {
+                font-weight: bold;
+                font-size: 2rem;
+                line-height: 2rem;
+            }`,
+            "style-item-part": `
+            ${component}::part(highlight) {
+                stroke: red;
+                stroke-width: 3px;
+                stroke-dasharray: none;
+            }`
+        }[example];
+
+        const style = styleBody ? `
+        [style]${styleBody}
+        [/style]` : "";
+
+        // Component tag.
+        const id = scriptBody ? ` id="cmp"` : "";
+        const directSrc = example === "script-attributes" ? "" : ` src="example.pdf.json"`;
+        const rendered = `<${component}${id}${directSrc} ${attributes} />`;
+        document.getElementById("rendered").innerHTML = rendered;
+
+        // Compose example snippet.
+        document.getElementById("snippet").innerText = `[html]
+    [head]
+        [script src="https://unpkg.com/@docling/docling-components"][/script]${script}${style}
+    [/head]
+    [body]
+        ${rendered}
+    [/body]
+[/html]`.replaceAll("[", "<").replaceAll("]", ">");
+
+        // Adapt attribute visibility.
+        const attr = document.getElementById("attributes");
+        attr.classList = component;
+        document.getElementById("component").onchange = function (e) {
+            attr.classList = e.currentTarget.value;
+        }
+
+        // Execute script and style.
+        if (scriptBody) {
+            const element = document.createElement("script");
+            element.type = "module";
+            element.text = scriptBody;
+            document.head.appendChild(element);
+        }
+
+        if (styleBody) {
+            const element = document.createElement("style");
+            element.textContent = styleBody;
+            document.head.appendChild(element);
+        }
+    </script>
+</head>
+
+<body>
+    <main data-theme="dark">
+        <form id="attributes" method="get">
+            <!-- Attributes -->
+            <fieldset class="grid">
+                <select id="example" name="example">
+                    <option value="html">HTML</option>
+
+                    <optgroup label="Script">
+                        <option value="script-attributes">dynamic attributes</option>
+                        <option value="script-events">item events</option>
+                    </optgroup>
+
+                    <optgroup label="Style">
+                        <option value="style-item-style">item style</option>
+                        <option value="style-item-part">item part</option>
+                        <option value="style-gallery">page gallery</option>
+                        <option value="style-page-numbers">page numbers</option>
+                    </optgroup>
+                </select>
+
+                <select id="component" name="component">
+                    <option value="docling-img">docling-img</option>
+                    <option value="docling-table">docling-table</option>
+                </select>
+
+                <input id="items" name="items" list="items-suggestions" placeholder="filter items" />
+                <datalist id="items-suggestions">
+                    <option value="#/texts" />
+                    <option value="#/pictures" />
+                    <option value="#/tables" />
+                    <option value="#/tables/2" />
+                    <option value="#/tables/1,#/pictures/2" />
+                </datalist>
+
+                <select id="trim" name="trim">
+                    <option value="">no trim</option>
+                    <option value="pages">trim pages</option>
+                </select>
+
+
+                <select id="pagenumbers" name="pagenumbers">
+                    <option value="">hide page numbers</option>
+                    <option value="true">show page numbers</option>
+                </select>
+
+                <!-- docling-img specific -->
+                <select id="backdrop" name="backdrop">
+                    <option value="">hide backdrop</option>
+                    <option value="true">show backdrop</option>
+                </select>
+
+                <input id="tooltip" name="tooltip" list="tooltip-suggestions" placeholder="tooltip" />
+                <datalist id="tooltip-suggestions">
+                    <option value="parsed" />
+                </datalist>
+
+                <!-- docling-table specific -->
+                <input id="columns" name="columns" list="columns-suggestions" placeholder="columns" />
+                <datalist id="columns-suggestions">
+                    <option value="parsed" />
+                    <option value="image" />
+                    <option value="parsed,image" />
+                </datalist>
+
+                <button type="submit">Apply</button>
+            </fieldset>
+        </form>
+    </main>
+
+    <pre id="snippet" class="prettyprint"></pre>
+
+    <main id="rendered">
+    </main>
+</body>
+
+</html>

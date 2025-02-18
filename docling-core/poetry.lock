@@ -57,20 +57,21 @@ files = [
 
 [[package]]
 name = "docling-core"
-version = "2.14.0"
+version = "2.19.1"
 description = "A python library to define and validate data types in Docling."
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "docling_core-2.14.0-py3-none-any.whl", hash = "sha256:05a7b89872260dcdba2b0fbcc3a4619aed4846f58f155d33a10b41b23eea5188"},
-    {file = "docling_core-2.14.0.tar.gz", hash = "sha256:0eb6a52e05f2a06e1777b0533d655a87b54a1a5d374b957beb244c8940aed7da"},
+    {file = "docling_core-2.19.1-py3-none-any.whl", hash = "sha256:ca7bd4dacd75611c5ea4f205192b71a8f22205e615eff1a16aac7082644d3b2e"},
+    {file = "docling_core-2.19.1.tar.gz", hash = "sha256:e2769b816c669cdf27024dd3b219d3ecaf2161691dd5e8e5e8ce439557ea0928"},
 ]
 
 [package.dependencies]
 jsonref = ">=1.1.0,<2.0.0"
 jsonschema = ">=4.16.0,<5.0.0"
+latex2mathml = ">=3.77.0,<4.0.0"
 pandas = ">=2.1.4,<3.0.0"
-pillow = ">=10.3.0,<11.0.0"
+pillow = ">=10.0.0,<12.0.0"
 pydantic = ">=2.6.0,<2.10.0 || >2.10.0,<2.10.1 || >2.10.1,<2.10.2 || >2.10.2,<3.0.0"
 pyyaml = ">=5.1,<7.0.0"
 tabulate = ">=0.9.0,<0.10.0"
@@ -125,6 +126,17 @@ files = [
 
 [package.dependencies]
 referencing = ">=0.31.0"
+
+[[package]]
+name = "latex2mathml"
+version = "3.77.0"
+description = "Pure Python library for LaTeX to MathML conversion"
+optional = false
+python-versions = ">=3.8.1,<4.0.0"
+files = [
+    {file = "latex2mathml-3.77.0-py3-none-any.whl", hash = "sha256:5531e18a2a9eae7c24e257118b6a444cbba253cd27ff3e81f1bd6c41e88e786e"},
+    {file = "latex2mathml-3.77.0.tar.gz", hash = "sha256:e2f501d1878f2e489c3f6f12786bef74c62f712d2770f7f3c837eb20a55d0a1e"},
+]
 
 [[package]]
 name = "markdown-it-py"
@@ -880,4 +892,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e2134a62c0c92366ed9c177d9a42c5cf32b090cb2f1f8b6649329a9e6b2bb8c5"
+content-hash = "71f4ebf229084beb010242c8adb93d1f5bda3d4154a35f0e8ed83ea580741daa"
