@@ -1,7 +1,5 @@
-// import path from 'path';
-
 export default {
-  entry: 'src/index.js',
+  entry: 'src/index.ts',
   outdir: 'dist',
   compilerOptions: {
     customElement: true,
