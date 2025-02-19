@@ -3,8 +3,8 @@
 <script lang="ts">
   import * as dl from '@docling/docling-core';
   import { CommonPageProps } from '../props';
-  import ParsedItem from '../item/ParsedItem.svelte';
-  import { isDisplayable } from '../item';
+  import { isDisplayableItem } from '../item';
+  import OmniItem from '../item/OmniItem.svelte';
 
   let {
     page,
@@ -137,7 +137,7 @@
     {/if}
 
     <!-- Tooltip. -->
-    {#if tooltipTypes.length > 0 && hovered && isDisplayable(hovered.item)}
+    {#if tooltipTypes.length > 0 && hovered && isDisplayableItem(hovered.item)}
       <div
         part="tooltip"
         class="tooltip"
@@ -156,7 +156,7 @@
       >
         {#each tooltipTypes as type}
           {#if type === 'parsed'}
-            <ParsedItem item={hovered.item} />
+            <OmniItem item={hovered.item} />
           {/if}
         {/each}
       </div>

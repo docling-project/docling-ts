@@ -21,7 +21,7 @@ import {
 } from './models';
 
 /**
- * Produce a type identification function for a DocItem subtype.
+ * Produce a type identification function for a DocItem sub-type.
  *
  * @param labels The values that can be present in the label of the DocItem
  * @returns Function for discriminating a specific DocItem sub-type.

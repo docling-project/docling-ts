@@ -2,7 +2,7 @@
   import { PageItem, DocItem } from '@docling/docling-core';
   import { CommonPageProps } from '../props';
   import CroppedItem from '../item/CroppedItem.svelte';
-  import ParsedItem from '../item/ParsedItem.svelte';
+  import OmniItem from '../item/OmniItem.svelte';
 
   let {
     columns = 'parsed,image',
@@ -31,7 +31,7 @@
   {#each cols as col}
     <td onclick={handleClick}>
       {#if col === 'parsed'}
-        <ParsedItem {item} />
+        <OmniItem {item} />
       {:else if col === 'image'}
         <!-- Show figure as part of parsed column when it is the only one. -->
         <CroppedItem {page} {item} />
