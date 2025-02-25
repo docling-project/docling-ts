@@ -10,7 +10,7 @@ export default function ({ children }: { children?: any }) {
           href="https://ds4sd.github.io/docling/assets/logo.png"
         />
         <title>Birder</title>
-        <link rel="stylesheet" href="/static/style/conversion.css" />
+        <link rel="stylesheet" href="/static/style/index.css" />
         <link rel="stylesheet" href="/static/style/home.css" />
 
         <script

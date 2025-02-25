@@ -2,7 +2,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "docling": "npm:@docling/docling-core",
-    "docling-components": "npm:@docling/docling-components@0.0.2",
+    "docling-components": "npm:@docling/docling-components@0.0.3",
     "fs": "jsr:@std/fs",
     "hono": "npm:hono",
     "lodash": "npm:lodash-es"

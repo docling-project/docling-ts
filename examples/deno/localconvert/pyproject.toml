@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "localconvert"
+version = "0.1.0"
+description = ""
+authors = ["DKL <dkl@zurich.ibm.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+docling = "^2.24.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

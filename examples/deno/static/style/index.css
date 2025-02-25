@@ -1,3 +1,4 @@
+@import "https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css";
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
 
 @view-transition {
@@ -7,9 +8,6 @@
 * {
   font-family: "IBM Plex Sans";
   font-size: 16px;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
 }
 
 html {
@@ -21,15 +19,6 @@ body {
   --brd-inverse-background: #161616;
 
   background-color: var(--brd-background);
-}
-
-.brd-main {
-  display: flex;
-  flex-direction: column;
-
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 auto;
 }
 
 /* Drop spacing on small media. */
@@ -57,10 +46,6 @@ docling-img::part(page) {
 docling-img::part(page),
 docling-list::part(page) {
   box-shadow: 0 4px 8px 0 #00000029, 0 0 8px 0 #00000014;
-}
-
-.brd-main b {
-  font-weight: 600;
 }
 
 .brd-main-header {
@@ -96,9 +81,4 @@ docling-list::part(page) {
   flex-direction: column;
   font-size: 0.75rem;
   line-height: 0.925rem;
-}
-
-:target {
-  outline: 3px solid blue;
-  z-index: 1;
 }

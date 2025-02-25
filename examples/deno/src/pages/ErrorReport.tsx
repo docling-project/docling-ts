@@ -1,5 +1,5 @@
 import Frame from "../components/Frame.tsx";
-import { DocumentServiceError } from "../service/service.d.ts";
+import { DocumentServiceError } from "../service/service.ts";
 
 export default function ({ error }: { error: DocumentServiceError }) {
   return (

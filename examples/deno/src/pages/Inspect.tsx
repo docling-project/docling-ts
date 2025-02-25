@@ -37,7 +37,7 @@ export default function ({
         </header>
 
         {appearance.mode === "linear" ? (
-          <docling-list src={src} items={items} />
+          <docling-table src={src} items={items} />
         ) : (
           <docling-img src={src} items={items} backdrop trim="pages" />
         )}

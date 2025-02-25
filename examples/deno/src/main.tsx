@@ -5,8 +5,9 @@ import Home from "./pages/Home.tsx";
 import Inspect, { DocumentAppearance } from "./pages/Inspect.tsx";
 import { localDocumentService } from "./service/localService.ts";
 import ErrorReport from "./pages/ErrorReport.tsx";
+import { DocumentService } from "./service/service.ts";
 
-const documentService = localDocumentService("conversions");
+const documentService: DocumentService = localDocumentService("conversions");
 
 const app = new Hono();
 
@@ -18,7 +19,9 @@ app.get("/node_modules/*", serveStatic({ root: "." }));
 app.get("/conversions/:name", serveStatic({ root: "." }));
 
 // Serve pages.
-app.get("/", (c) => c.html(<Home />));
+app.get("/", async (c) => {
+  return c.html(<Home service={documentService} />)
+});
 
 app.post("/upload", async (c) => {
   const file = (await c.req.parseBody())["file"];
