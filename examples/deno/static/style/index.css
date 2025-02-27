@@ -1,24 +1,80 @@
-@import "https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css";
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
 
 @view-transition {
   navigation: auto;
 }
 
-* {
-  font-family: "IBM Plex Sans";
+img#icon {
+  view-transition-name: icon;
+}
+
+input#search {
+  view-transition-name: search;
+}
+
+:root {
+  --pico-font-family-sans-serif: "IBM Plex Sans", system-ui;
   font-size: 16px;
-}
-
-html {
   scroll-behavior: smooth;
+  cursor: crosshair;
 }
 
-body {
-  --brd-background: rgb(149, 149, 149);
-  --brd-inverse-background: #161616;
+h1 {
+  font-weight: normal;
+}
 
-  background-color: var(--brd-background);
+main.home {
+  max-width: 50rem;
+  padding: 1rem;
+  margin: auto;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+main.home form {
+  width: 100%;
+}
+
+main.home #icon {
+  max-width: 10rem;
+}
+
+main.home #icon.loading {
+  animation: shake 0.5s ease-in-out alternate infinite;
+}
+
+@keyframes shake {
+  50% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
+}
+
+header.search {
+  display: flex;
+  padding: 1rem;
+  gap: 1rem;
+  box-shadow: var(--pico-box-shadow);
+}
+
+header.search #icon {
+  max-width: 3rem;
+}
+
+header.search form {
+  flex: 1;
+}
+
+main.search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--pico-muted-color);
 }
 
 /* Drop spacing on small media. */
@@ -34,51 +90,7 @@ body {
   }
 }
 
-/* docling-img::part(pages) {
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
-docling-img::part(page) {
-  width: 10rem;
-} */
-
 docling-img::part(page),
 docling-list::part(page) {
-  box-shadow: 0 4px 8px 0 #00000029, 0 0 8px 0 #00000014;
-}
-
-.brd-main-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3rem;
-  z-index: 1;
-
-  background-color: var(--brd-inverse-background);
-  box-shadow: 0 0 0.5rem #000000a8, 0 0 0.5rem #00000054;
-}
-
-.brd-doc-header {
-  position: sticky;
-  top: 0;
-  height: 3rem;
-  z-index: 2;
-  padding: 0 1rem;
-
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-
-  background-color: var(--brd-inverse-background);
-  color: white;
-}
-
-.brd-doc-name {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  font-size: 0.75rem;
-  line-height: 0.925rem;
+  box-shadow: var(--pico-box-shadow);
 }

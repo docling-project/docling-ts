@@ -5,13 +5,14 @@ export default function ({ children }: { children?: any }) {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+        <link rel="stylesheet" href="/static/style/index.css" />
         <link
           rel="icon"
           href="https://ds4sd.github.io/docling/assets/logo.png"
         />
-        <title>Birder</title>
-        <link rel="stylesheet" href="/static/style/index.css" />
-        <link rel="stylesheet" href="/static/style/home.css" />
+
+        <title>Doc Hunt</title>
 
         <script
           type="module"
