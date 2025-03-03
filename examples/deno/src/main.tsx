@@ -1,16 +1,19 @@
 import { Hono } from "hono";
-import { logger } from "hono/logger";
 import { serveStatic } from "hono/deno";
+import { logger } from "hono/logger";
 import { localDocumentService } from "./service/localService.ts";
-import { DocumentQuery } from "./service/service.d.ts";
+import type { DocumentQuery } from "./service/service.d.ts";
+import { isEmptyQuery, parseQuery, queryAsExpression } from "./service/util.ts";
 import ErrorReport from "./pages/ErrorReport.tsx";
 import Home from "./pages/Home.tsx";
 import Search from "./pages/Search.tsx";
-import { isEmptyQuery } from "./service/util.ts";
+import Documents from "./components/Documents.tsx";
 
-const conversionPath = "conversions";
-const pageLimit = 10;
-const documentService = localDocumentService(conversionPath);
+const paths = {
+  upload: "documents/uploads",
+  convert: "documents/conversions",
+};
+const documentService = localDocumentService(paths);
 
 const app = new Hono();
 
@@ -19,28 +22,23 @@ app.use("*", logger());
 // Serve files.
 app.get("/static/*", serveStatic({ root: "." }));
 app.get("/node_modules/*", serveStatic({ root: "." }));
-app.get(`/${conversionPath}/*`, serveStatic({ root: "." }));
+app.get(`/${paths.convert}/*`, serveStatic({ root: "." }));
 
 // Serve pages.
 
 app.get("/", async (c) => {
   // TODO: Zod validation.
-  const { page, ...query } = c.req.query() as unknown as DocumentQuery & {
-    page: string;
-  };
+  const query = c.req.query() as DocumentQuery;
+  const normalizedQuery = parseQuery(queryAsExpression(query));
 
   if (isEmptyQuery(query)) {
-    return c.html(<Home service={documentService} />);
+    return c.html(<Home />);
   } else {
-    const response = await documentService.search(
-      query,
-      Number(page) * pageLimit,
-      pageLimit
-    );
+    const response = await documentService.search(normalizedQuery);
 
     return c.html(
       response.success ? (
-        <Search query={query} documents={response.result} />
+        <Search query={normalizedQuery} documents={response} />
       ) : (
         <ErrorReport error={response.error} />
       )
@@ -48,20 +46,23 @@ app.get("/", async (c) => {
   }
 });
 
+app.get("/documents", async (c) => {
+  const query = c.req.queries() as DocumentQuery;
+  const documents = await documentService.search(query);
+
+  return c.html(<Documents query={query} documents={documents} />)
+});
+
 app.post("/", async (c) => {
-  const file = (await c.req.parseBody())["file"];
+  const filesRaw = (await c.req.parseBody({ all: true }))["files"];
+  const files = (Array.isArray(filesRaw) ? filesRaw : [filesRaw]).filter(
+    (f) => f instanceof File
+  );
+  const response = await documentService.convert(files);
 
-  if (file instanceof File) {
-    const response = await documentService.convert(file);
-
-    return response.success
-      ? c.redirect(`?id=${response.result.id}`)
-      : c.html(<ErrorReport error={response.error} />);
-  } else {
-    return c.html(
-      <ErrorReport error={{ message: "Your file could not be uploaded." }} />
-    );
-  }
+  return response.success
+    ? c.redirect(`?batch=${response.result.batch}`)
+    : c.html(<ErrorReport error={response.error} />);
 });
 
 Deno.serve(app.fetch);

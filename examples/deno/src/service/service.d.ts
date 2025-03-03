@@ -1,22 +1,26 @@
 import { DoclingDocument } from "docling";
 
 export interface DocumentService {
-  convert(file: File, labels?: string[]): Response<{ id: string }>;
-  search(query: DocumentQuery, offset?: number, limit?: number): Response<DocumentSearchEntry[]>;
-  read(id: string): Response<DoclingDocument>;
-  delete(id: string): Response;
+  convert(files: File[], labels?: string[]): Response<{ batch: string }>;
+  search(query: DocumentQuery): Response<TaggedDocument[]>;
+  delete(query: DocumentQuery): Response;
 }
 
 export interface DocumentQuery {
-  keywords?: string;
-  id?: string;
-  filename?: string;
+  page?: number;
+  batch?: string[];
+  filename?: string[];
+  tag?: string[];
+  q?: string;
 }
 
-export interface DocumentSearchEntry {
-  id: string;
-  url: string;
-  document: DoclingDocument;
+export interface TaggedDocument extends DoclingDocument {
+  annotations?: DocumentTag[];
+}
+
+export interface DocumentTag {
+  kind: "tag";
+  tag: string;
 }
 
 type Response<R = void> = Promise<Payload<R>>;

@@ -19,23 +19,36 @@ input#search {
   cursor: crosshair;
 }
 
+body {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+main {
+  flex: 1;
+}
+
 h1 {
   font-weight: normal;
 }
 
+/*
+* Home page.
+*/
+
 main.home {
+  width: 100%;
   max-width: 50rem;
   padding: 1rem;
   margin: auto;
-  
+
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-}
-
-main.home form {
-  width: 100%;
 }
 
 main.home #icon {
@@ -55,6 +68,14 @@ main.home #icon.loading {
   }
 }
 
+/* 
+* Search page.
+*/
+
+#searchbar {
+  width: 100%;
+}
+
 header.search {
   display: flex;
   padding: 1rem;
@@ -70,27 +91,42 @@ header.search form {
   flex: 1;
 }
 
-main.search {
+main.documents {
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: var(--pico-muted-color);
-}
 
-/* Drop spacing on small media. */
-@media (min-width: 600px) {
-  docling-img,
-  docling-list {
-    padding: 1rem;
+  .document {
+    width: 100%;
+    max-width: 50rem;
+
+    .header {
+      background-color: white;
+      padding: 1rem;
+    }
+
+    .processing {
+      background: linear-gradient(white 66%, transparent 100%);
+      padding: 1rem 1rem 3rem 1rem;
+    }
+
+    /* Drop spacing on small media. */
+    @media (min-width: 600px) {
+      docling-img,
+      docling-list {
+        padding: 1rem;
+      }
+
+      docling-img::part(pages),
+      docling-list::part(pages) {
+        gap: 1rem;
+      }
+    }
+
+    docling-img::part(page),
+    docling-list::part(page) {
+      box-shadow: var(--pico-box-shadow);
+    }
   }
-
-  docling-img::part(pages),
-  docling-list::part(pages) {
-    gap: 1rem;
-  }
-}
-
-docling-img::part(page),
-docling-list::part(page) {
-  box-shadow: var(--pico-box-shadow);
 }

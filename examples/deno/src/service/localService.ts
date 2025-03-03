@@ -1,87 +1,97 @@
-import { DocumentQuery, DocumentService } from "./service.d.ts";
-import { DoclingDocument } from "docling";
+import type {
+  DocumentQuery,
+  DocumentService,
+  TaggedDocument,
+} from "./service.d.ts";
 import { error, success } from "./util.ts";
+import namor from "namor";
 
-export function localDocumentService(directory: string): DocumentService {
+export function localDocumentService(paths: {
+  upload: string;
+  convert: string;
+}): DocumentService {
   return {
-    async convert(file: File, labels: string[] = []) {
-      const id = `${file.name}_${crypto.randomUUID()}`;
+    async convert(files: File[], labels: string[] = []) {
+      const batch = namor.generate();
 
-      // Wrap conversion in Python process.
-      // If not cached => Run conversion with Docling.
-      const command = new Deno.Command("poetry", {
-        args: [
-          "run",
-          "-C",
-          "localconvert",
-          "python",
-          "localconvert/localconvert/convert.py",
-          file.name,
-        ],
-        stdin: "piped",
-        stdout: "piped",
-        stderr: "piped",
-      });
-      const child = await command.spawn();
+      try {
+        // Register pending conversions.
+        for (const file of files) {
+          await Deno.mkdir(path(paths.convert, batch, file.name), {
+            recursive: true,
+          });
+          await Deno.writeTextFile(
+            path(paths.convert, batch, file.name, `${file.name}.json`),
+            JSON.stringify(pendingDocumentOf(file), null, 2),
+            {}
+          );
 
-      // Pipe process output to file.
-      child.stdout.pipeTo(
-        Deno.openSync(path(id), {
-          write: true,
-          create: true,
-        }).writable
-      );
+          await Deno.mkdir(path(paths.upload, batch), { recursive: true });
+          await Deno.writeFile(
+            path(paths.upload, batch, file.name),
+            await file.bytes()
+          );
+        }
 
-      // Pass PDF contents to process.
-      const writer = child.stdin.getWriter();
-      await writer.write(await file.bytes());
-      writer.releaseLock();
-      await child.stdin.close();
-
-      const status = await child.status;
-
-      if (!status.success) {
-        const message = new TextDecoder().decode(child.stderr as any);
-
-        return error({ message: `Failed to convert document: ${message}` });
+        return success({ batch });
+      } catch (ex) {
+        console.error(ex);
+        throw "Upload failure.";
       }
-
-      return success({ id });
     },
 
     async search(query: DocumentQuery, offset?: number, limit?: number) {
+      const { batch = [], filename = [] } = query;
+
       try {
-        const id = (query.id ?? "").trim();
+        const documents: TaggedDocument[] = [];
 
-        if (id.length > 0) {
-          const doc = await this.read(id);
+        if (batch.length > 0) {
+          if (filename.length > 0) {
+            const doc = JSON.parse(
+              await Deno.readTextFile(
+                path(paths.convert, batch[0], filename[0])
+              )
+            ) as TaggedDocument;
 
-          if (doc.success) {
-            return success([{ id, url: path(id), document: doc.result }]);
+            documents.push(doc);
           } else {
-            return doc;
+            console.log("Read batch:", batch);
+
+            for await (const entry of Deno.readDir(
+              path(paths.convert, batch[0])
+            )) {
+              console.log("Entry: ", entry);
+
+              if (entry.isDirectory) {
+                const doc = JSON.parse(
+                  await Deno.readTextFile(
+                    path(
+                      paths.convert,
+                      batch[0],
+                      entry.name,
+                      `${entry.name}.json`
+                    )
+                  )
+                ) as TaggedDocument;
+
+                documents.push(doc);
+              }
+            }
           }
         } else {
-          throw "Missing search argument";
+          throw "Invalid search parameters.";
         }
+
+        return success(documents);
       } catch (ex) {
         return error(ex);
       }
     },
 
-    async read(id: string) {
+    async delete(query: DocumentQuery) {
       try {
-        return success(
-          JSON.parse(await Deno.readTextFile(path(id))) as DoclingDocument
-        );
-      } catch (ex) {
-        return error(ex);
-      }
-    },
-
-    async delete(id: string) {
-      try {
-        await Deno.remove(path(id));
+        // await Deno.remove(path(id));
         return success(undefined);
       } catch (ex) {
         return error(ex);
@@ -89,7 +99,25 @@ export function localDocumentService(directory: string): DocumentService {
     },
   };
 
-  function path(id: string) {
-    return `${directory}/${id}.json`;
+  function path(...parts: string[]) {
+    return parts.join("/");
+  }
+
+  function pendingDocumentOf(file: File) {
+    return {
+      schema_name: "DoclingDocument",
+      name: file.name.split(".").slice(0, -1).join("."),
+      origin: {
+        mimetype: "application/pdf",
+        binary_hash: 0,
+        filename: file.name,
+      },
+      annotations: [
+        {
+          kind: "tag",
+          tag: "pending",
+        },
+      ],
+    };
   }
 }
