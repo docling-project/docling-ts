@@ -36,7 +36,7 @@
           page={page.page}
           items={page.items}
           pagenumbers={pagenumbers !== undefined}
-          backdrop={backdrop !== undefined && page.trimmed}
+          backdrop={backdrop !== undefined}
           {tooltip}
           {itemPart}
           {itemStyle}
