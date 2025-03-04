@@ -11,7 +11,7 @@ export default function () {
         <SearchBar />
 
         <form action="/" method="post" enctype="multipart/form-data">
-          <h5>Add documents</h5>
+          <h5>Upload documents</h5>
 
           <input
             id="files"

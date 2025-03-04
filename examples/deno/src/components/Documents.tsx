@@ -19,6 +19,7 @@ export default function ({
     return (
       <main
         class="documents"
+        data-theme="light"
         hx-get={`/documents?${queryAsSearchParams(query)}`}
         hx-swap="outerHTML"
         hx-trigger={hasProcessing ? "every 5s" : undefined}
@@ -34,18 +35,18 @@ export default function ({
 }
 
 function Document({ document }: { document: TaggedDocument }) {
-  const isProcessing = !document.pages;
+  const isConverted = document.origin?.uri;
 
   return (
     <div class="document">
-      <div class={"header " + isProcessing ? "processing" : ""}>
-        <span aria-busy={isProcessing}>
+      <div class={"header " + (isConverted ? "" : "processing")}>
+        <span aria-busy={!isConverted}>
           <b>{document.name}</b>
         </span>
       </div>
 
-      {document.origin?.uri && (
-        <docling-img src={document.origin.uri} backdrop />
+      {isConverted && (
+        <docling-img src={document.origin!.uri} backdrop />
       )}
     </div>
   );

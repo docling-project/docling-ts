@@ -13,18 +13,27 @@ input#search {
 }
 
 :root {
-  --pico-font-family-sans-serif: "IBM Plex Sans", system-ui;
   font-size: 16px;
   scroll-behavior: smooth;
   cursor: crosshair;
+
+  --pico-font-family-sans-serif: "IBM Plex Sans", system-ui;
+  --doc-shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.2);
 }
 
 body {
   position: absolute;
-  inset: 0;
+  min-height: 100%;
+  padding-bottom: 12rem;
+
   display: flex;
   flex-direction: column;
   align-items: stretch;
+
+  background-color: rgb(125, 212, 251);
+  background-image: url("/static/background.png");
+  background-position: bottom;
+  background-repeat: repeat-x;
 }
 
 main {
@@ -48,6 +57,7 @@ main.home {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2rem;
 }
 
@@ -78,9 +88,11 @@ main.home #icon.loading {
 
 header.search {
   display: flex;
+  z-index: 1000;
   padding: 1rem;
   gap: 1rem;
-  box-shadow: var(--pico-box-shadow);
+  background-color: var(--pico-background-color);
+  box-shadow: var(--doc-shadow);
 }
 
 header.search #icon {
@@ -95,14 +107,16 @@ main.documents {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--pico-muted-color);
+  gap: 1rem;
+  padding: 3rem 0;
 
   .document {
-    width: 100%;
-    max-width: 50rem;
+    width: fit-content;
+    color: var(--pico-color);
+    background-color: var(--pico-background-color);
+    box-shadow: var(--doc-shadow);
 
     .header {
-      background-color: white;
       padding: 1rem;
     }
 
@@ -111,22 +125,12 @@ main.documents {
       padding: 1rem 1rem 3rem 1rem;
     }
 
-    /* Drop spacing on small media. */
-    @media (min-width: 600px) {
-      docling-img,
-      docling-list {
-        padding: 1rem;
-      }
-
-      docling-img::part(pages),
-      docling-list::part(pages) {
-        gap: 1rem;
-      }
+    docling-img::part(pages) {
+      gap: 0;
     }
 
-    docling-img::part(page),
-    docling-list::part(page) {
-      box-shadow: var(--pico-box-shadow);
+    docling-img::part(page) {
+      border-top: 1px dotted rgb(200, 200, 200);
     }
   }
 }
