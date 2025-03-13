@@ -3,30 +3,24 @@
 <script lang="ts">
   import * as dl from '@docling/docling-core';
   import { CommonPageProps } from '../props';
-  import { isDisplayableItem } from '../item';
-  import OmniItem from '../item/OmniItem.svelte';
+  import { Snippet } from 'svelte';
+  import { DocItem } from '@docling/docling-core';
 
   let {
     page,
     items = [],
     pagenumbers,
     backdrop,
-    tooltip = '',
+    tooltip,
     itemPart,
     itemStyle,
     onclick,
   }: {
     page: dl.PageItem;
     items?: dl.DocItem[];
+    tooltip?: Snippet<[DocItem]>;
     backdrop?: boolean;
-    tooltip?: string;
   } & CommonPageProps = $props();
-
-  const tooltipSupport = new Set(['parsed']);
-  const tooltipTypes = tooltip
-    .split(',')
-    .map(s => s.trim())
-    .filter(s => tooltipSupport.has(s));
 
   // In case of a defined tooltip.
   let hovered:
@@ -38,6 +32,8 @@
       ? (e: MouseEvent, item?: dl.DocItem) => onclick(e, page, item)
       : undefined
   );
+
+  let slotRef: HTMLDivElement | undefined = $state();
 </script>
 
 <!-- svelte-ignore a11y_interactive_supports_focus -->
@@ -112,8 +108,9 @@
                 quadrant,
               };
             }}
-            onmouseleave={_ => (hovered = undefined)}
           />
+          <!-- 
+            onmouseleave={_ => (hovered = undefined)} -->
         {/if}
       {/each}
     </svg>
@@ -137,28 +134,25 @@
     {/if}
 
     <!-- Tooltip. -->
-    {#if tooltipTypes.length > 0 && hovered && isDisplayableItem(hovered.item)}
+    {#if hovered && tooltip /*&& isDisplayableItem(hovered.item)*/}
       <div
         part="tooltip"
         class="tooltip"
         style="
-          {hovered.quadrant === 1
+            {hovered.quadrant === 1
           ? `left: ${hovered.bounds.right}px`
           : hovered.quadrant === 3
             ? `right: ${document.body.clientWidth - hovered.bounds.left}px`
             : `left: calc(${hovered.bounds.left}px - 2rem)`};
-          {hovered.quadrant === 0
+            {hovered.quadrant === 0
           ? `bottom: ${document.body.clientHeight - hovered.bounds.top}px`
           : hovered.quadrant === 2
             ? `top: ${hovered.bounds.bottom}px`
             : `top: calc(${hovered.bounds.top}px - 2rem)`};
-        "
+          "
+          bind:this={slotRef}
       >
-        {#each tooltipTypes as type}
-          {#if type === 'parsed'}
-            <OmniItem item={hovered.item} />
-          {/if}
-        {/each}
+        {@render tooltip(hovered.item)}
       </div>
     {/if}
   </div>

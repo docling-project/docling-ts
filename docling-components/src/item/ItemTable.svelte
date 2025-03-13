@@ -1,10 +1,12 @@
+<svelte:options customElement="docling-item-table" />
+
 <script lang="ts">
-  import { TableCell, TableItem } from '@docling/docling-core';
+  import { DocItem, isDoclingDocItem, TableCell } from '@docling/docling-core';
 
   let {
     item,
   }: {
-    item: TableItem;
+    item: DocItem;
   } = $props();
 
   const isCovered = $derived(
@@ -38,35 +40,37 @@
   );
 </script>
 
-<div class="container">
-  <table>
-    <tbody>
-      {#each item.data.grid as row}
-        <tr>
-          {#each row as cell}
-            {#if !isCovered(cell)}
-              <!-- Ignore cell that has already been covered by a previous multi-span cell. -->
+{#if isDoclingDocItem.TableItem(item)}
+  <div class="container">
+    <table>
+      <tbody>
+        {#each item.data.grid as row}
+          <tr>
+            {#each row as cell}
+              {#if !isCovered(cell)}
+                <!-- Ignore cell that has already been covered by a previous multi-span cell. -->
 
-              {@const id =
-                `${item.self_ref}/${cell.start_col_offset_idx}/${cell.start_row_offset_idx}`.slice(
-                  1
-                )}
+                {@const id =
+                  `${item.self_ref}/${cell.start_col_offset_idx}/${cell.start_row_offset_idx}`.slice(
+                    1
+                  )}
 
-              <td
-                {id}
-                class={cell.column_header || cell.row_header ? 'header' : ''}
-                colSpan={cell.col_span}
-                rowSpan={cell.row_span}
-              >
-                {cell.text}
-              </td>
-            {/if}
-          {/each}
-        </tr>
-      {/each}
-    </tbody>
-  </table>
-</div>
+                <td
+                  {id}
+                  class={cell.column_header || cell.row_header ? 'header' : ''}
+                  colSpan={cell.col_span}
+                  rowSpan={cell.row_span}
+                >
+                  {cell.text}
+                </td>
+              {/if}
+            {/each}
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+{/if}
 
 <style>
   .container {

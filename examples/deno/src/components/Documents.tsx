@@ -20,9 +20,11 @@ export default function ({
       <main
         class="documents"
         data-theme="light"
-        hx-get={`/documents?${queryAsSearchParams(query)}`}
-        hx-swap="outerHTML"
+        hx-get={
+          hasProcessing ? `/documents?${queryAsSearchParams(query)}` : undefined
+        }
         hx-trigger={hasProcessing ? "every 5s" : undefined}
+        hx-swap="outerHTML"
       >
         {documents.result.map((d) => (
           <Document document={d} />
@@ -46,7 +48,9 @@ function Document({ document }: { document: TaggedDocument }) {
       </div>
 
       {isConverted && (
-        <docling-img src={document.origin!.uri} backdrop />
+        <docling-img src={document.origin!.uri} backdrop>
+          <docling-view type="tooltip" />
+        </docling-img>
       )}
     </div>
   );
