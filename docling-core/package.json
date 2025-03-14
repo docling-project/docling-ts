@@ -1,6 +1,6 @@
 {
   "name": "@docling/docling-core",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "TypeScript definitions and functions for using Docling output.",
   "type": "module",
   "main": "dist/index.js",
@@ -8,9 +8,14 @@
   "files": [
     "dist"
   ],
+  "config": {
+    "docling": "v2.26.0"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "generate": "poetry install && poetry add --dev docling@${npm_package_config_docling} && poetry run pydantic2ts --module docling_core.types.doc --exclude DocTagsPage --exclude DocTagsDocument --output src/types/models.ts --json2ts-cmd \"npx json2ts\" && npm run lint:fix",
+    "generate-direct": "curl https://raw.githubusercontent.com/docling-project/docling-core/refs/tags/${npm_package_config_docling}/docs/DoclingDocument.json | json2ts > src/types/models.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "npm run lint-code ; npm run lint-styles",

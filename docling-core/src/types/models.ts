@@ -6,43 +6,13 @@
 */
 
 /**
- * ContentLayer.
- */
-export type ContentLayer = "body" | "furniture";
-/**
- * GroupLabel.
- */
-export type GroupLabel =
-  | "unspecified"
-  | "list"
-  | "ordered_list"
-  | "chapter"
-  | "section"
-  | "sheet"
-  | "slide"
-  | "form_area"
-  | "key_value_area"
-  | "comment_section";
-/**
- * ContentLayer.
- */
-export type ContentLayer1 = "body" | "furniture";
-/**
  * CoordOrigin.
  */
 export type CoordOrigin = "TOPLEFT" | "BOTTOMLEFT";
 /**
  * ContentLayer.
  */
-export type ContentLayer2 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer3 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer4 = "body" | "furniture";
+export type ContentLayer = "body" | "furniture";
 /**
  * CodeLanguageLabel.
  */
@@ -107,19 +77,7 @@ export type CodeLanguageLabel =
 /**
  * ContentLayer.
  */
-export type ContentLayer5 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer6 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer7 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer8 = "body" | "furniture";
+export type ContentLayer1 = "body" | "furniture";
 /**
  * DocItemLabel.
  */
@@ -146,12 +104,171 @@ export type DocItemLabel =
 /**
  * ContentLayer.
  */
+export type ContentLayer2 = "body" | "furniture";
+/**
+ * GroupLabel.
+ */
+export type GroupLabel =
+  | "unspecified"
+  | "list"
+  | "ordered_list"
+  | "chapter"
+  | "section"
+  | "sheet"
+  | "slide"
+  | "form_area"
+  | "key_value_area"
+  | "comment_section"
+  | "inline";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer3 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer4 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer5 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer6 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer7 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer8 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
 export type ContentLayer9 = "body" | "furniture";
 /**
  * ContentLayer.
  */
 export type ContentLayer10 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer11 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer12 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer13 = "body" | "furniture";
+/**
+ * GraphCellLabel.
+ */
+export type GraphCellLabel = "unspecified" | "key" | "value" | "checkbox";
+/**
+ * GraphLinkLabel.
+ */
+export type GraphLinkLabel = "unspecified" | "to_value" | "to_key" | "to_parent" | "to_child";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer14 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer15 = "body" | "furniture";
+/**
+ * ContentLayer.
+ */
+export type ContentLayer16 = "body" | "furniture";
 
+/**
+ * BoundingBox.
+ */
+export interface BoundingBox {
+  l: number;
+  t: number;
+  r: number;
+  b: number;
+  coord_origin?: CoordOrigin;
+}
+/**
+ * CodeItem.
+ */
+export interface CodeItem {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer;
+  label?: "code";
+  prov?: ProvenanceItem[];
+  orig: string;
+  text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
+  captions?: RefItem[];
+  references?: RefItem[];
+  footnotes?: RefItem[];
+  image?: ImageRef | null;
+  code_language?: CodeLanguageLabel;
+}
+/**
+ * RefItem.
+ */
+export interface RefItem {
+  $ref: string;
+}
+/**
+ * ProvenanceItem.
+ */
+export interface ProvenanceItem {
+  page_no: number;
+  bbox: BoundingBox;
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  charspan: [unknown, unknown];
+}
+/**
+ * Formatting.
+ */
+export interface Formatting {
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+}
+/**
+ * ImageRef.
+ */
+export interface ImageRef {
+  mimetype: string;
+  dpi: number;
+  size: Size;
+  uri: string;
+}
+/**
+ * Size.
+ */
+export interface Size {
+  width?: number;
+  height?: number;
+}
+/**
+ * DocItem.
+ */
+export interface DocItem {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer1;
+  label: DocItemLabel;
+  prov?: ProvenanceItem[];
+}
 /**
  * DoclingDocument.
  */
@@ -162,11 +279,12 @@ export interface DoclingDocument {
   origin?: DocumentOrigin | null;
   furniture?: GroupItem;
   body?: GroupItem1;
-  groups?: GroupItem2[];
-  texts?: (SectionHeaderItem | ListItem | TextItem | CodeItem)[];
+  groups?: (OrderedList | UnorderedList | InlineGroup | GroupItem2)[];
+  texts?: (TitleItem | SectionHeaderItem | ListItem | CodeItem | FormulaItem | TextItem)[];
   pictures?: PictureItem[];
   tables?: TableItem[];
   key_value_items?: KeyValueItem[];
+  form_items?: FormItem[];
   pages?: {
     [k: string]: PageItem;
   };
@@ -188,15 +306,9 @@ export interface GroupItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer;
+  content_layer?: ContentLayer2;
   name?: string;
   label?: GroupLabel;
-}
-/**
- * RefItem.
- */
-export interface RefItem {
-  $ref: string;
 }
 /**
  * GroupItem.
@@ -205,9 +317,42 @@ export interface GroupItem1 {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer;
+  content_layer?: ContentLayer2;
   name?: string;
   label?: GroupLabel;
+}
+/**
+ * OrderedList.
+ */
+export interface OrderedList {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer3;
+  name?: string;
+  label?: "ordered_list";
+}
+/**
+ * UnorderedList.
+ */
+export interface UnorderedList {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer4;
+  name?: string;
+  label?: "list";
+}
+/**
+ * InlineGroup.
+ */
+export interface InlineGroup {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer5;
+  name?: string;
+  label?: "inline";
 }
 /**
  * GroupItem.
@@ -216,9 +361,24 @@ export interface GroupItem2 {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer;
+  content_layer?: ContentLayer2;
   name?: string;
   label?: GroupLabel;
+}
+/**
+ * TitleItem.
+ */
+export interface TitleItem {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer6;
+  label?: "title";
+  prov?: ProvenanceItem[];
+  orig: string;
+  text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
 }
 /**
  * SectionItem.
@@ -227,34 +387,14 @@ export interface SectionHeaderItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer1;
+  content_layer?: ContentLayer7;
   label?: "section_header";
   prov?: ProvenanceItem[];
   orig: string;
   text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
   level?: number;
-}
-/**
- * ProvenanceItem.
- */
-export interface ProvenanceItem {
-  page_no: number;
-  bbox: BoundingBox;
-  /**
-   * @minItems 2
-   * @maxItems 2
-   */
-  charspan: [unknown, unknown];
-}
-/**
- * BoundingBox.
- */
-export interface BoundingBox {
-  l: number;
-  t: number;
-  r: number;
-  b: number;
-  coord_origin?: CoordOrigin;
 }
 /**
  * SectionItem.
@@ -263,13 +403,30 @@ export interface ListItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer2;
+  content_layer?: ContentLayer8;
   label?: "list_item";
   prov?: ProvenanceItem[];
   orig: string;
   text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
   enumerated?: boolean;
   marker?: string;
+}
+/**
+ * FormulaItem.
+ */
+export interface FormulaItem {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer9;
+  label?: "formula";
+  prov?: ProvenanceItem[];
+  orig: string;
+  text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
 }
 /**
  * TextItem.
@@ -278,56 +435,22 @@ export interface TextItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer3;
+  content_layer?: ContentLayer10;
   label:
     | "caption"
     | "checkbox_selected"
     | "checkbox_unselected"
     | "footnote"
-    | "formula"
     | "page_footer"
     | "page_header"
     | "paragraph"
     | "reference"
-    | "text"
-    | "title";
+    | "text";
   prov?: ProvenanceItem[];
   orig: string;
   text: string;
-}
-/**
- * CodeItem.
- */
-export interface CodeItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer4;
-  label?: "code";
-  prov?: ProvenanceItem[];
-  orig: string;
-  text: string;
-  captions?: RefItem[];
-  references?: RefItem[];
-  footnotes?: RefItem[];
-  image?: ImageRef | null;
-  code_language?: CodeLanguageLabel;
-}
-/**
- * ImageRef.
- */
-export interface ImageRef {
-  mimetype: string;
-  dpi: number;
-  size: Size;
-  uri: string;
-}
-/**
- * Size.
- */
-export interface Size {
-  width?: number;
-  height?: number;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
 }
 /**
  * PictureItem.
@@ -336,7 +459,7 @@ export interface PictureItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer5;
+  content_layer?: ContentLayer11;
   label?: "picture";
   prov?: ProvenanceItem[];
   captions?: RefItem[];
@@ -543,7 +666,7 @@ export interface TableItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer6;
+  content_layer?: ContentLayer12;
   label?: "document_index" | "table";
   prov?: ProvenanceItem[];
   captions?: RefItem[];
@@ -587,9 +710,56 @@ export interface KeyValueItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer7;
+  content_layer?: ContentLayer13;
   label?: "key_value_region";
   prov?: ProvenanceItem[];
+  captions?: RefItem[];
+  references?: RefItem[];
+  footnotes?: RefItem[];
+  image?: ImageRef | null;
+  graph: GraphData;
+}
+/**
+ * GraphData.
+ */
+export interface GraphData {
+  cells?: GraphCell[];
+  links?: GraphLink[];
+}
+/**
+ * GraphCell.
+ */
+export interface GraphCell {
+  label: GraphCellLabel;
+  cell_id: number;
+  text: string;
+  orig: string;
+  prov?: ProvenanceItem | null;
+  item_ref?: RefItem | null;
+}
+/**
+ * GraphLink.
+ */
+export interface GraphLink {
+  label: GraphLinkLabel;
+  source_cell_id: number;
+  target_cell_id: number;
+}
+/**
+ * FormItem.
+ */
+export interface FormItem {
+  self_ref: string;
+  parent?: RefItem | null;
+  children?: RefItem[];
+  content_layer?: ContentLayer14;
+  label?: "form";
+  prov?: ProvenanceItem[];
+  captions?: RefItem[];
+  references?: RefItem[];
+  footnotes?: RefItem[];
+  image?: ImageRef | null;
+  graph: GraphData;
 }
 /**
  * PageItem.
@@ -600,118 +770,13 @@ export interface PageItem {
   page_no: number;
 }
 /**
- * A representation of a generic document.
- */
-export interface Generic {
-  /**
-   * A short description or summary of the document.
-   */
-  _name?: string | null;
-  "file-info": FileInfoObject;
-}
-/**
- * Minimal identification information of the document within a collection.
- */
-export interface FileInfoObject {
-  /**
-   * The name of a persistent object that created this data object
-   */
-  filename: string;
-  /**
-   * The provenance of this data object, e.g. an archive file, a URL, or any other repository.
-   */
-  "filename-prov"?: string | null;
-  /**
-   * A unique identifier of this data object within a collection of a Docling database
-   */
-  "document-hash": string;
-}
-/**
- * Information on how the data was obtained.
- */
-export interface Acquisition {
-  /**
-   * The method to obtain the data.
-   */
-  type: "API" | "FTP" | "Download" | "Link" | "Web scraping/Crawling" | "Other";
-  /**
-   * A string representation of the acquisition datetime in ISO 8601 format.
-   */
-  date?: string | null;
-  /**
-   * Link to the data source of this document.
-   */
-  link?: string | null;
-  /**
-   * Size in bytes of the raw document from the data source.
-   */
-  size?: number | null;
-}
-/**
- * Model for alias fields to ensure instantiation and serialization by alias.
- */
-export interface AliasModel {}
-/**
- * Filing information for any data object to be stored in a Docling database.
- */
-export interface FileInfoObject1 {
-  /**
-   * The name of a persistent object that created this data object
-   */
-  filename: string;
-  /**
-   * The provenance of this data object, e.g. an archive file, a URL, or any other repository.
-   */
-  "filename-prov"?: string | null;
-  /**
-   * A unique identifier of this data object within a collection of a Docling database
-   */
-  "document-hash": string;
-}
-/**
- * Log entry to describe an ETL task on a document.
- */
-export interface Log {
-  /**
-   * An identifier of this task. It may be used to identify this task from other tasks of the same agent and type.
-   */
-  task?: string | null;
-  /**
-   * The Docling agent that performed the task, e.g., CCS or CXS.
-   */
-  agent: string;
-  /**
-   * A task category.
-   */
-  type: string;
-  /**
-   * A description of the task or any comments in natural language.
-   */
-  comment?: string | null;
-  /**
-   * A string representation of the task execution datetime in ISO 8601 format.
-   */
-  date: string;
-}
-/**
- * DocItem.
- */
-export interface DocItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer8;
-  label: DocItemLabel;
-  prov?: ProvenanceItem[];
-}
-/**
  * FloatingItem.
  */
 export interface FloatingItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer9;
+  content_layer?: ContentLayer15;
   label: DocItemLabel;
   prov?: ProvenanceItem[];
   captions?: RefItem[];
@@ -726,53 +791,13 @@ export interface NodeItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer10;
-}
-/**
- * Table cell.
- */
-export interface TableCell1 {
-  bbox?: [number, number, number, number] | null;
-  spans?: [number, number][] | null;
-  text: string;
-  type: string;
+  content_layer?: ContentLayer16;
 }
 /**
  * BasePictureData.
  */
 export interface BasePictureData {
   kind: string;
-}
-/**
- * List item.
- */
-export interface ListItem1 {
-  prov?: Prov[] | null;
-  text?: string | null;
-  type: string;
-  payload?: {
-    [k: string]: unknown;
-  } | null;
-  name?: string | null;
-  font?: string | null;
-  identifier: string;
-}
-/**
- * Provenance.
- */
-export interface Prov {
-  /**
-   * @minItems 4
-   * @maxItems 4
-   */
-  bbox: [number, number, number, number];
-  page: number;
-  /**
-   * @minItems 2
-   * @maxItems 2
-   */
-  span: [number, number];
-  __ref_s3_data?: string | null;
 }
 /**
  * Base class for picture chart data.
@@ -782,215 +807,4 @@ export interface Prov {
  */
 export interface PictureChartData {
   title: string;
-}
-/**
- * Base cell.
- */
-export interface BaseCell {
-  prov?: Prov[] | null;
-  text?: string | null;
-  type: string;
-  payload?: {
-    [k: string]: unknown;
-  } | null;
-}
-/**
- * Base model for text objects.
- */
-export interface BaseText {
-  prov?: Prov[] | null;
-  text?: string | null;
-  type: string;
-  payload?: {
-    [k: string]: unknown;
-  } | null;
-  name?: string | null;
-  font?: string | null;
-}
-/**
- * Bitmap object.
- */
-export interface BitmapObject {
-  type: string;
-  bounding_box: BoundingBoxContainer;
-  prov: Prov;
-}
-/**
- * Bounding box container.
- */
-export interface BoundingBoxContainer {
-  /**
-   * @minItems 4
-   * @maxItems 4
-   */
-  min: [number, number, number, number];
-  /**
-   * @minItems 4
-   * @maxItems 4
-   */
-  max: [number, number, number, number];
-}
-/**
- * Bounding box container.
- */
-export interface BoundingBoxContainer1 {
-  /**
-   * @minItems 4
-   * @maxItems 4
-   */
-  min: [number, number, number, number];
-  /**
-   * @minItems 4
-   * @maxItems 4
-   */
-  max: [number, number, number, number];
-}
-/**
- * Cell container.
- */
-export interface CellsContainer {
-  data?: [unknown, unknown, unknown, unknown, unknown, unknown][] | null;
-  /**
-   * @minItems 6
-   * @maxItems 6
-   */
-  header?: [unknown, unknown, unknown, unknown, unknown, unknown];
-}
-/**
- * Figure.
- */
-export interface Figure {
-  prov?: Prov[] | null;
-  text?: string | null;
-  type: string;
-  payload?: {
-    [k: string]: unknown;
-  } | null;
-  "bounding-box"?: BoundingBoxContainer1 | null;
-}
-/**
- * Glm Table cell.
- */
-export interface GlmTableCell {
-  bbox?: [number, number, number, number] | null;
-  spans?: [number, number][] | null;
-  text: string;
-  type: string;
-  col?: number | null;
-  "col-header"?: boolean;
-  "col-span"?: [number, number] | null;
-  row?: number | null;
-  "row-header"?: boolean;
-  "row-span"?: [number, number] | null;
-}
-/**
- * Page dimensions.
- */
-export interface PageDimensions {
-  height: number;
-  page: number;
-  width: number;
-}
-/**
- * Page reference.
- */
-export interface PageReference {
-  hash: string;
-  model: string;
-  page: number;
-}
-/**
- * Reference.
- */
-export interface Ref {
-  name: string;
-  type: string;
-  $ref: string;
-}
-/**
- * Data object in a cloud object storage.
- */
-export interface S3Data {
-  "pdf-document"?: S3Resource[] | null;
-  "pdf-pages"?: S3Resource[] | null;
-  "pdf-images"?: S3Resource[] | null;
-  "json-document"?: S3Resource | null;
-  "json-meta"?: S3Resource | null;
-  "glm-json-document"?: S3Resource | null;
-  figures?: S3Resource[] | null;
-}
-/**
- * Resource in a cloud object storage.
- */
-export interface S3Resource {
-  mime: string;
-  path: string;
-  page?: number | null;
-}
-/**
- * References an s3 resource.
- */
-export interface S3Reference {
-  __ref_s3_data: string;
-}
-/**
- * Table.
- */
-export interface Table {
-  prov?: Prov[] | null;
-  text?: string | null;
-  type: string;
-  payload?: {
-    [k: string]: unknown;
-  } | null;
-  "#-cols": number;
-  "#-rows": number;
-  data?: (GlmTableCell | TableCell1)[][] | null;
-  model?: string | null;
-  "bounding-box"?: BoundingBoxContainer1 | null;
-}
-/**
- * Model for boolean values.
- */
-export interface BooleanValue {
-  value: boolean;
-}
-/**
- * Model for datetime values.
- */
-export interface DatetimeValue {
-  value: string;
-}
-/**
- * A representation of a geopoint (longitude and latitude coordinates).
- */
-export interface GeopointValue {
-  /**
-   * @minItems 2
-   * @maxItems 2
-   */
-  value: [number, number];
-  conf?: number | null;
-}
-/**
- * Model for nominal (categorical) values.
- */
-export interface NominalValue {
-  value: string;
-}
-/**
- * Model for numerical values.
- */
-export interface NumericalValue {
-  min: number;
-  max: number;
-  val: number;
-  err: number;
-  unit: string;
-}
-/**
- * Model for textual values.
- */
-export interface TextValue {
-  value: string;
 }

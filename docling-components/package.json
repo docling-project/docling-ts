@@ -1,6 +1,6 @@
 {
   "name": "@docling/docling-components",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Web components for displaying Docling output.",
   "main": "./dist/index.js",
   "files": [
@@ -52,7 +52,7 @@
   },
   "homepage": "https://github.com/DS4SD/docling-ts/tree/main/docling-components",
   "dependencies": {
-    "@docling/docling-core": "^0.0.3",
+    "@docling/docling-core": "^0.0.4",
     "svelte": "^5.2.0"
   },
   "devDependencies": {
