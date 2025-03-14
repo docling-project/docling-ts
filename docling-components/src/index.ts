@@ -1,2 +1,2 @@
-export * from './img/ImgPages.svelte';
-export * from './table/TablePages.svelte';
+export * from './img/ImgPages';
+// export * from './table/TablePages.svelte';

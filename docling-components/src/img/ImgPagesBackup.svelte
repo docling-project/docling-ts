@@ -1,11 +1,10 @@
-<svelte:options customElement="docling-img" />
+<!-- <svelte:options customElement="docling-img" /> -->
 
 <script lang="ts">
   import { DocItem } from '@docling/docling-core';
   import { CommonComponentProps } from '../props';
   import { loadItems } from '../util';
   import Page from './ImgPage.svelte';
-  import { createRawSnippet } from 'svelte';
 
   let {
     src = '',
@@ -23,42 +22,6 @@
   } & CommonComponentProps = $props();
 
   const docPagedFetch = $derived(loadItems(src, { items }));
-
-  function tooltipSnippet(host?: HTMLElement) {
-    const views = Array.from($host()?.querySelectorAll('docling-view[type=tooltip]') ?? []);
-
-    if (views.some((v: any) => v.supportsItem?.(item()))) {
-      return createRawSnippet<[DocItem]>(item => {
-        return {
-          setup(element: Element) {
-            $effect(() => {
-              const copies: Node[] = [];
-
-              views.forEach(el => {
-                if ((el as any).supportsItem(item())) {
-                  const copy = el.cloneNode(true) as Element;
-                  (copy as any).item = item();
-
-                  if (copy.shadowRoot?.hasChildNodes()) {
-                    copies.push(copy);
-                  }
-                }
-              });
-
-              element.replaceChildren(...copies);
-
-              return () => {};
-            });
-          },
-          render() {
-            return `<div></div>`;
-          },
-        };
-      });
-    } else {
-      return undefined;
-    }
-  }
 </script>
 
 {#snippet tooltip(style: string, item: DocItem)}
@@ -102,3 +65,39 @@
     color: black;
   }
 </style>
+
+<!-- function tooltipSnippet(host?: HTMLElement) {
+  const views = Array.from($host()?.querySelectorAll('docling-view[type=tooltip]') ?? []);
+
+  if (views.some((v: any) => v.supportsItem?.(item()))) {
+    return createRawSnippet<[DocItem]>(item => {
+      return {
+        setup(element: Element) {
+          $effect(() => {
+            const copies: Node[] = [];
+
+            views.forEach(el => {
+              if ((el as any).supportsItem(item())) {
+                const copy = el.cloneNode(true) as Element;
+                (copy as any).item = item();
+
+                if (copy.shadowRoot?.hasChildNodes()) {
+                  copies.push(copy);
+                }
+              }
+            });
+
+            element.replaceChildren(...copies);
+
+            return () => {};
+          });
+        },
+        render() {
+          return `<div></div>`;
+        },
+      };
+    });
+  } else {
+    return undefined;
+  }
+} -->
