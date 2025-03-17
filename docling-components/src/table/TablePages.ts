@@ -4,25 +4,22 @@ import { customElement, property } from 'lit/decorators.js';
 import { Task } from '@lit/task';
 import { loadItems } from '../util';
 
-@customElement('docling-img')
-export class ImgPages extends LitElement {
+@customElement('docling-table')
+export class TablePages extends LitElement {
   @property()
   alt?: string;
 
   @property()
-  backdrop?: string;
+  items?: string | DocItem[];
 
   @property()
-  items?: string | DocItem[];
+  columns?: string = 'parsed, image';
 
   @property()
   pagenumbers?: boolean;
 
   @property()
   src: string = '';
-
-  @property()
-  trim: 'pages' = 'pages';
 
   @property()
   itemPart?: (page: PageItem, item: DocItem) => string;
@@ -42,37 +39,32 @@ export class ImgPages extends LitElement {
     return this.fetchTask.render({
       pending: () => html`<p>...</p>`,
       complete: paged => html`
-        <div part="pages">
+        <table part="pages">
           ${paged
-            .filter(p => !this.trim || p.items.length > 0)
+            .filter(p => p.items.length > 0)
             .map(
               ({ page, items }) =>
-                html`<docling-img-page
+                html`<docling-table-page
                   .page=${page}
                   .items=${items}
+                  .columns=${this.columns}
                   .pagenumbers=${this.pagenumbers !== undefined}
-                  .backdrop=${this.backdrop !== undefined}
                   .itemPart=${this.itemPart}
                   .itemStyle=${this.itemStyle}
                   .onClickItem=${this.onClickItem}
                 />`
             )}
-        </div>
+        </table>
       `,
     });
   }
 
   static styles = css`
-    div {
-      width: fit-content;
-      max-width: 100%;
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-
-      color: black;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+      background-color: white;
     }
   `;
 }

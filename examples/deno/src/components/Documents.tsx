@@ -48,10 +48,9 @@ function Document({ document }: { document: TaggedDocument }) {
       </div>
 
       {isConverted && (
-        <docling-img>
-          {/* src={document.origin!.uri} backdrop */}
+        <docling-table src={document.origin!.uri} backdrop pagenumbers>
           {/* <docling-view type="tooltip" /> */}
-        </docling-img>
+        </docling-table>
       )}
     </div>
   );

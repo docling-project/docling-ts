@@ -16,7 +16,7 @@ export default function ({ children }: { children?: any }) {
 
         <script
           type="module"
-          src="/node_modules/@docling/docling-components/dist/index.js"
+          src="/node_modules/@docling/docling-components/dist/index.es.js"
         />
         <script src="https://unpkg.com/htmx.org@2.0.4" />
       </head>

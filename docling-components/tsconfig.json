@@ -1,6 +1,6 @@
 {
-  "include": ["../docling-components/src"],
-  "exclude": ["../docling-components/**/*.test.ts"],
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"],
   "compilerOptions": {
     "target": "es2021",
     "module": "es2015",
@@ -10,8 +10,6 @@
     "declarationMap": true,
     "strict": true,
     "experimentalDecorators": true,
-    "useDefineForClassFields": false,
-    "outDir": "../docling-components/dist",
-    "rootDir": "../docling-components/src"
+    "useDefineForClassFields": false
   }
 }
