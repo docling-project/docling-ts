@@ -1,64 +1,66 @@
-import { isDoclingDocItem, TableCell } from '@docling/docling-core';
+import { isDoclingDocItem, TableCell, TableItem } from '@docling/docling-core';
 import { css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { DoclingItemElement } from './ItemElement';
 
 @customElement('docling-item-table')
-export class ItemTable extends DoclingItemElement {
-  render() {
-    if (this.item && isDoclingDocItem.TableItem(this.item)) {
-      const coveredCells = new Set<string>();
+export class ItemTable extends DoclingItemElement<TableItem> {
+  renderItem(item: TableItem) {
+    const coveredCells = new Set<string>();
 
-      function isCovered(cell: TableCell) {
-        const covered = coveredCells.has(
-          [cell.start_col_offset_idx, cell.start_row_offset_idx].join()
-        );
+    function isCovered(cell: TableCell) {
+      const covered = coveredCells.has(
+        [cell.start_col_offset_idx, cell.start_row_offset_idx].join()
+      );
 
-        if (!covered) {
+      if (!covered) {
+        for (
+          let x = cell.start_col_offset_idx;
+          x < cell.end_col_offset_idx;
+          x++
+        ) {
           for (
-            let x = cell.start_col_offset_idx;
-            x < cell.end_col_offset_idx;
-            x++
+            let y = cell.start_row_offset_idx;
+            y < cell.end_row_offset_idx;
+            y++
           ) {
-            for (
-              let y = cell.start_row_offset_idx;
-              y < cell.end_row_offset_idx;
-              y++
-            ) {
-              coveredCells.add([x, y].join());
-            }
+            coveredCells.add([x, y].join());
           }
         }
-
-        return covered;
       }
 
-      return html`
-        <div class="container">
-          <table>
-            <tbody>
-              ${this.item.data.grid.map(row => {
-                return html`<tr>
-                  ${row.map(cell => {
-                    if (!isCovered(cell)) {
-                      return html` <td
-                        class=${cell.column_header || cell.row_header
-                          ? 'header'
-                          : ''}
-                        colspan=${cell.col_span}
-                        rowspan=${cell.row_span}
-                      >
-                        ${cell.text}
-                      </td>`;
-                    }
-                  })}
-                </tr>`;
-              })}
-            </tbody>
-          </table>
-        </div>
-      `;
+      return covered;
     }
+
+    return html`
+      <div class="container">
+        <table>
+          <tbody>
+            ${item.data.grid.map(row => {
+              return html`<tr>
+                ${row.map(cell => {
+                  if (!isCovered(cell)) {
+                    return html`<td
+                      class=${cell.column_header || cell.row_header
+                        ? 'header'
+                        : ''}
+                      colspan=${cell.col_span ?? 1}
+                      rowspan=${cell.row_span ?? 1}
+                    >
+                      ${cell.text}
+                    </td>`;
+                  }
+                })}
+              </tr>`;
+            })}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  canDraw(item: object): item is TableItem {
+    return isDoclingDocItem.TableItem(item);
   }
 
   static styles = css`

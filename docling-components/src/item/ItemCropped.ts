@@ -1,16 +1,13 @@
-import { PageItem } from '@docling/docling-core';
+import { DocItem, isDocling, PageItem } from '@docling/docling-core';
 import { css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import { DoclingItemElement } from './ItemElement';
 
 @customElement('docling-item-cropped')
-export class ItemCropped extends DoclingItemElement {
-  @property()
-  page?: PageItem;
-
-  render() {
-    const image = this.page?.image;
-    const prov = this.item?.prov?.find(p => p.page_no === this.page?.page_no);
+export class ItemCropped extends DoclingItemElement<DocItem> {
+  renderItem(item: DocItem, page: PageItem) {
+    const { image } = page;
+    const prov = item.prov?.find(p => p.page_no === this.page?.page_no);
 
     if (image && prov) {
       const { width = 1, height = 1 } = this.page!.size;
@@ -27,6 +24,10 @@ export class ItemCropped extends DoclingItemElement {
     } else {
       return html`<span>Invalid provenance.</span>`;
     }
+  }
+
+  canDraw(item: object): item is DocItem {
+    return isDocling.DocItem(item);
   }
 
   static styles = css`

@@ -1,14 +1,16 @@
-import { isDoclingDocItem } from '@docling/docling-core';
-import { css, html } from 'lit';
+import { isDoclingDocItem, TextItem } from '@docling/docling-core';
+import { css, html, TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { DoclingItemElement } from './ItemElement';
 
 @customElement('docling-item-text')
-export class ItemText extends DoclingItemElement {
-  render() {
-    if (this.item && isDoclingDocItem.TextItem(this.item)) {
-      return html` <p>${this.item.text}</p>`;
-    }
+export class ItemText extends DoclingItemElement<TextItem> {
+  renderItem(item: TextItem): TemplateResult {
+    return html`<p>${item.text}</p>`;
+  }
+
+  canDraw(item: object): item is TextItem {
+    return isDoclingDocItem.TextItem(item);
   }
 
   static styles = css`

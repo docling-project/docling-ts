@@ -1,14 +1,16 @@
-import { isDoclingDocItem } from '@docling/docling-core';
+import { isDoclingDocItem, SectionHeaderItem } from '@docling/docling-core';
 import { css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { DoclingItemElement } from './ItemElement';
 
 @customElement('docling-item-section-header')
-export class ItemSectionHeader extends DoclingItemElement {
-  render() {
-    if (this.item && isDoclingDocItem.SectionHeaderItem(this.item)) {
-      return html`<h2>${this.item.text}</h2>`;
-    }
+export class ItemSectionHeader extends DoclingItemElement<SectionHeaderItem> {
+  renderItem(item: SectionHeaderItem) {
+    return html`<h2>${item.text}</h2>`;
+  }
+
+  canDraw(item: object) {
+    return isDoclingDocItem.SectionHeaderItem(item);
   }
 
   static styles = css`

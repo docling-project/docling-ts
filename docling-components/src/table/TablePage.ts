@@ -36,8 +36,8 @@ export class TablePage extends LitElement {
             <td
               part="page-number-top"
               class="page-number"
-              title="Page {page.page_no}"
-              colspan="{cols.length}"
+              title="Page ${this.page?.page_no}"
+              colspan=${cols.length}
             >
               ${this.page?.page_no}
             </td>
@@ -57,12 +57,9 @@ export class TablePage extends LitElement {
                       this.onClickItem?.(e, this.page!, item)}
                   >
                     ${col === 'parsed'
-                      ? html`<docling-item-view .item=${item} />`
+                      ? html`<docling-item-view .item=${item} .page=${this.page} />`
                       : col === 'image'
-                        ? html`<docling-item-cropped
-                            .page=${this.page}
-                            .item=${item}
-                          />`
+                        ? html`<docling-item-cropped .item=${item} .page=${this.page} />`
                         : undefined}
                   </td>
                 `
@@ -75,7 +72,7 @@ export class TablePage extends LitElement {
             part="page-number-bottom"
             class="page-number"
             title="Page {page.page_no}"
-            colspan="{cols.length}"
+            colspan=${cols.length ?? 1}
           >
             ${this.page?.page_no}
           </td>

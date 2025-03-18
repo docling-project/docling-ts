@@ -1,16 +1,16 @@
-import { isDoclingDocItem } from '@docling/docling-core';
+import { isDoclingDocItem, ListItem } from '@docling/docling-core';
 import { css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { DoclingItemElement } from './ItemElement';
 
 @customElement('docling-item-list')
-export class ItemList extends DoclingItemElement {
-  render() {
-    if (this.item && isDoclingDocItem.ListItem(this.item)) {
-      return html` <div>
-        <span>${this.item.text}</span>
-      </div>`;
-    }
+export class ItemList extends DoclingItemElement<ListItem> {
+  renderItem(item: ListItem) {
+    return html`<div><span>${item.text}</span></div>`;
+  }
+
+  canDraw(item: object): item is ListItem {
+    return isDoclingDocItem.ListItem(item);
   }
 
   static styles = css`
