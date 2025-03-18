@@ -1,20 +1,20 @@
 import { DocItem, PageItem } from '@docling/docling-core';
 import { css, html, LitElement, svg } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { ItemView } from '../item/ItemView';
+import { customElement, property } from 'lit/decorators.js';
+import { ItemTooltip } from '../item/ItemView';
 
 @customElement('docling-img-page')
 export class ImgPage extends LitElement {
-  @property()
+  @property({ type: Object })
   page?: PageItem;
 
-  @property()
+  @property({ type: Array })
   items?: DocItem[];
 
-  @property()
+  @property({ type: Boolean })
   backdrop?: boolean;
 
-  @property()
+  @property({ type: Boolean })
   pagenumbers?: boolean;
 
   @property()
@@ -26,8 +26,8 @@ export class ImgPage extends LitElement {
   @property()
   onClickItem?: (ev: MouseEvent, page: PageItem, item?: DocItem) => void;
 
-  @state()
-  hovered?: { item: DocItem; bounds: DOMRect; quadrant: number };
+  @property({ type: Object })
+  tooltip?: ItemTooltip;
 
   render() {
     if (this.page?.image) {
@@ -118,11 +118,10 @@ export class ImgPage extends LitElement {
                     const maxArea = Math.max(...areas);
                     const quadrant = areas.findIndex(a => a === maxArea);
 
-                    this.hovered = {
-                      item,
-                      bounds,
-                      quadrant,
-                    };
+                    this.attachTooltip(item, bounds, quadrant);
+                  }}
+                  @mouseleave=${(e: MouseEvent) => {
+                    this.removeTooltip();
                   }}
                 />`;
               }
@@ -147,41 +146,49 @@ export class ImgPage extends LitElement {
                 </header>`
             : ''}
         </div>
-
-        ${this.tooltip()}
       `;
     } else {
       return html`Invalid page image.`;
     }
   }
 
-  private tooltip() {
-    if (this.hovered && ItemView.prototype.canDraw(this.hovered.item)) {
-      const { quadrant, bounds } = this.hovered;
+  private attachTooltip(
+    item: DocItem,
+    bounds: DOMRect,
+    quadrant: number
+  ) {
+    if (this.tooltip?.canDraw(item)) {
+      const clone = this.tooltip.cloneNode(true) as ItemTooltip;
+      clone.id = 'tooltip';
+      clone.setAttribute("part", "tooltip");
+      clone.className = 'tooltip';
+      clone.setAttribute(
+        'style',
+        `
+              ${
+                quadrant === 1
+                  ? `left: ${bounds.right}px`
+                  : quadrant === 3
+                    ? `right: ${document.body.clientWidth - bounds.left}px`
+                    : `left: calc(${bounds.left}px - 2rem)`
+              };
+              ${
+                quadrant === 0
+                  ? `bottom: ${document.body.clientHeight - bounds.top}px`
+                  : quadrant === 2
+                    ? `top: ${bounds.bottom}px`
+                    : `top: calc(${bounds.top}px - 2rem)`
+              };`
+      );
+      clone.item = item;
+      clone.page = this.page!;
 
-      return html`<div
-        part="tooltip"
-        class="tooltip"
-        style="
-              ${quadrant === 1
-          ? `left: ${bounds.right}px`
-          : quadrant === 3
-            ? `right: ${document.body.clientWidth - bounds.left}px`
-            : `left: calc(${bounds.left}px - 2rem)`};
-              ${quadrant === 0
-          ? `bottom: ${document.body.clientHeight - bounds.top}px`
-          : quadrant === 2
-            ? `top: ${bounds.bottom}px`
-            : `top: calc(${bounds.top}px - 2rem)`};
-            "
-        bind:this="{slotRef}"
-      >
-        <docling-item-view
-          .item=${this.hovered.item}
-          .page=${this.page}
-        ></docling-item-view>
-      </div>`;
+      this.renderRoot.appendChild(clone);
     }
+  }
+
+  private removeTooltip() {
+    this.renderRoot.querySelector('#tooltip')?.remove();
   }
 
   static styles = css`
@@ -259,39 +266,3 @@ export class ImgPage extends LitElement {
     }
   `;
 }
-
-// function tooltipSnippet(host?: HTMLElement) {
-//   const views = Array.from($host()?.querySelectorAll('docling-view[type=tooltip]') ?? []);
-
-//   if (views.some((v: any) => v.supportsItem?.(item()))) {
-//     return createRawSnippet<[DocItem]>(item => {
-//       return {
-//         setup(element: Element) {
-//           $effect(() => {
-//             const copies: Node[] = [];
-
-//             views.forEach(el => {
-//               if ((el as any).supportsItem(item())) {
-//                 const copy = el.cloneNode(true) as Element;
-//                 (copy as any).item = item();
-
-//                 if (copy.shadowRoot?.hasChildNodes()) {
-//                   copies.push(copy);
-//                 }
-//               }
-//             });
-
-//             element.replaceChildren(...copies);
-
-//             return () => {};
-//           });
-//         },
-//         render() {
-//           return `<div></div>`;
-//         },
-//       };
-//     });
-//   } else {
-//     return undefined;
-//   }
-// }

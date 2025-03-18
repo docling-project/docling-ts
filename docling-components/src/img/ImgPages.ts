@@ -3,6 +3,7 @@ import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Task } from '@lit/task';
 import { loadItems } from '../util';
+import { ItemTooltip } from '../item/ItemView';
 
 @customElement('docling-img')
 export class ImgPages extends LitElement {
@@ -15,7 +16,7 @@ export class ImgPages extends LitElement {
   @property()
   items?: string | DocItem[];
 
-  @property()
+  @property({ type: Boolean })
   pagenumbers?: boolean;
 
   @property()
@@ -55,6 +56,9 @@ export class ImgPages extends LitElement {
                   .itemPart=${this.itemPart}
                   .itemStyle=${this.itemStyle}
                   .onClickItem=${this.onClickItem}
+                  .tooltip=${Array.from(this.childNodes).find(
+                    c => c instanceof ItemTooltip
+                  )}
                 />`
             )}
         </div>

@@ -1,13 +1,17 @@
 import { DocItem, isDocling, PageItem } from '@docling/docling-core';
 import { html } from 'lit';
-import { customDoclingElement, DoclingItemElement } from './ItemElement';
+import { DoclingItemElement } from './ItemElement';
 import { customDoclingItemElements } from './registry';
+import { customElement } from 'lit/decorators.js';
 
-@customDoclingElement('docling-item-view')
-export class ItemView extends DoclingItemElement<DocItem> {
+type ItemViewType = "tooltip";
+
+abstract class ItemView extends DoclingItemElement<DocItem> {
+  abstract type: ItemViewType;
+
   renderItem(item: DocItem, page: PageItem) {
     return html`
-      <div>
+      <div .style=${this.style}>
         ${customDoclingItemElements
           .filter(
             ({ template, cls }) => template && cls.prototype.canDraw(item)
@@ -23,4 +27,9 @@ export class ItemView extends DoclingItemElement<DocItem> {
       customDoclingItemElements.some(({ template, cls }) => template && cls.prototype.canDraw(item))
     );
   }
+}
+
+@customElement('docling-tooltip')
+export class ItemTooltip extends ItemView {
+  type: ItemViewType = "tooltip";
 }
