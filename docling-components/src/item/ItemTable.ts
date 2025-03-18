@@ -1,9 +1,12 @@
 import { isDoclingDocItem, TableCell, TableItem } from '@docling/docling-core';
 import { css, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
-import { DoclingItemElement } from './ItemElement';
+import { customDoclingElement, DoclingItemElement } from './ItemElement';
 
-@customElement('docling-item-table')
+@customDoclingElement(
+  'docling-item-table',
+  (item, page) =>
+    html`<docling-item-table .item=${item} .page=${page}></docling-item-table>`
+)
 export class ItemTable extends DoclingItemElement<TableItem> {
   renderItem(item: TableItem) {
     const coveredCells = new Set<string>();

@@ -1,12 +1,17 @@
 import { PageItem } from '@docling/docling-core';
 import { LitElement, TemplateResult } from 'lit';
-import { property } from 'lit/decorators.js';
+import {
+  customElement,
+  CustomElementDecorator,
+  property,
+} from 'lit/decorators.js';
+import { customDoclingItemElements } from './registry';
 
 export abstract class DoclingItemElement<I extends object> extends LitElement {
-  @property()
+  @property({ attribute: false })
   item?: object;
 
-  @property()
+  @property({ attribute: false })
   page?: PageItem;
 
   abstract renderItem(item: I, page: PageItem): TemplateResult | undefined;
@@ -20,4 +25,20 @@ export abstract class DoclingItemElement<I extends object> extends LitElement {
       return this.renderItem(this.item, this.page);
     }
   }
+}
+
+export function customDoclingElement(
+  tagName: string,
+  template?: (item: object, page: PageItem) => TemplateResult<1>
+): CustomElementDecorator {
+  const decorator = customElement(tagName);
+
+  return function (target, context?: ClassDecoratorContext) {
+    customDoclingItemElements.push({
+      cls: target as Omit<typeof DoclingItemElement, 'new'>,
+      template,
+    });
+
+    return decorator(target, context as any);
+  };
 }

@@ -1,9 +1,15 @@
 import { isDoclingDocItem, SectionHeaderItem } from '@docling/docling-core';
 import { css, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
-import { DoclingItemElement } from './ItemElement';
+import { customDoclingElement, DoclingItemElement } from './ItemElement';
 
-@customElement('docling-item-section-header')
+@customDoclingElement(
+  'docling-item-section-header',
+  (item, page) =>
+    html`<docling-item-section-header
+      .item=${item}
+      .page=${page}
+    ></docling-item-section-header>`
+)
 export class ItemSectionHeader extends DoclingItemElement<SectionHeaderItem> {
   renderItem(item: SectionHeaderItem) {
     return html`<h2>${item.text}</h2>`;

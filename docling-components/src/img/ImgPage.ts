@@ -1,6 +1,7 @@
 import { DocItem, PageItem } from '@docling/docling-core';
 import { css, html, LitElement, svg } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { ItemView } from '../item/ItemView';
 
 @customElement('docling-img-page')
 export class ImgPage extends LitElement {
@@ -48,33 +49,32 @@ export class ImgPage extends LitElement {
         >
           <svg width=${image.size.width} viewBox="0 0 ${width} ${height}">
             <!-- Suppressed backdrop image. -->
-            ${this.backdrop
-              ? svg`
-              <image
-                class="backdrop"
-                href=${image.uri}
-                width=${width}
-                height=${height}
-              />
+            ${this.backdrop &&
+            svg`
+                <image
+                  class="backdrop"
+                  href=${image.uri}
+                  width=${width}
+                  height=${height}
+                />
 
-              <clippath id="clip-page-${page_no}">
-                ${this.items?.map(item => {
-                  const prov = item.prov?.find(p => p.page_no === page_no);
+                <clippath id="clip-page-${page_no}">
+                  ${this.items?.map(item => {
+                    const prov = item.prov?.find(p => p.page_no === page_no);
 
-                  if (prov) {
-                    const { l, r, t, b } = prov.bbox;
+                    if (prov) {
+                      const { l, r, t, b } = prov.bbox;
 
-                    return svg`<rect
-                      x=${l}
-                      y=${height - t}
-                      width=${r - l}
-                      height=${t - b}
-                    />`;
-                  }
-                })}
-              </clippath>
-            `
-              : ''}
+                      return svg`<rect
+                        x=${l}
+                        y=${height - t}
+                        width=${r - l}
+                        height=${t - b}
+                      />`;
+                    }
+                  })}
+                </clippath>
+              `}
 
             <!-- Foreground image. -->
             <image
@@ -156,7 +156,7 @@ export class ImgPage extends LitElement {
   }
 
   private tooltip() {
-    if (this.hovered) {
+    if (this.hovered && ItemView.prototype.canDraw(this.hovered.item)) {
       const { quadrant, bounds } = this.hovered;
 
       return html`<div
@@ -176,7 +176,10 @@ export class ImgPage extends LitElement {
             "
         bind:this="{slotRef}"
       >
-        <docling-item-view .item=${this.hovered.item} .page=${this.page}></docling-item-view>
+        <docling-item-view
+          .item=${this.hovered.item}
+          .page=${this.page}
+        ></docling-item-view>
       </div>`;
     }
   }

@@ -1,9 +1,8 @@
 import { DocItem, isDocling, PageItem } from '@docling/docling-core';
 import { css, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
-import { DoclingItemElement } from './ItemElement';
+import { customDoclingElement, DoclingItemElement } from './ItemElement';
 
-@customElement('docling-item-cropped')
+@customDoclingElement('docling-item-cropped')
 export class ItemCropped extends DoclingItemElement<DocItem> {
   renderItem(item: DocItem, page: PageItem) {
     const { image } = page;

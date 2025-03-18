@@ -1,9 +1,12 @@
 import { isDoclingDocItem, TextItem } from '@docling/docling-core';
 import { css, html, TemplateResult } from 'lit';
-import { customElement } from 'lit/decorators.js';
-import { DoclingItemElement } from './ItemElement';
+import { customDoclingElement, DoclingItemElement } from './ItemElement';
 
-@customElement('docling-item-text')
+@customDoclingElement(
+  'docling-item-text',
+  (item, page) =>
+    html`<docling-item-text .item=${item} .page=${page}></docling-item-text>`
+)
 export class ItemText extends DoclingItemElement<TextItem> {
   renderItem(item: TextItem): TemplateResult {
     return html`<p>${item.text}</p>`;
