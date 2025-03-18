@@ -1,6 +1,6 @@
 import { DocItem, PageItem } from '@docling/docling-core';
 import { css, html, LitElement, svg } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 
 @customElement('docling-img-page')
 export class ImgPage extends LitElement {
@@ -25,7 +25,8 @@ export class ImgPage extends LitElement {
   @property()
   onClickItem?: (ev: MouseEvent, page: PageItem, item?: DocItem) => void;
 
-  // tooltip?: Snippet<[DocItem]>;
+  @state()
+  hovered?: { item: DocItem; bounds: DOMRect; quadrant: number };
 
   render() {
     if (this.page?.image) {
@@ -91,35 +92,39 @@ export class ImgPage extends LitElement {
                 const { l, r, t, b } = prov.bbox;
 
                 return svg`<rect
-            part=${'item' + (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')}
-            style=${this.itemStyle?.(this.page!, item)}
-            x=${l}
-            y=${height - t}
-            width=${r - l}
-            height=${t - b}
-            vector-effect="non-scaling-stroke"
-            @onclick=${(e: MouseEvent) => {
-              e.stopPropagation();
-              handleClick?.(e, item);
-            }}
-            @onmouseenter=${(e: MouseEvent) => {
-              // const bounds = e.currentTarget.getBoundingClientRect();
-              // // Sizes of surrounding areas: Top, right, bottom, left.
-              // const areas = [
-              //   bounds.top * window.innerWidth,
-              //   (window.innerWidth - bounds.right) * window.innerHeight,
-              //   (window.innerHeight - bounds.bottom) * window.innerWidth,
-              //   bounds.left * window.innerHeight,
-              // ];
-              // const maxArea = Math.max(...areas);
-              // const quadrant = areas.findIndex(a => a === maxArea);
-              // hovered = {
-              //   item,
-              //   bounds,
-              //   quadrant,
-              // };
-            }}
-          />`;
+                  part=${'item' + (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')}
+                  style=${this.itemStyle?.(this.page!, item)}
+                  x=${l}
+                  y=${height - t}
+                  width=${r - l}
+                  height=${t - b}
+                  vector-effect="non-scaling-stroke"
+                  @click=${(e: MouseEvent) => {
+                    e.stopPropagation();
+                    handleClick?.(e, item);
+                  }}
+                  @mouseenter=${(e: MouseEvent) => {
+                    const bounds = (
+                      e.currentTarget as HTMLDivElement
+                    ).getBoundingClientRect();
+
+                    // Sizes of surrounding areas: Top, right, bottom, left.
+                    const areas = [
+                      bounds.top * window.innerWidth,
+                      (window.innerWidth - bounds.right) * window.innerHeight,
+                      (window.innerHeight - bounds.bottom) * window.innerWidth,
+                      bounds.left * window.innerHeight,
+                    ];
+                    const maxArea = Math.max(...areas);
+                    const quadrant = areas.findIndex(a => a === maxArea);
+
+                    this.hovered = {
+                      item,
+                      bounds,
+                      quadrant,
+                    };
+                  }}
+                />`;
               }
             })}
           </svg>
@@ -141,10 +146,9 @@ export class ImgPage extends LitElement {
                   ${page_no}
                 </header>`
             : ''}
-
-          <!-- Tooltip. -->
-          ${this.tooltip()}
         </div>
+
+        ${this.tooltip()}
       `;
     } else {
       return html`Invalid page image.`;
@@ -152,31 +156,28 @@ export class ImgPage extends LitElement {
   }
 
   private tooltip() {
-    if (false /*hovered && tooltip && && isDisplayableItem(hovered.item)*/) {
-      return '';
-      // return html`
-      //   <div
-      //     part="tooltip"
-      //     class="tooltip"
-      //     style="
-      //         ${hovered.quadrant === 1
-      //       ? `left: ${hovered.bounds.right}px`
-      //       : hovered.quadrant === 3
-      //         ? `right: ${document.body.clientWidth - hovered.bounds.left}px`
-      //         : `left: calc(${hovered.bounds.left}px - 2rem)`};
-      //         ${hovered.quadrant === 0
-      //       ? `bottom: ${document.body.clientHeight - hovered.bounds.top}px`
-      //       : hovered.quadrant === 2
-      //         ? `top: ${hovered.bounds.bottom}px`
-      //         : `top: calc(${hovered.bounds.top}px - 2rem)`};
-      //       "
-      //       bind:this={slotRef}
-      //   >
-      //     {@render tooltip(hovered.item)}
-      //   </div>
-      // {/if}`
-    } else {
-      return '';
+    if (this.hovered) {
+      const { quadrant, bounds } = this.hovered;
+
+      return html`<div
+        part="tooltip"
+        class="tooltip"
+        style="
+              ${quadrant === 1
+          ? `left: ${bounds.right}px`
+          : quadrant === 3
+            ? `right: ${document.body.clientWidth - bounds.left}px`
+            : `left: calc(${bounds.left}px - 2rem)`};
+              ${quadrant === 0
+          ? `bottom: ${document.body.clientHeight - bounds.top}px`
+          : quadrant === 2
+            ? `top: ${bounds.bottom}px`
+            : `top: calc(${bounds.top}px - 2rem)`};
+            "
+        bind:this="{slotRef}"
+      >
+        <docling-item-view .item=${this.hovered.item} .page=${this.page}></docling-item-view>
+      </div>`;
     }
   }
 
