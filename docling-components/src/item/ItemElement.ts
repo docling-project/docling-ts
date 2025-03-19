@@ -7,7 +7,9 @@ import {
 } from 'lit/decorators.js';
 import { customDoclingItemElements } from './registry';
 
-export abstract class DoclingItemElement<I extends object> extends LitElement {
+export abstract class DoclingItemElement<
+  I extends object = object,
+> extends LitElement {
   @property({ attribute: false })
   item?: object;
 
@@ -27,17 +29,11 @@ export abstract class DoclingItemElement<I extends object> extends LitElement {
   }
 }
 
-export function customDoclingElement(
-  tagName: string,
-  template?: (item: object, page: PageItem) => TemplateResult<1>
-): CustomElementDecorator {
+export function customDoclingElement(tagName: string): CustomElementDecorator {
   const decorator = customElement(tagName);
 
   return function (target, context?: ClassDecoratorContext) {
-    customDoclingItemElements.push({
-      cls: target as Omit<typeof DoclingItemElement, 'new'>,
-      template,
-    });
+    customDoclingItemElements.push(target as typeof DoclingItemElement);
 
     return decorator(target, context as any);
   };

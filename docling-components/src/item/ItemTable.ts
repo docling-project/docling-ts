@@ -2,38 +2,10 @@ import { isDoclingDocItem, TableCell, TableItem } from '@docling/docling-core';
 import { css, html } from 'lit';
 import { customDoclingElement, DoclingItemElement } from './ItemElement';
 
-@customDoclingElement(
-  'docling-item-table',
-  (item, page) =>
-    html`<docling-item-table .item=${item} .page=${page}></docling-item-table>`
-)
+@customDoclingElement('docling-item-table')
 export class ItemTable extends DoclingItemElement<TableItem> {
   renderItem(item: TableItem) {
     const coveredCells = new Set<string>();
-
-    function isCovered(cell: TableCell) {
-      const covered = coveredCells.has(
-        [cell.start_col_offset_idx, cell.start_row_offset_idx].join()
-      );
-
-      if (!covered) {
-        for (
-          let x = cell.start_col_offset_idx;
-          x < cell.end_col_offset_idx;
-          x++
-        ) {
-          for (
-            let y = cell.start_row_offset_idx;
-            y < cell.end_row_offset_idx;
-            y++
-          ) {
-            coveredCells.add([x, y].join());
-          }
-        }
-      }
-
-      return covered;
-    }
 
     return html`
       <div class="container">
@@ -60,6 +32,30 @@ export class ItemTable extends DoclingItemElement<TableItem> {
         </table>
       </div>
     `;
+
+    function isCovered(cell: TableCell) {
+      const covered = coveredCells.has(
+        [cell.start_col_offset_idx, cell.start_row_offset_idx].join()
+      );
+
+      if (!covered) {
+        for (
+          let x = cell.start_col_offset_idx;
+          x < cell.end_col_offset_idx;
+          x++
+        ) {
+          for (
+            let y = cell.start_row_offset_idx;
+            y < cell.end_row_offset_idx;
+            y++
+          ) {
+            coveredCells.add([x, y].join());
+          }
+        }
+      }
+
+      return covered;
+    }
   }
 
   canDraw(item: object): item is TableItem {
