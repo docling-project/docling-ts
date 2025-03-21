@@ -2,6 +2,7 @@ import { DocItem, PageItem } from '@docling/docling-core';
 import { css, html, LitElement, svg } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ItemTooltip } from '../item/ItemView';
+import { ImgTrace } from './ImgTrace';
 
 @customElement('docling-img-page')
 export class ImgPage extends LitElement {
@@ -27,6 +28,9 @@ export class ImgPage extends LitElement {
   onClickItem?: (ev: MouseEvent, page: PageItem, item?: DocItem) => void;
 
   @property({ type: Object })
+  trace?: ImgTrace;
+
+  @property({ type: Object })
   tooltip?: ItemTooltip;
 
   render() {
@@ -44,10 +48,11 @@ export class ImgPage extends LitElement {
         <div
           part="page"
           class="page"
-          @onclick=${(e: MouseEvent) => handleClick?.(e)}
           role="tab"
+          style="width: ${image.size.width}; aspect-ratio: ${image.size.width} / ${image.size.height}"
+          @onclick=${(e: MouseEvent) => handleClick?.(e)}
         >
-          <svg width=${image.size.width} viewBox="0 0 ${width} ${height}">
+          <svg viewBox="0 0 ${width} ${height}">
             <!-- Suppressed backdrop image. -->
             ${this.backdrop &&
             svg`
@@ -85,6 +90,7 @@ export class ImgPage extends LitElement {
               height=${height}
             />
 
+            <!-- Item boxes. -->
             ${this.items?.map(item => {
               const prov = item.prov?.find(p => p.page_no === page_no);
 
@@ -128,23 +134,24 @@ export class ImgPage extends LitElement {
             })}
           </svg>
 
-          ${this.pagenumbers
-            ? html`<header
-                  part="page-number-top"
-                  class="page-number-top"
-                  title="Page ${page_no}"
-                >
-                  ${page_no}
-                </header>
+          <!-- Trace overlay. -->
+          ${this.renderTrace()}
+          ${this.pagenumbers &&
+          html`<header
+              part="page-number-top"
+              class="page-number-top"
+              title="Page ${page_no}"
+            >
+              ${page_no}
+            </header>
 
-                <header
-                  part="page-number-bottom"
-                  class="page-number-bottom"
-                  title="Page ${page_no}"
-                >
-                  ${page_no}
-                </header>`
-            : ''}
+            <header
+              part="page-number-bottom"
+              class="page-number-bottom"
+              title="Page ${page_no}"
+            >
+              ${page_no}
+            </header>`}
         </div>
       `;
     } else {
@@ -152,15 +159,20 @@ export class ImgPage extends LitElement {
     }
   }
 
-  private attachTooltip(
-    item: DocItem,
-    bounds: DOMRect,
-    quadrant: number
-  ) {
+  private renderTrace() {
+    if (this.trace) {
+      const clone = this.trace.cloneNode(true) as ImgTrace;
+      clone.page = this.page;
+      clone.items = this.items;
+      return clone;
+    }
+  }
+
+  private attachTooltip(item: DocItem, bounds: DOMRect, quadrant: number) {
     if (this.tooltip?.canDraw(item)) {
       const clone = this.tooltip.cloneNode(true) as ItemTooltip;
       clone.id = 'tooltip';
-      clone.setAttribute("part", "tooltip");
+      clone.setAttribute('part', 'tooltip');
       clone.className = 'tooltip';
       clone.setAttribute(
         'style',
@@ -192,21 +204,17 @@ export class ImgPage extends LitElement {
   }
 
   static styles = css`
-    svg {
-      max-width: 100%;
-    }
-
     .page {
+      display: block;
       position: relative;
-      width: fit-content;
+      min-width: 0;
       max-width: 100%;
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-
       color: black;
+    }
+    
+    svg {
+      position: absolute;
+      inset: 0;
     }
 
     .backdrop {

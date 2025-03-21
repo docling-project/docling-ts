@@ -1,5 +1,6 @@
 export * from './img/ImgPage';
 export * from './img/ImgPages';
+export * from "./img/ImgTrace";
 export * from './item/ItemCropped';
 export * from './item/ItemElement';
 export * from './item/ItemList';

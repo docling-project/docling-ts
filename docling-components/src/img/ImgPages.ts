@@ -4,6 +4,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { Task } from '@lit/task';
 import { loadItems } from '../util';
 import { ItemTooltip } from '../item/ItemView';
+import { ImgTrace } from './ImgTrace';
 
 @customElement('docling-img')
 export class ImgPages extends LitElement {
@@ -40,6 +41,8 @@ export class ImgPages extends LitElement {
   });
 
   render() {
+    const children = Array.from(this.childNodes);
+
     return this.fetchTask.render({
       pending: () => html`<p>...</p>`,
       complete: paged => html`
@@ -56,9 +59,8 @@ export class ImgPages extends LitElement {
                   .itemPart=${this.itemPart}
                   .itemStyle=${this.itemStyle}
                   .onClickItem=${this.onClickItem}
-                  .tooltip=${Array.from(this.childNodes).find(
-                    c => c instanceof ItemTooltip
-                  )}
+                  .tooltip=${children.find(c => c instanceof ItemTooltip)}
+                  .trace=${children.find(c => c instanceof ImgTrace)}
                 />`
             )}
         </div>
@@ -69,7 +71,6 @@ export class ImgPages extends LitElement {
   static styles = css`
     div {
       width: fit-content;
-      max-width: 100%;
 
       display: flex;
       flex-direction: column;

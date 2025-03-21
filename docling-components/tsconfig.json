@@ -2,10 +2,10 @@
   "include": ["src"],
   "exclude": ["**/*.test.ts"],
   "compilerOptions": {
-    "target": "es2021",
+    "target": "es2022",
     "module": "es2015",
     "moduleResolution": "node",
-    "lib": ["es2021", "dom"],
+    "lib": ["es2022", "dom"],
     "declaration": true,
     "declarationMap": true,
     "strict": true,
