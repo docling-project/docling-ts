@@ -49,10 +49,9 @@ export class ImgPage extends LitElement {
           part="page"
           class="page"
           role="tab"
-          style="width: ${image.size.width}; aspect-ratio: ${image.size.width} / ${image.size.height}"
           @onclick=${(e: MouseEvent) => handleClick?.(e)}
         >
-          <svg viewBox="0 0 ${width} ${height}">
+          <svg class="base" width=${image.size.width} viewBox="0 0 ${width} ${height}">
             <!-- Suppressed backdrop image. -->
             ${this.backdrop &&
             svg`
@@ -205,14 +204,16 @@ export class ImgPage extends LitElement {
 
   static styles = css`
     .page {
-      display: block;
       position: relative;
-      min-width: 0;
-      max-width: 100%;
+      width: fit-content;
       color: black;
     }
-    
-    svg {
+
+    .base {
+      max-width: 100%;
+    }
+
+    svg:not(.base) {
       position: absolute;
       inset: 0;
     }

@@ -32,7 +32,7 @@ export class ImgTrace extends LitElement {
         <marker
           id="arrow"
           viewBox="0 0 10 10"
-          refX="8"
+          refX="0"
           refY="5"
           markerWidth="4"
           markerHeight="4"
@@ -47,7 +47,6 @@ export class ImgTrace extends LitElement {
             (c, i) => `L${c[0]} ${c[1]} L${c[0]} ${c[3]}`
           )} L${ltmb.at(-1)![0]} ${height}"
           marker-start="url(#arrow)"
-          marker-end="url(#arrow)"
         />
       </svg>`;
     }
@@ -62,11 +61,12 @@ export class ImgTrace extends LitElement {
     path {
       fill: none;
       stroke-width: 3px;
-      stroke: black;
+      stroke: rgba(0, 0, 255, 0.5);
+      stroke-linejoin: round;
     }
 
     marker > path {
-      fill: black;
+      fill: rgba(0, 0, 255);
       stroke: none;
     }
   `;
