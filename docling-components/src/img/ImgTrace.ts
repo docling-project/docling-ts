@@ -18,9 +18,14 @@ export class ImgTrace extends LitElement {
       const bbox = (item: DocItem) =>
         item.prov?.find(p => p.page_no === page_no)?.bbox;
 
-      const topLefts = this.items.map(item => {
+      const ltmb = this.items.map(item => {
         const box = bbox(item)!;
-        return [box.l, height - box.t];
+        return [
+          box.l,
+          height - box.t,
+          height - 0.5 * (box.t + box.b),
+          height - box.b,
+        ];
       });
 
       return html`<svg viewBox="0 0 ${width} ${height}">
@@ -38,7 +43,9 @@ export class ImgTrace extends LitElement {
 
         <path
           vector-effect="non-scaling-stroke"
-          d="M${topLefts[0][0]} 0 ${topLefts.map(tl => `L${tl[0]} ${tl[1]}`)} L${topLefts.at(-1)![0]} ${height}"
+          d="M${ltmb[0][0]} 0 L${ltmb[0][0]} ${ltmb[0][1]} ${ltmb.slice(0).map(
+            (c, i) => `L${c[0]} ${c[1]} L${c[0]} ${c[3]}`
+          )} L${ltmb.at(-1)![0]} ${height}"
           marker-start="url(#arrow)"
           marker-end="url(#arrow)"
         />
