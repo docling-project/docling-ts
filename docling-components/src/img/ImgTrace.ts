@@ -56,6 +56,7 @@ export class ImgTrace extends LitElement {
     svg {
       position: absolute;
       inset: 0;
+      pointer-events: none;
     }
 
     path {
