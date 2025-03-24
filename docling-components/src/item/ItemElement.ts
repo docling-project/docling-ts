@@ -16,7 +16,7 @@ export abstract class DoclingItemElement<
   @property({ attribute: false })
   page?: PageItem;
 
-  abstract renderItem(item: I, page: PageItem): TemplateResult | undefined;
+  abstract renderItem(item: I, page: PageItem): TemplateResult;
 
   canDraw(item: object): item is I {
     return false;

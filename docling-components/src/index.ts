@@ -6,6 +6,7 @@ export * from './item/ItemElement';
 export * from './item/ItemList';
 export * from './item/ItemSectionHeader';
 export * from './item/ItemTable';
+export * from './item/ItemTemplate';
 export * from './item/ItemText';
 export * from './item/ItemView';
 export * from './table/TablePage';
