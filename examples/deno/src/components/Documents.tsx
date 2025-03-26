@@ -50,7 +50,11 @@ function Document({ document }: { document: TaggedDocument }) {
       {isConverted && (
         <docling-img src={document.origin!.uri} backdrop pagenumbers>
           <docling-tooltip>
+            <docling-template><p>{"${item.self_ref}"}</p></docling-template>
           </docling-tooltip>
+
+          <docling-trace>
+          </docling-trace>
         </docling-img>
       )}
     </div>
