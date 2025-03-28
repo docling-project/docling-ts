@@ -4,7 +4,7 @@
   import * as dl from '@docling/docling-core';
   import { CommonPageProps } from '../props';
   import ParsedItem from '../item/ParsedItem.svelte';
-  import { isDisplayable } from '../item';
+  import { isDisplayable, normalBbox } from '../item';
 
   let {
     page,
@@ -79,15 +79,15 @@
         {@const prov = item.prov?.find(p => p.page_no === page.page_no)}
 
         {#if prov}
-          {@const { l, r, t, b } = prov.bbox}
+          {@const { l, r, t, b } = normalBbox(prov.bbox, page)}
 
           <rect
             part={'item' + (itemPart ? ' ' + itemPart(page, item) : '')}
             style={itemStyle?.(page, item)}
             x={l}
-            y={height - t}
+            y={t}
             width={r - l}
-            height={t - b}
+            height={b - t}
             vector-effect="non-scaling-stroke"
             onclick={e => {
               e.stopPropagation();
