@@ -46,13 +46,11 @@ export const isDoclingDocItem = {
     'checkbox_selected',
     'checkbox_unselected',
     'footnote',
-    'formula',
     'page_footer',
     'page_header',
     'paragraph',
     'reference',
-    'text',
-    'title'
+    'text'
   ),
 };
 

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>SmolDocling</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="icon" href="https://docling-project.github.io/docling/assets/logo.png" />
+    <link rel="stylesheet" href="index.css" />
+    <script type="module" src="https://unpkg.com/@docling/docling-components"></script>
+
+    <script type="module">
+        const worker = new Worker("inference.js", { type: "module" });
+
+        uploadFile.onchange = ({ target }) => worker.postMessage({ imageFiles: Array.from(target.files) });
+        uploadButton.onclick = () => uploadFile.click();
+
+        worker.onmessage = ({ data }) => {
+            const { error, progress, result } = data;
+            message.textContent = error ?? progress;
+            resultTabs.style.display = result ? "block" : "none";
+            pageTab.open = result?.json !== undefined;
+            tagsTab.open = !pageTab.open && result?.tags !== undefined;
+
+            if (result?.json) {
+                upload.className = "";
+                uploadButton.textContent = "Upload new image";
+                page.src = result.json;
+                trace.src = result.json;
+                json.textContent = JSON.stringify(result.json, null, 2);
+                html.contentWindow.document.write(result.html);
+            } else if (result?.tags) {
+                tags.textContent = result.tags;
+                tags.scrollTo(0, tags.scrollHeight)
+            } else if (error) {
+                upload.className = "error";
+            } else {
+                upload.className = "loading";
+            }
+        };
+    </script>
+</head>
+
+<body>
+    <main class="container" id="upload">
+        <img id="icon" src="https://docling-project.github.io/docling/assets/logo.png" />
+        <h6 id="message">Warning: This demo will download 1GB.</h6>
+        <button id="uploadButton">Upload image</button>
+        <input id="uploadFile" name="file" type="file" accept="image/*" capture="environment" />
+    </main>
+
+    <main id="resultTabs" class="container">
+        <details name="result" id="tagsTab" open>
+            <summary>Tags</summary>
+            <textarea id="tags" readonly rows="20"></textarea>
+        </details>
+
+        <details name="result" id="pageTab">
+            <summary>Page</summary>
+            <docling-img id="page" backdrop tooltip="parsed" />
+        </details>
+
+        <details name="result">
+            <summary>Trace</summary>
+            <docling-table id="trace" />
+        </details>
+
+        <details name="result">
+            <summary>JSON</summary>
+            <textarea id="json" readonly rows="20"></textarea>
+        </details>
+
+        <details name="result">
+            <summary>HTML</summary>
+            <iframe id="html"></iframe>
+        </details>
+    </main>
+</body>
+
+</html>

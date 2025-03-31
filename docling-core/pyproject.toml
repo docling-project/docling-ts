@@ -7,7 +7,7 @@ python = "^3.11"
 
 [tool.poetry.group.dev.dependencies]
 pydantic-to-typescript = "^2.0.0"
-docling-core = "^2.19.1"
+docling = "v2.26.0"
 
 [build-system]
 requires = ["poetry-core"]
