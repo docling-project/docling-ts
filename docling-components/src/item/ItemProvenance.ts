@@ -3,8 +3,8 @@ import { css, html } from 'lit';
 import { DoclingItemElement } from './ItemElement';
 import { customElement } from 'lit/decorators.js';
 
-@customElement('docling-item-cropped')
-export class ItemCropped extends DoclingItemElement<DocItem> {
+@customElement('docling-provenance')
+export class ItemProvenance extends DoclingItemElement<DocItem> {
   renderItem(item: DocItem, page: PageItem) {
     const { image } = page;
     const prov = item.prov?.find(p => p.page_no === this.page?.page_no);

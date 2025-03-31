@@ -4,10 +4,9 @@ import { customDoclingItemElements } from './registry';
 import { customElement } from 'lit/decorators.js';
 import { html } from 'lit';
 
-type ItemViewType = 'tooltip';
-
+@customElement('docling-view')
 export abstract class ItemView extends DoclingItemElement<DocItem> {
-  abstract type: ItemViewType;
+  abstract type: string;
 
   renderItem(item: DocItem, page: PageItem) {
     let shadowNodes: DoclingItemElement[];
@@ -51,5 +50,5 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
 
 @customElement('docling-tooltip')
 export class ItemTooltip extends ItemView {
-  type: ItemViewType = 'tooltip';
+  type = 'tooltip';
 }

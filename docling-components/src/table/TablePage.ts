@@ -1,19 +1,21 @@
 import { DocItem, PageItem } from '@docling/docling-core';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
+import { TableColumn } from './TableColumn';
 
 @customElement('docling-table-page')
 export class TablePage extends LitElement {
-  @property()
+  @property({ type: Object })
   page?: PageItem;
 
-  @property()
+  @property({ type: Array })
   items?: DocItem[];
 
-  @property()
-  columns?: string = 'parsed, image';
+  @property({ type: Array })
+  columns: TableColumn[] = [];
 
-  @property()
+  @property({ type: Boolean })
   pagenumbers?: boolean;
 
   @property()
@@ -26,62 +28,64 @@ export class TablePage extends LitElement {
   onClickItem?: (ev: MouseEvent, page: PageItem, item?: DocItem) => void;
 
   render() {
-    const cols = this.columns?.split(',')?.map(c => c.trim()) ?? [];
-
     return html`
-      <tbody part="page">
-        ${this.pagenumbers &&
-        html`
-          <tr>
+      ${this.pagenumbers
+        ? html`
+            <tr>
+              <td
+                part="page-number-top"
+                class="page-number"
+                title="Page ${this.page?.page_no}"
+                colspan=${this.columns?.length ?? 1}
+              >
+                ${this.page?.page_no}
+              </td>
+            </tr>
+          `
+        : nothing}
+      ${this.items?.map(
+        item =>
+          html`<tr
+            part=${'item' +
+            (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')}
+            style=${ifDefined(this.itemStyle?.(this.page!, item))}
+          >
+            ${this.columns.map(col => {
+              const copy = col.cloneNode(true) as TableColumn;
+              copy.item = item;
+              copy.page = this.page;
+
+              return html`
+                <td
+                  @onclick=${(e: MouseEvent) =>
+                    this.onClickItem?.(e, this.page!, item)}
+                >
+                  ${copy}
+                </td>
+              `;
+            })}
+          </tr>`
+      )}
+      ${this.pagenumbers
+        ? html`<tr>
             <td
-              part="page-number-top"
+              part="page-number-bottom"
               class="page-number"
               title="Page ${this.page?.page_no}"
-              colspan=${cols.length}
+              colspan=${this.columns?.length ?? 1}
             >
               ${this.page?.page_no}
             </td>
-          </tr>
-        `}
-        ${this.items?.map(
-          item =>
-            html`<tr
-              part=${'item' +
-              (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')}
-              style=${this.itemStyle?.(this.page!, item)}
-            >
-              ${cols.map(
-                col => html`
-                  <td
-                    @onclick=${(e: MouseEvent) =>
-                      this.onClickItem?.(e, this.page!, item)}
-                  >
-                    ${col === 'parsed'
-                      ? html`<docling-item-view .item=${item} .page=${this.page} />`
-                      : col === 'image'
-                        ? html`<docling-item-cropped .item=${item} .page=${this.page} />`
-                        : undefined}
-                  </td>
-                `
-              )}
-            </tr>`
-        )}
-        ${this.pagenumbers &&
-        html`<tr>
-          <td
-            part="page-number-bottom"
-            class="page-number"
-            title="Page {page.page_no}"
-            colspan=${cols.length ?? 1}
-          >
-            ${this.page?.page_no}
-          </td>
-        </tr>`}
-      </tbody>
+          </tr>`
+        : nothing}
     `;
   }
 
   static styles = css`
+    :host {
+      display: table-row-group;
+    }
+
     tbody {
       border-bottom: 1px solid rgb(220, 220, 220);
     }

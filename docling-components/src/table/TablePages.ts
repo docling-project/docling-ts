@@ -3,6 +3,8 @@ import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Task } from '@lit/task';
 import { loadItems } from '../util';
+import { TableColumn } from './TableColumn';
+import { ItemProvenance } from '../item/ItemProvenance';
 
 @customElement('docling-table')
 export class TablePages extends LitElement {
@@ -12,10 +14,7 @@ export class TablePages extends LitElement {
   @property()
   items?: string | DocItem[];
 
-  @property()
-  columns?: string = 'parsed, image';
-
-  @property()
+  @property({ type: Boolean })
   pagenumbers?: boolean;
 
   @property()
@@ -36,6 +35,21 @@ export class TablePages extends LitElement {
   });
 
   render() {
+    // TODO: Try instanceof.
+    const itemChildren = Array.from(this.childNodes).filter(item =>
+      item.nodeName.toLowerCase().startsWith('docling-column')
+    );
+
+    // Fallback to default, applicable children.
+    const columns =
+      itemChildren.length > 0
+        ? (itemChildren as TableColumn[])
+        : [new TableColumn(), new TableColumn()];
+
+    if (itemChildren.length === 0) {
+      columns[1].appendChild(new ItemProvenance());
+    }
+
     return this.fetchTask.render({
       pending: () => html`<p>...</p>`,
       complete: paged => html`
@@ -47,7 +61,7 @@ export class TablePages extends LitElement {
                 html`<docling-table-page
                   .page=${page}
                   .items=${items}
-                  .columns=${this.columns}
+                  .columns=${columns}
                   .pagenumbers=${this.pagenumbers !== undefined}
                   .itemPart=${this.itemPart}
                   .itemStyle=${this.itemStyle}
@@ -63,7 +77,7 @@ export class TablePages extends LitElement {
     table {
       width: 100%;
       border-collapse: collapse;
-      table-layout: auto;
+      table-layout: fixed;
       background-color: white;
     }
   `;
