@@ -1,6 +1,7 @@
 import { DocItem, PageItem } from '@docling/docling-core';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { normalBbox } from '../item';
 
 @customElement('docling-trace')
 export class ImgTrace extends LitElement {
@@ -15,18 +16,15 @@ export class ImgTrace extends LitElement {
       const { page_no, size } = this.page;
       const { width = 1, height = 1 } = size;
 
-      const bbox = (item: DocItem) =>
-        item.prov?.find(p => p.page_no === page_no)?.bbox;
-
-      const ltmb = this.items.map(item => {
-        const box = bbox(item)!;
+      const centers = this.items.map(item => {
+        const box = normalBbox(item.prov?.find(p => p.page_no === page_no)?.bbox!, this.page!);
         return [
-          box.l,
-          height - box.t,
-          height - 0.5 * (box.t + box.b),
-          height - box.b,
+          (box.l + box.r) / 2,
+          (box.t + box.b) / 2,
         ];
       });
+
+      const d = `M${centers[0][0]} 0 ${centers.slice(0).map((c) => `L${c[0]} ${c[1]}`)} L${centers.at(-1)![0]} ${height}`;
 
       return html`<svg viewBox="0 0 ${width} ${height}">
         <marker
@@ -42,10 +40,16 @@ export class ImgTrace extends LitElement {
         </marker>
 
         <path
+          class="halo"
           vector-effect="non-scaling-stroke"
-          d="M${ltmb[0][0]} 0 L${ltmb[0][0]} ${ltmb[0][1]} ${ltmb.slice(0).map(
-            (c, i) => `L${c[0]} ${c[1]} L${c[0]} ${c[3]}`
-          )} L${ltmb.at(-1)![0]} ${height}"
+          d=${d}
+          marker-start="url(#arrow)"
+        />
+
+        <path
+          class="trace"
+          vector-effect="non-scaling-stroke"
+          d=${d}
           marker-start="url(#arrow)"
         />
       </svg>`;
@@ -59,10 +63,17 @@ export class ImgTrace extends LitElement {
       pointer-events: none;
     }
 
-    path {
+    .halo {
+      fill: none;
+      stroke-width: 5px;
+      stroke: white;
+      stroke-linejoin: round;
+    }
+
+    .trace {
       fill: none;
       stroke-width: 3px;
-      stroke: rgba(0, 0, 255, 0.5);
+      stroke: rgba(0, 0, 255);
       stroke-linejoin: round;
     }
 
