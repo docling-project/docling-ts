@@ -1,6 +1,7 @@
 import { DocItem, PageItem } from '@docling/docling-core';
 import { css, html, LitElement, svg } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { normalBbox } from '../item';
 import { ItemTooltip } from '../item/ItemView';
 import { ImgTrace } from './ImgTrace';
 
@@ -67,13 +68,13 @@ export class ImgPage extends LitElement {
                     const prov = item.prov?.find(p => p.page_no === page_no);
 
                     if (prov) {
-                      const { l, r, t, b } = prov.bbox;
+                      const { l, r, t, b } = normalBbox(prov.bbox, this.page!);
 
                       return svg`<rect
                         x=${l}
-                        y=${height - t}
+                        y=${t}
                         width=${r - l}
-                        height=${t - b}
+                        height=${b - t}
                       />`;
                     }
                   })}
@@ -94,7 +95,7 @@ export class ImgPage extends LitElement {
               const prov = item.prov?.find(p => p.page_no === page_no);
 
               if (prov) {
-                const { l, r, t, b } = prov.bbox;
+                const { l, r, t, b } = normalBbox(prov.bbox, this.page!);
 
                 return svg`<rect
                   part=${'item' + (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')}
@@ -102,7 +103,7 @@ export class ImgPage extends LitElement {
                   x=${l}
                   y=${height - t}
                   width=${r - l}
-                  height=${t - b}
+                  height=${b - t}
                   vector-effect="non-scaling-stroke"
                   @click=${(e: MouseEvent) => {
                     e.stopPropagation();

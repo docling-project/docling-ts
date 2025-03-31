@@ -1,7 +1,8 @@
 import { DocItem, isDocling, PageItem } from '@docling/docling-core';
 import { css, html } from 'lit';
-import { DoclingItemElement } from './ItemElement';
 import { customElement } from 'lit/decorators.js';
+import { normalBbox } from '.';
+import { DoclingItemElement } from './ItemElement';
 
 @customElement('docling-provenance')
 export class ItemProvenance extends DoclingItemElement<DocItem> {
@@ -11,12 +12,12 @@ export class ItemProvenance extends DoclingItemElement<DocItem> {
 
     if (image && prov) {
       const { width = 1, height = 1 } = this.page!.size;
-      const { l, r, t, b } = prov.bbox;
+      const { l, r, t, b } = normalBbox(prov.bbox, page);
 
       return html`
         <svg
           width=${(r - l) * ((image.size.width ?? 1) / width)}
-          viewBox="${l} ${height - t} ${r - l} ${t - b}"
+          viewBox="${l} ${t} ${r - l} ${b - t}"
         >
           <image href=${image.uri} width=${width} height=${height} />
         </svg>
