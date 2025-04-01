@@ -3,8 +3,6 @@ export * from './img/ImgPages';
 export * from "./img/ImgTrace";
 export * from './item/ItemProvenance';
 export * from './item/ItemElement';
-export * from './item/ItemList';
-export * from './item/ItemSectionHeader';
 export * from './item/ItemTable';
 export * from './item/ItemTemplate';
 export * from './item/ItemText';

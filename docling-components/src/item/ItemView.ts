@@ -1,4 +1,9 @@
-import { DocItem, isDocling, PageItem } from '@docling/docling-core';
+import {
+  DocItem,
+  isDocling,
+  PageItem,
+  ProvenanceItem,
+} from '@docling/docling-core';
 import { DoclingItemElement } from './ItemElement';
 import { customDoclingItemElements } from './registry';
 import { customElement } from 'lit/decorators.js';
@@ -8,7 +13,7 @@ import { html } from 'lit';
 export abstract class ItemView extends DoclingItemElement<DocItem> {
   abstract type: string;
 
-  renderItem(item: DocItem, page: PageItem) {
+  renderItem(item: DocItem, page: PageItem, prov: ProvenanceItem) {
     let shadowNodes: DoclingItemElement[];
 
     const itemChildren = Array.from(this.childNodes).filter(item =>
@@ -29,6 +34,7 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
     shadowNodes.forEach(node => {
       node.item = item;
       node.page = page;
+      node.prov = prov;
     });
 
     return html`${shadowNodes}`;
@@ -46,6 +52,11 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
         : customDoclingItemElements.some(el => el.prototype.canDraw(item)))
     );
   }
+}
+
+@customElement('docling-overlay')
+export class ItemOverlay extends ItemView {
+  type = 'overlay';
 }
 
 @customElement('docling-tooltip')

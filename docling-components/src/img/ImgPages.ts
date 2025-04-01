@@ -3,7 +3,7 @@ import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Task } from '@lit/task';
 import { loadItems } from '../util';
-import { ItemTooltip } from '../item/ItemView';
+import { ItemOverlay, ItemTooltip } from '../item/ItemView';
 import { ImgTrace } from './ImgTrace';
 
 @customElement('docling-img')
@@ -55,10 +55,11 @@ export class ImgPages extends LitElement {
                   .page=${page}
                   .items=${items}
                   .pagenumbers=${this.pagenumbers !== undefined}
-                  .backdrop=${this.backdrop !== undefined}
                   .itemPart=${this.itemPart}
                   .itemStyle=${this.itemStyle}
                   .onClickItem=${this.onClickItem}
+                  .backdrop=${this.backdrop !== undefined}
+                  .overlay=${children.find(c => c instanceof ItemOverlay)}
                   .tooltip=${children.find(c => c instanceof ItemTooltip)}
                   .trace=${children.find(c => c instanceof ImgTrace)}
                 />`

@@ -1,4 +1,4 @@
-import { PageItem } from '@docling/docling-core';
+import { DocItem, PageItem, ProvenanceItem } from '@docling/docling-core';
 import { LitElement, TemplateResult } from 'lit';
 import {
   customElement,
@@ -11,12 +11,15 @@ export abstract class DoclingItemElement<
   I extends object = object,
 > extends LitElement {
   @property({ attribute: false })
-  item?: object;
+  item?: DocItem;
 
   @property({ attribute: false })
   page?: PageItem;
 
-  abstract renderItem(item: I, page: PageItem): TemplateResult;
+  @property({ attribute: false })
+  prov?: ProvenanceItem;
+
+  abstract renderItem(item: I, page: PageItem, prov?: ProvenanceItem): TemplateResult;
 
   canDraw(item: object): item is I {
     return false;
@@ -24,7 +27,7 @@ export abstract class DoclingItemElement<
 
   render() {
     if (this.item && this.page && this.canDraw(this.item)) {
-      return this.renderItem(this.item, this.page);
+      return this.renderItem(this.item, this.page, this.prov);
     }
   }
 }

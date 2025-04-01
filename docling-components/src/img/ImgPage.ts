@@ -1,8 +1,8 @@
-import { DocItem, PageItem } from '@docling/docling-core';
-import { css, html, LitElement, svg } from 'lit';
+import { DocItem, PageItem, ProvenanceItem } from '@docling/docling-core';
+import { css, html, LitElement, nothing, svg } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { normalBbox } from '../item';
-import { ItemTooltip } from '../item/ItemView';
+import { ItemOverlay, ItemTooltip } from '../item/ItemView';
 import { ImgTrace } from './ImgTrace';
 
 @customElement('docling-img-page')
@@ -12,9 +12,6 @@ export class ImgPage extends LitElement {
 
   @property({ type: Array })
   items?: DocItem[];
-
-  @property({ type: Boolean })
-  backdrop?: boolean;
 
   @property({ type: Boolean })
   pagenumbers?: boolean;
@@ -28,11 +25,17 @@ export class ImgPage extends LitElement {
   @property()
   onClickItem?: (ev: MouseEvent, page: PageItem, item?: DocItem) => void;
 
+  @property({ type: Boolean })
+  backdrop?: boolean;
+
   @property({ type: Object })
-  trace?: ImgTrace;
+  overlay?: ItemOverlay;
 
   @property({ type: Object })
   tooltip?: ItemTooltip;
+
+  @property({ type: Object })
+  trace?: ImgTrace;
 
   render() {
     if (this.page?.image) {
@@ -52,10 +55,13 @@ export class ImgPage extends LitElement {
           role="tab"
           @onclick=${(e: MouseEvent) => handleClick?.(e)}
         >
-          <svg class="base" width=${image.size.width} viewBox="0 0 ${width} ${height}">
-            <!-- Suppressed backdrop image. -->
-            ${this.backdrop &&
-            svg`
+          <svg
+            class="base"
+            width=${image.size.width}
+            viewBox="0 0 ${width} ${height}"
+          >
+            ${this.backdrop
+              ? svg`
                 <image
                   class="backdrop"
                   href=${image.uri}
@@ -79,9 +85,9 @@ export class ImgPage extends LitElement {
                     }
                   })}
                 </clippath>
-              `}
+              `
+              : nothing}
 
-            <!-- Foreground image. -->
             <image
               id="image"
               href=${image.uri}
@@ -90,18 +96,20 @@ export class ImgPage extends LitElement {
               height=${height}
             />
 
-            <!-- Item boxes. -->
-            ${this.items?.map(item => {
-              const prov = item.prov?.find(p => p.page_no === page_no);
+            ${this.items?.flatMap(item =>
+              (item.prov ?? [])
+                .filter(p => p.page_no === page_no)
+                .map(prov => {
+                  const { l, r, t, b } = normalBbox(prov.bbox, this.page!);
 
-              if (prov) {
-                const { l, r, t, b } = normalBbox(prov.bbox, this.page!);
+                  return svg`
+                  ${this.layOver(item, prov)}
 
-                return svg`<rect
+                  <rect
                   part=${'item' + (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')}
                   style=${this.itemStyle?.(this.page!, item)}
                   x=${l}
-                  y=${height - t}
+                  y=${t}
                   width=${r - l}
                   height=${b - t}
                   vector-effect="non-scaling-stroke"
@@ -126,15 +134,13 @@ export class ImgPage extends LitElement {
 
                     this.attachTooltip(item, bounds, quadrant);
                   }}
-                  @mouseleave=${(e: MouseEvent) => {
-                    this.removeTooltip();
-                  }}
-                />`;
-              }
-            })}
+                  @mouseleave=${() => this.removeTooltip()}
+                  />
+                `;
+                })
+            )}
           </svg>
 
-          <!-- Trace overlay. -->
           ${this.renderTrace()}
           ${this.pagenumbers &&
           html`<header
@@ -159,12 +165,15 @@ export class ImgPage extends LitElement {
     }
   }
 
-  private renderTrace() {
-    if (this.trace) {
-      const clone = this.trace.cloneNode(true) as ImgTrace;
+  private layOver(item: DocItem, prov: ProvenanceItem) {
+    if (this.overlay?.canDraw(item)) {
+      const clone = this.overlay.cloneNode(true) as ItemOverlay;
+      clone.item = item;
       clone.page = this.page;
-      clone.items = this.items;
-      return clone;
+      clone.prov = prov;
+
+      const { l, r, t, b } = normalBbox(prov.bbox, this.page!);
+      return svg`<foreignObject part="overlay" class="overlay" x=${l} y=${t} width=${r - l} height=${b - t}>${clone}</foreignObject>`;
     }
   }
 
@@ -177,20 +186,20 @@ export class ImgPage extends LitElement {
       clone.setAttribute(
         'style',
         `
-              ${
-                quadrant === 1
-                  ? `left: ${bounds.right}px`
-                  : quadrant === 3
-                    ? `right: ${document.body.clientWidth - bounds.left}px`
-                    : `left: calc(${bounds.left}px - 2rem)`
-              };
-              ${
-                quadrant === 0
-                  ? `bottom: ${document.body.clientHeight - bounds.top}px`
-                  : quadrant === 2
-                    ? `top: ${bounds.bottom}px`
-                    : `top: calc(${bounds.top}px - 2rem)`
-              };`
+        ${
+          quadrant === 1
+            ? `left: ${bounds.right}px`
+            : quadrant === 3
+              ? `right: ${document.body.clientWidth - bounds.left}px`
+              : `left: calc(${bounds.left}px - 2rem)`
+        };
+        ${
+          quadrant === 0
+            ? `bottom: ${document.body.clientHeight - bounds.top}px`
+            : quadrant === 2
+              ? `top: ${bounds.bottom}px`
+              : `top: calc(${bounds.top}px - 2rem)`
+        };`
       );
       clone.item = item;
       clone.page = this.page!;
@@ -201,6 +210,15 @@ export class ImgPage extends LitElement {
 
   private removeTooltip() {
     this.renderRoot.querySelector('#tooltip')?.remove();
+  }
+
+  private renderTrace() {
+    if (this.trace) {
+      const clone = this.trace.cloneNode(true) as ImgTrace;
+      clone.page = this.page;
+      clone.items = this.items;
+      return clone;
+    }
   }
 
   static styles = css`
@@ -262,6 +280,10 @@ export class ImgPage extends LitElement {
       stroke: blue;
       stroke-width: 3px;
       stroke-dasharray: none;
+    }
+
+    .overlay {
+      background-color: white;
     }
 
     .tooltip {
