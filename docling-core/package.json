@@ -9,7 +9,7 @@
     "dist"
   ],
   "config": {
-    "docling": "v2.26.0"
+    "docling": "2.30.0"
   },
   "scripts": {
     "build": "tsup",
