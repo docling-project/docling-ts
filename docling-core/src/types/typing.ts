@@ -20,7 +20,7 @@ function isByLabel<D extends Partial<DocItem>>(...labels: D['label'][]) {
 export const isDoclingDocItem = {
   CodeItem: isByLabel<CodeItem>('code'),
   ListItem: isByLabel<ListItem>('list_item'),
-  PictureItem: isByLabel<PictureItem>('picture'),
+  PictureItem: isByLabel<PictureItem>('chart', 'picture'),
   SectionHeaderItem: isByLabel<SectionHeaderItem>('section_header'),
   TableItem: isByLabel<TableItem>('document_index', 'table'),
   TextItem: isByLabel<TextItem>(

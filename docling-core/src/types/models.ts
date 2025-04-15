@@ -83,6 +83,7 @@ export type ContentLayer1 = "body" | "furniture";
  */
 export type DocItemLabel =
   | "caption"
+  | "chart"
   | "footnote"
   | "formula"
   | "list_item"
@@ -460,7 +461,7 @@ export interface PictureItem {
   parent?: RefItem | null;
   children?: RefItem[];
   content_layer?: ContentLayer11;
-  label?: "picture";
+  label?: "picture" | "chart";
   prov?: ProvenanceItem[];
   captions?: RefItem[];
   references?: RefItem[];
@@ -471,6 +472,7 @@ export interface PictureItem {
     | PictureDescriptionData
     | PictureMoleculeData
     | PictureMiscData
+    | PictureTabularChartData
     | PictureLineChartData
     | PictureBarChartData
     | PictureStackedBarChartData
@@ -520,6 +522,46 @@ export interface PictureMiscData {
   content: {
     [k: string]: unknown;
   };
+}
+/**
+ * Base class for picture chart data.
+ *
+ * Attributes:
+ *     title (str): The title of the chart.
+ *     chart_data (TableData): Chart data in the table format.
+ */
+export interface PictureTabularChartData {
+  title: string;
+  kind?: "tabular_chart_data";
+  chart_data: TableData;
+}
+/**
+ * BaseTableData.
+ */
+export interface TableData {
+  table_cells?: TableCell[];
+  num_rows?: number;
+  num_cols?: number;
+  /**
+   * grid.
+   */
+  grid: TableCell[][];
+}
+/**
+ * TableCell.
+ */
+export interface TableCell {
+  bbox?: BoundingBox | null;
+  row_span?: number;
+  col_span?: number;
+  start_row_offset_idx: number;
+  end_row_offset_idx: number;
+  start_col_offset_idx: number;
+  end_col_offset_idx: number;
+  text: string;
+  column_header?: boolean;
+  row_header?: boolean;
+  row_section?: boolean;
 }
 /**
  * Represents data of a line chart.
@@ -674,34 +716,6 @@ export interface TableItem {
   footnotes?: RefItem[];
   image?: ImageRef | null;
   data: TableData;
-}
-/**
- * BaseTableData.
- */
-export interface TableData {
-  table_cells?: TableCell[];
-  num_rows?: number;
-  num_cols?: number;
-  /**
-   * grid.
-   */
-  grid: TableCell[][];
-}
-/**
- * TableCell.
- */
-export interface TableCell {
-  bbox?: BoundingBox | null;
-  row_span?: number;
-  col_span?: number;
-  start_row_offset_idx: number;
-  end_row_offset_idx: number;
-  start_col_offset_idx: number;
-  end_col_offset_idx: number;
-  text: string;
-  column_header?: boolean;
-  row_header?: boolean;
-  row_section?: boolean;
 }
 /**
  * KeyValueItem.
