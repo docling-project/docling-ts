@@ -4,7 +4,7 @@ const { loadPackage, pyimport, FS } = await loadPyodide();
 // Load docling dependencies.
 // Pin pillow first to ensure that Pyodide uses its own, prepackaged version.
 await loadPackage("micropip");
-await pyimport("micropip").install(["pillow==10.2.0", "docling-core==2.24"]);
+await pyimport("micropip").install(["pillow==10.2.0", "docling-core==2.25"]);
 
 const { DoclingDocument } = await pyimport("docling_core.types");
 const { Image } = await pyimport("PIL");
