@@ -27,7 +27,7 @@ export class ItemProvenance extends DoclingItemElement<DocItem> {
     }
   }
 
-  canDraw(item: object): item is DocItem {
+  canDrawItem(item: object): item is DocItem {
     return isDocling.DocItem(item);
   }
 

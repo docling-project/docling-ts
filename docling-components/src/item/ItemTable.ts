@@ -1,8 +1,9 @@
 import { isDoclingDocItem, TableCell, TableItem } from '@docling/docling-core';
 import { css, html } from 'lit';
-import { customDoclingElement, DoclingItemElement } from './ItemElement';
+import { DoclingItemElement } from './ItemElement';
+import { customDoclingItemElement } from '.';
 
-@customDoclingElement('docling-item-table')
+@customDoclingItemElement('docling-item-table')
 export class ItemTable extends DoclingItemElement<TableItem> {
   renderItem(item: TableItem) {
     const coveredCells = new Set<string>();
@@ -58,7 +59,7 @@ export class ItemTable extends DoclingItemElement<TableItem> {
     }
   }
 
-  canDraw(item: object): item is TableItem {
+  canDrawItem(item: object): item is TableItem {
     return isDoclingDocItem.TableItem(item);
   }
 

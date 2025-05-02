@@ -166,7 +166,7 @@ export class ImgPage extends LitElement {
   }
 
   private layOver(item: DocItem, prov: ProvenanceItem) {
-    if (this.overlay?.canDraw(item)) {
+    if (this.overlay?.canDrawItem(item)) {
       const clone = this.overlay.cloneNode(true) as ItemOverlay;
       clone.item = item;
       clone.page = this.page;
@@ -178,7 +178,7 @@ export class ImgPage extends LitElement {
   }
 
   private attachTooltip(item: DocItem, bounds: DOMRect, quadrant: number) {
-    if (this.tooltip?.canDraw(item)) {
+    if (this.tooltip?.canDrawItem(item)) {
       const clone = this.tooltip.cloneNode(true) as ItemTooltip;
       clone.id = 'tooltip';
       clone.setAttribute('part', 'tooltip');

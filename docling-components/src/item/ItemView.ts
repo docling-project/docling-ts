@@ -4,53 +4,111 @@ import {
   PageItem,
   ProvenanceItem,
 } from '@docling/docling-core';
-import { DoclingItemElement } from './ItemElement';
-import { customDoclingItemElements } from './registry';
 import { customElement } from 'lit/decorators.js';
 import { html } from 'lit';
+import {
+  Annotation,
+  DoclingAnnotationElement,
+} from '../annotation/AnnotationElement';
+import { customDoclingAnnotationElements } from '../annotation/registry';
+import { DoclingItemElement } from './ItemElement';
+import { customDoclingItemElements } from './registry';
 
 @customElement('docling-view')
 export abstract class ItemView extends DoclingItemElement<DocItem> {
   abstract type: string;
 
-  renderItem(item: DocItem, page: PageItem, prov: ProvenanceItem) {
-    let shadowNodes: DoclingItemElement[];
-
-    const itemChildren = Array.from(this.childNodes).filter(item =>
-      item.nodeName.toLowerCase().startsWith('docling')
-    );
-
-    // Fallback to default, applicable children.
-    if (itemChildren.length > 0) {
-      shadowNodes = itemChildren.map(
-        c => c.cloneNode(true) as DoclingItemElement
-      );
-    } else {
-      shadowNodes = customDoclingItemElements
-        .filter(el => el.prototype.canDraw(item))
-        .map(el => new (el as any)());
-    }
-
-    shadowNodes.forEach(node => {
-      node.item = item;
-      node.page = page;
-      node.prov = prov;
-    });
-
-    return html`${shadowNodes}`;
-  }
-
-  canDraw(item: object): item is DocItem {
-    const children = Array.from(this.childNodes ?? []).filter(
+  private get itemChildren() {
+    return Array.from(this.childNodes ?? []).filter(
       c => c instanceof DoclingItemElement
     );
+  }
 
-    return (
-      isDocling.DocItem(item) &&
-      (children.length > 0
-        ? children.some((c: any) => c.canDraw(item))
-        : customDoclingItemElements.some(el => el.prototype.canDraw(item)))
+  private get annotationChildren() {
+    return Array.from(this.childNodes).filter(
+      c => c instanceof DoclingAnnotationElement
     );
+  }
+
+  private get isCustomized() {
+    return this.itemChildren.length > 0 || this.annotationChildren.length > 0;
+  }
+
+  renderItem(item: DocItem, page: PageItem, prov: ProvenanceItem) {
+    const shadowElements: (DoclingItemElement | DoclingAnnotationElement)[] =
+      [];
+    const isCustomized = this.isCustomized;
+
+    // Item elements.
+    if (isCustomized) {
+      this.itemChildren
+        .filter(c => c.canDrawItem(item))
+        .forEach(c => shadowElements.push(c));
+    } else {
+      customDoclingItemElements
+        .filter((el: any) => el.prototype.canDrawItem(item))
+        .forEach(el => shadowElements.push(new (el as any)()));
+    }
+
+    // Annotation elements.
+    const annotations = ((item as any).annotations ?? []) as Annotation[];
+    for (const ann of annotations) {
+      const annElements: DoclingAnnotationElement[] = [];
+
+      if (isCustomized) {
+        this.annotationChildren
+          .filter(c => c.canDrawItem(c) && c.canDrawAnnotation(ann))
+          .forEach(c =>
+            annElements.push(c.cloneNode(true) as DoclingAnnotationElement)
+          );
+      } else {
+        customDoclingAnnotationElements
+          .filter(
+            (el: any) =>
+              el.prototype.canDrawItem(item) &&
+              el.prototype.canDrawAnnotation(ann)
+          )
+          .forEach(el => annElements.push(new (el as any)()));
+      }
+
+      for (const el of annElements) {
+        el.annotation = ann;
+      }
+
+      shadowElements.push(...annElements);
+    }
+
+    for (const el of shadowElements) {
+      el.item = item;
+      el.page = page;
+      el.prov = prov;
+    }
+
+    return html`${shadowElements}`;
+  }
+
+  canDrawItem(item: object): item is DocItem {
+    if (isDocling.DocItem(item) && this.isCustomized) {
+      return (
+        this.itemChildren.some((c: any) => c.canDrawItem(item)) ||
+        this.annotationChildren.some(
+          (c: any) =>
+            c.canDrawItem(item) &&
+            (item as any).annotations?.some((a: any) => c.canDrawAnnotation(a))
+        )
+      );
+    } else {
+      return (
+        customDoclingItemElements.some(el => el.prototype.canDrawItem(item)) ||
+        customDoclingAnnotationElements.some(
+          el =>
+            el.prototype.canDrawItem(item) &&
+            (item as any).annotations?.some((a: any) =>
+              el.prototype.canDrawAnnotation(a)
+            )
+        )
+      );
+    }
   }
 }
 

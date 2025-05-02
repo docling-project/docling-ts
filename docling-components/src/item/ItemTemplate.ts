@@ -1,5 +1,5 @@
-import { isDocling, PageItem, TextItem } from '@docling/docling-core';
-import { css, html, TemplateResult } from 'lit';
+import { isDocling, TextItem } from '@docling/docling-core';
+import { html } from 'lit';
 import { DoclingItemElement } from './ItemElement';
 import { customElement } from 'lit/decorators.js';
 
@@ -12,7 +12,7 @@ export class ItemTemplate extends DoclingItemElement<TextItem> {
       `"use strict"; return this.html\`${this.innerHTML}\`;`
     ).bind({ html });
 
-  canDraw(item: object): item is TextItem {
+  canDrawItem(item: object): item is TextItem {
     return isDocling.DocItem(item);
   }
 }

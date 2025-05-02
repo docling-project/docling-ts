@@ -1,11 +1,6 @@
 import { DocItem, PageItem, ProvenanceItem } from '@docling/docling-core';
 import { LitElement, TemplateResult } from 'lit';
-import {
-  customElement,
-  CustomElementDecorator,
-  property,
-} from 'lit/decorators.js';
-import { customDoclingItemElements } from './registry';
+import { property } from 'lit/decorators.js';
 
 export abstract class DoclingItemElement<
   I extends object = object,
@@ -19,25 +14,17 @@ export abstract class DoclingItemElement<
   @property({ attribute: false })
   prov?: ProvenanceItem;
 
-  abstract renderItem(item: I, page: PageItem, prov?: ProvenanceItem): TemplateResult;
+  abstract renderItem(
+    item: I,
+    page: PageItem,
+    prov?: ProvenanceItem
+  ): TemplateResult;
 
-  canDraw(item: object): item is I {
-    return false;
-  }
+  abstract canDrawItem(item: object): item is I;
 
   render() {
-    if (this.item && this.page && this.canDraw(this.item)) {
+    if (this.item && this.page && this.canDrawItem(this.item)) {
       return this.renderItem(this.item, this.page, this.prov);
     }
   }
-}
-
-export function customDoclingElement(tagName: string): CustomElementDecorator {
-  const decorator = customElement(tagName);
-
-  return function (target, context?: ClassDecoratorContext) {
-    customDoclingItemElements.push(target as typeof DoclingItemElement);
-
-    return decorator(target, context as any);
-  };
 }

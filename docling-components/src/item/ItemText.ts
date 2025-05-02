@@ -5,10 +5,10 @@ import {
   TextItem,
 } from '@docling/docling-core';
 import { css, html, TemplateResult } from 'lit';
-import { customDoclingElement, DoclingItemElement } from './ItemElement';
-import { normalBbox } from '.';
+import { DoclingItemElement } from './ItemElement';
+import { customDoclingItemElement, normalBbox } from '.';
 
-@customDoclingElement('docling-item-text')
+@customDoclingItemElement('docling-item-text')
 export class ItemText extends DoclingItemElement<TextItem> {
   renderItem(
     item: TextItem,
@@ -40,7 +40,7 @@ export class ItemText extends DoclingItemElement<TextItem> {
     }
   }
 
-  canDraw(item: object): item is TextItem {
+  canDrawItem(item: object): item is TextItem {
     return (
       isDoclingDocItem.TextItem(item) ||
       isDoclingDocItem.SectionHeaderItem(item) ||

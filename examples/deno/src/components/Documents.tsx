@@ -49,12 +49,14 @@ function Document({ document }: { document: TaggedDocument }) {
 
       {isConverted && (
         <docling-img src={document.origin!.uri} backdrop pagenumbers>
+          {/* <docling-overlay></docling-overlay> */}
+
           <docling-tooltip>
-            <docling-template><p>{"${item.self_ref}"}</p></docling-template>
+            {/* <docling-template><p>{"${item.self_ref}"}</p></docling-template> */}
           </docling-tooltip>
 
-          <docling-trace>
-          </docling-trace>
+          {/* <docling-trace>
+          </docling-trace> */}
         </docling-img>
       )}
     </div>
