@@ -12,23 +12,24 @@ export class ItemTable extends DoclingItemElement<TableItem> {
       <div class="container">
         <table>
           <tbody>
-            ${item.data.grid.map(row => {
-              return html`<tr>
-                ${row.map(cell => {
-                  if (!isCovered(cell)) {
-                    return html`<td
-                      class=${cell.column_header || cell.row_header
-                        ? 'header'
-                        : ''}
-                      colspan=${cell.col_span ?? 1}
-                      rowspan=${cell.row_span ?? 1}
-                    >
-                      ${cell.text}
-                    </td>`;
-                  }
-                })}
-              </tr>`;
-            })}
+            ${item.data.grid.map(
+              row =>
+                html`<tr>
+                  ${row.map(cell => {
+                    if (!isCovered(cell)) {
+                      return html`<td
+                        class=${cell.column_header || cell.row_header
+                          ? 'header'
+                          : ''}
+                        colspan=${cell.col_span ?? 1}
+                        rowspan=${cell.row_span ?? 1}
+                      >
+                        ${cell.text}
+                      </td>`;
+                    }
+                  })}
+                </tr>`
+            )}
           </tbody>
         </table>
       </div>
@@ -74,6 +75,8 @@ export class ItemTable extends DoclingItemElement<TableItem> {
 
     table {
       border-collapse: collapse;
+      font-size: 1rem;
+      line-height: 1.25rem;
     }
 
     td {

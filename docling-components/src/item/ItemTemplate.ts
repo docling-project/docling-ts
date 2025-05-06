@@ -3,7 +3,7 @@ import { html } from 'lit';
 import { DoclingItemElement } from './ItemElement';
 import { customElement } from 'lit/decorators.js';
 
-@customElement('docling-template')
+@customElement('docling-item-template')
 export class ItemTemplate extends DoclingItemElement<TextItem> {
 
   renderItem = Function(

@@ -14,7 +14,7 @@ export class ImgPage extends LitElement {
   items?: DocItem[];
 
   @property({ type: Boolean })
-  pagenumbers?: boolean;
+  pagenumbers: boolean = false;
 
   @property()
   itemPart?: (page: PageItem, item: DocItem) => string;
@@ -132,7 +132,7 @@ export class ImgPage extends LitElement {
                     const maxArea = Math.max(...areas);
                     const quadrant = areas.findIndex(a => a === maxArea);
 
-                    this.attachTooltip(item, bounds, quadrant);
+                    this.attachTooltip(item, prov, bounds, quadrant);
                   }}
                   @mouseleave=${() => this.removeTooltip()}
                   />
@@ -142,22 +142,23 @@ export class ImgPage extends LitElement {
           </svg>
 
           ${this.renderTrace()}
-          ${this.pagenumbers &&
-          html`<header
-              part="page-number-top"
-              class="page-number-top"
-              title="Page ${page_no}"
-            >
-              ${page_no}
-            </header>
+          ${this.pagenumbers
+            ? html`<header
+                  part="page-number-top"
+                  class="page-number-top"
+                  title="Page ${page_no}"
+                >
+                  ${page_no}
+                </header>
 
-            <header
-              part="page-number-bottom"
-              class="page-number-bottom"
-              title="Page ${page_no}"
-            >
-              ${page_no}
-            </header>`}
+                <header
+                  part="page-number-bottom"
+                  class="page-number-bottom"
+                  title="Page ${page_no}"
+                >
+                  ${page_no}
+                </header>`
+            : nothing}
         </div>
       `;
     } else {
@@ -177,7 +178,7 @@ export class ImgPage extends LitElement {
     }
   }
 
-  private attachTooltip(item: DocItem, bounds: DOMRect, quadrant: number) {
+  private attachTooltip(item: DocItem, prov: ProvenanceItem, bounds: DOMRect, quadrant: number) {
     if (this.tooltip?.canDrawItem(item)) {
       const clone = this.tooltip.cloneNode(true) as ItemTooltip;
       clone.id = 'tooltip';
@@ -202,6 +203,7 @@ export class ImgPage extends LitElement {
         };`
       );
       clone.item = item;
+      clone.prov = prov;
       clone.page = this.page!;
 
       this.renderRoot.appendChild(clone);

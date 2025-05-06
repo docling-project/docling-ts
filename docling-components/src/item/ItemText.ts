@@ -21,7 +21,7 @@ export class ItemText extends DoclingItemElement<TextItem> {
     if (prov) {
       const { l, r, t, b } = normalBbox(prov.bbox, page);
       const sizeApprox = Math.sqrt(((r - l) * (b - t)) / item.text.length);
-      const size = Math.min(Math.floor(1.25 * sizeApprox), (b - t) / 1.5);
+      const size = Math.min(Math.floor(1.25 * sizeApprox), (b - t) / 1.25);
 
       const [tl, tu] = (prov.charspan as [number, number]) ?? [
         0,

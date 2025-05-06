@@ -38,7 +38,7 @@ export class AnnotationPictureDescription extends DoclingAnnotationElement<
     p {
       font-size: 1rem;
       line-height: 1.25rem;
-      white-space: pre;
+      white-space: pre-line;
     }
 
     span {
