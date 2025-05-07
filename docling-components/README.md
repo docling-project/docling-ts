@@ -149,9 +149,12 @@ You can use this to display the cropped image of a single document item as well:
 ```html
 <docling-table
   src="conversion.json"
-  columns="image"
   items="#/tables/2"
-></docling-table>
+>
+  <docling-column>
+    <docling-item-provenance></docling-item-provenance>
+  </docling-column>
+</docling-table>
 ```
 
 ## Item components
