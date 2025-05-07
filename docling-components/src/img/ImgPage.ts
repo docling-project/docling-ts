@@ -1,4 +1,9 @@
-import { DocItem, PageItem, ProvenanceItem } from '@docling/docling-core';
+import {
+  DocItem,
+  isDoclingDocItem,
+  PageItem,
+  ProvenanceItem,
+} from '@docling/docling-core';
 import { css, html, LitElement, nothing, svg } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { normalBbox } from '../item';
@@ -174,11 +179,20 @@ export class ImgPage extends LitElement {
       clone.prov = prov;
 
       const { l, r, t, b } = normalBbox(prov.bbox, this.page!);
-      return svg`<foreignObject part="overlay" class="overlay" x=${l} y=${t} width=${r - l} height=${b - t}>${clone}</foreignObject>`;
+      const overlayClass = isDoclingDocItem.PictureItem(item)
+        ? 'softOverlay'
+        : 'hardOverlay';
+
+      return svg`<foreignObject part="overlay" class=${overlayClass} x=${l} y=${t} width=${r - l} height=${b - t}>${clone}</foreignObject>`;
     }
   }
 
-  private attachTooltip(item: DocItem, prov: ProvenanceItem, bounds: DOMRect, quadrant: number) {
+  private attachTooltip(
+    item: DocItem,
+    prov: ProvenanceItem,
+    bounds: DOMRect,
+    quadrant: number
+  ) {
     if (this.tooltip?.canDrawItem(item)) {
       const clone = this.tooltip.cloneNode(true) as ItemTooltip;
       clone.id = 'tooltip';
@@ -200,10 +214,11 @@ export class ImgPage extends LitElement {
             : quadrant === 2
               ? `top: ${bounds.bottom}px`
               : `top: calc(${bounds.top}px - 2rem)`
-        };`
+        };
+        max-width: ${2 * (prov.bbox.r - prov.bbox.l)}px;
+        `
       );
       clone.item = item;
-      clone.prov = prov;
       clone.page = this.page!;
 
       this.renderRoot.appendChild(clone);
@@ -284,8 +299,14 @@ export class ImgPage extends LitElement {
       stroke-dasharray: none;
     }
 
-    .overlay {
+    .hardOverlay,
+    .softOverlay {
+      font-size: 62.5%;
       background-color: white;
+    }
+
+    .softOverlay {
+      opacity: 0.9;
     }
 
     .tooltip {

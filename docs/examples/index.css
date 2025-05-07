@@ -21,6 +21,7 @@ fieldset {
 }
 
 form.docling-img #columns,
+form.docling-table #augmentation,
 form.docling-table #trim,
 form.docling-table #backdrop {
   display: none;

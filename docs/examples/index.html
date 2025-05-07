@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="https://ds4sd.github.io/docling/assets/logo.png" />
+    <link rel="icon" href="logo.png" />
     <link
         href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
         rel="stylesheet">
@@ -12,16 +12,28 @@
 
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <script type="module">
-        import "./dist/index.js"; //"https://unpkg.com/@docling/docling-components";
+        import "./dist/index.es.js"; //"https://unpkg.com/@docling/docling-components";
 
         // URL params <-> form inputs.
         const urlParams = new URLSearchParams(location.search);
         const { component = 'docling-img', example = 'html' } = Object.fromEntries(urlParams);
         urlParams.forEach((v, k) => document.getElementById(k).value = v);
 
+        const excludedParams = component === 'docling-img' ? ["columns"] : ["augmentation", "backdrop"];
+        excludedParams.forEach(p => urlParams.delete(p));
+
         const attributes = Array.from(urlParams)
-            .filter(([k, v]) => !["component", "example"].includes(k) && v.length > 0)
+            .filter(([k, v]) => !["augmentation", "component", "example", "columns"].includes(k) && v.length > 0)
             .map(([k, v]) => v === "true" ? k : `${k}="${v}"`).join(" ");
+
+        let augmentation = urlParams.get("augmentation");
+        augmentation = augmentation ? `<docling-${augmentation}></docling-${augmentation}>` : "";
+        let columns = urlParams.get("columns");
+        const columnOptions = {
+            parsed: "<docling-column></docling-column>",
+            provenance: "<docling-column><docling-item-provenance></docling-item-provenance></docling-column>"
+        };
+        columns = (columns?.split(",") ?? []).map(c => columnOptions[c]).join("");
 
         // Script snippet.
         const scriptBody = {
@@ -92,7 +104,7 @@
         // Component tag.
         const id = scriptBody ? ` id="cmp"` : "";
         const directSrc = example === "script-attributes" ? "" : ` src="example.pdf.json"`;
-        const rendered = `<${component}${id}${directSrc} ${attributes} />`;
+        const rendered = `<${component}${id}${directSrc} ${attributes}>${augmentation}${columns}</${component}>`;
         document.getElementById("rendered").innerHTML = rendered;
 
         // Compose example snippet.
@@ -168,7 +180,6 @@
                     <option value="pages">trim pages</option>
                 </select>
 
-
                 <select id="pagenumbers" name="pagenumbers">
                     <option value="">hide page numbers</option>
                     <option value="true">show page numbers</option>
@@ -180,17 +191,19 @@
                     <option value="true">show backdrop</option>
                 </select>
 
-                <input id="tooltip" name="tooltip" list="tooltip-suggestions" placeholder="tooltip" />
-                <datalist id="tooltip-suggestions">
-                    <option value="parsed" />
+                <input id="augmentation" name="augmentation" list="augmentation-suggestions" placeholder="tooltip" />
+                <datalist id="augmentation-suggestions">
+                    <option value="overlay" />
+                    <option value="tooltip" />
+                    <option value="trace" />
                 </datalist>
 
-                <!-- docling-table specific -->
+                <!-- docling-table specific. -->
                 <input id="columns" name="columns" list="columns-suggestions" placeholder="columns" />
                 <datalist id="columns-suggestions">
                     <option value="parsed" />
-                    <option value="image" />
-                    <option value="parsed,image" />
+                    <option value="provenance" />
+                    <option value="parsed,provenance" />
                 </datalist>
 
                 <button type="submit">Apply</button>

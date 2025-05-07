@@ -75,18 +75,16 @@ export class ItemTable extends DoclingItemElement<TableItem> {
 
     table {
       border-collapse: collapse;
-      font-size: 1rem;
-      line-height: 1.25rem;
+      font-size: 75%;
+      line-height: 1.25;
     }
 
     td {
-      padding: 0 0.5rem;
+      padding: 0.125rem 0.25rem;
       background-color: var(--cds-layer);
       border: 1px solid rgb(220, 220, 220);
 
       color: black;
-      font-size: 0.75rem;
-      line-height: 1.5rem;
       text-decoration: none;
       word-break: normal;
       text-align: left;

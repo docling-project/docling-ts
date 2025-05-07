@@ -55,7 +55,7 @@ export class AnnotationPictureClassification extends DoclingAnnotationElement<
           : html`<tr
               class="more"
               title=${restClasses
-                .map(c => `{${c.class_name}}\t${c.confidence}`)
+                .map(c => `${c.class_name}\t\t\t${c.confidence}`)
                 .join('\n')}
             >
               <td>${restClasses.length} more</td>
@@ -77,8 +77,9 @@ export class AnnotationPictureClassification extends DoclingAnnotationElement<
 
   static styles = css`
     table {
-      font-size: 1rem;
-      line-height: 1.25rem;
+      margin: 0.5rem;
+      font-size: inherit;
+      line-height: 1.25;
     }
 
     td,

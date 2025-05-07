@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js';
 import { normalBbox } from '.';
 import { DoclingItemElement } from './ItemElement';
 
-@customElement('docling-provenance')
+@customElement('docling-item-provenance')
 export class ItemProvenance extends DoclingItemElement<DocItem> {
   renderItem(item: DocItem, page: PageItem) {
     const { image } = page;

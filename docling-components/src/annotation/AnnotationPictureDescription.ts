@@ -36,13 +36,14 @@ export class AnnotationPictureDescription extends DoclingAnnotationElement<
 
   static styles = css`
     p {
-      font-size: 1rem;
-      line-height: 1.25rem;
+      margin: 0.5rem;
+      font-size: inherit;
+      line-height: 1.25;
       white-space: pre-line;
     }
 
     span {
-      padding-right: 1rem;
+      padding-right: 0.5rem;
       font-weight: bold;
     }
   `;
