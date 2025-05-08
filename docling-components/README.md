@@ -24,7 +24,7 @@ Either download the package and serve it as part of the rest of the website, or 
   <head>
     ...
 
-    <script type="module" src="http://0.0.0.0:8000/node_modules/@docling/docling-components/dist/index.es.js" />
+    <script type="module" src="https://unpkg.com/@docling/docling-components/dist/index.es.js" />
   </head>
 
   ...
