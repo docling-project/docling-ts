@@ -46,31 +46,30 @@ export class ImgPages extends LitElement {
     return this.fetchTask.render({
       pending: () => html`<p>...</p>`,
       complete: paged => html`
-        <div part="pages">
-          ${paged
-            .filter(p => !this.trim || p.items.length > 0)
-            .map(
-              ({ page, items }) =>
-                html`<docling-img-page
-                  .page=${page}
-                  .items=${items}
-                  .pagenumbers=${this.pagenumbers !== undefined}
-                  .itemPart=${this.itemPart}
-                  .itemStyle=${this.itemStyle}
-                  .onClickItem=${this.onClickItem}
-                  .backdrop=${this.backdrop !== undefined}
-                  .overlay=${children.find(c => c instanceof ItemOverlay)}
-                  .tooltip=${children.find(c => c instanceof ItemTooltip)}
-                  .trace=${children.find(c => c instanceof ImgTrace)}
-                />`
-            )}
-        </div>
+        ${paged
+          .filter(p => !this.trim || p.items.length > 0)
+          .map(
+            ({ page, items }) =>
+              html`<docling-img-page
+                part="page"
+                .page=${page}
+                .items=${items}
+                .pagenumbers=${this.pagenumbers !== undefined}
+                .itemPart=${this.itemPart}
+                .itemStyle=${this.itemStyle}
+                .onClickItem=${this.onClickItem}
+                .backdrop=${this.backdrop !== undefined}
+                .overlay=${children.find(c => c instanceof ItemOverlay)}
+                .tooltip=${children.find(c => c instanceof ItemTooltip)}
+                .trace=${children.find(c => c instanceof ImgTrace)}
+              />`
+          )}
       `,
     });
   }
 
   static styles = css`
-    div {
+    :host {
       width: fit-content;
 
       display: flex;

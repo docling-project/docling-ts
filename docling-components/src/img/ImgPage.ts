@@ -54,12 +54,7 @@ export class ImgPage extends LitElement {
           : undefined;
 
       return html`
-        <div
-          part="page"
-          class="page"
-          role="tab"
-          @onclick=${(e: MouseEvent) => handleClick?.(e)}
-        >
+        <div class="page" @onclick=${(e: MouseEvent) => handleClick?.(e)}>
           <svg
             class="base"
             width=${image.size.width}
@@ -205,17 +200,17 @@ export class ImgPage extends LitElement {
           quadrant === 1
             ? `left: ${bounds.right}px`
             : quadrant === 3
-              ? `right: ${document.body.clientWidth - bounds.left}px`
+              ? `right: ${window.outerWidth - bounds.left}px`
               : `left: calc(${bounds.left}px - 2rem)`
         };
         ${
           quadrant === 0
-            ? `bottom: ${document.body.clientHeight - bounds.top}px`
+            ? `bottom: ${window.innerHeight - bounds.top}px`
             : quadrant === 2
               ? `top: ${bounds.bottom}px`
               : `top: calc(${bounds.top}px - 2rem)`
         };
-        max-width: ${2 * (prov.bbox.r - prov.bbox.l)}px;
+        max-width: ${2 * Math.max(prov.bbox.r - prov.bbox.l, 200)}px;
         `
       );
       clone.item = item;

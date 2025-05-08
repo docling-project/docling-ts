@@ -12,7 +12,7 @@
 
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <script type="module">
-        import "./dist/index.es.js"; //"https://unpkg.com/@docling/docling-components";
+        import "https://unpkg.com/@docling/docling-components";
 
         // URL params <-> form inputs.
         const urlParams = new URLSearchParams(location.search);
@@ -69,7 +69,7 @@
         // Style snippet.
         const styleBody = {
             "style-gallery": `
-            docling-img::part(pages) {
+            docling-img {
                 flex-direction: row;
                 flex-wrap: wrap;
                 gap: 1rem;

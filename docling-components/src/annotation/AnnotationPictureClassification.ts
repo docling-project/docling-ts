@@ -93,7 +93,7 @@ export class AnnotationPictureClassification extends DoclingAnnotationElement<
     }
 
     tr.more td {
-      padding-top: 0.5rem;
+      padding-top: 0.25rem;
       color: gray;
     }
   `;

@@ -187,4 +187,4 @@ You can use these tags directly with elements like `<docling-tooltip>` to specif
 </docling-overlay>
 ```
 
-You can create your own annotation components by extending from the `DoclingAnnotationElement` class at `/src/annotation/AnnotationElement.ts` and annotating the class with `@customDoclingAnnotationElement('docling-my-first-annotation-component')` to have it registered as both a custom web element and as a default component for rendering document items.
+You can create your own annotation components by extending from the `DoclingAnnotationElement` class at `/src/annotation/AnnotationElement.ts` and annotating the class with `@customDoclingAnnotationElement('docling-my-first-annotation-component')` to have it registered as both a custom web element and as a default component for rendering document annotations.

@@ -9,17 +9,15 @@ module.exports = defineConfig({
       fileName: format => `index.${format}.js`,
     },
     rollupOptions: {
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
-      external: ['lit', '@docling/core'],
-      output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
-        globals: {
-          lit: 'lit',
-          '@docling/core': 'docling',
-        },
-      },
+      // external: ['lit', '@docling/core'],
+      // output: {
+      //   // Provide global variables to use in the UMD build
+      //   // for externalized deps
+      //   globals: {
+      //     lit: 'lit',
+      //     '@docling/core': 'docling',
+      //   },
+      // },
     },
   },
 });
