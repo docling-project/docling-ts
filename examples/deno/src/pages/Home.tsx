@@ -1,21 +1,27 @@
 import Frame from "../components/Frame.tsx";
+import SearchBar from "../components/SearchBar.tsx";
 
 export default function () {
   return (
     <Frame>
-      <main class="brd-home">
-        <form action="upload" method="post" enctype="multipart/form-data">
-          <img
-            src="https://ds4sd.github.io/docling/assets/logo.png"
-            onclick="document.getElementById('file').click()"
-          />
+      <main class="home">
+        <img id="icon" src="/static/logo.png" />
+        <h1>Doc Hunt</h1>
 
-          <label for="file">Convert a document</label>
+        <SearchBar />
+
+        <form action="/" method="post" enctype="multipart/form-data">
+          <h5>Upload documents</h5>
+
           <input
-            id="file"
-            name="file"
+            id="files"
+            name="files"
             type="file"
-            onchange="form.className += ' loading'; form.submit();"
+            multiple
+            accept="application/pdf,image/*"
+            capture="environment"
+            required
+            onchange="document.getElementById('icon').className += 'loading'; form.submit();"
           />
 
           <noscript>

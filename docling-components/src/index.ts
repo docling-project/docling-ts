@@ -1,2 +1,4 @@
-export * from './img/ImgPages.svelte';
-export * from './table/TablePages.svelte';
+export * from "./annotation";
+export * from "./img";
+export * from "./item";
+export * from "./table";

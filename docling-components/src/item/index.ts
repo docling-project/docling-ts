@@ -1,20 +1,12 @@
-import {
-  BoundingBox,
-  DocItem,
-  isDoclingDocItem,
-  PageItem,
-} from '@docling/docling-core';
+import { BoundingBox, PageItem } from '@docling/docling-core';
 
-const displayableTypes: (keyof typeof isDoclingDocItem)[] = [
-  'TextItem',
-  'SectionHeaderItem',
-  'ListItem',
-  'TableItem',
-];
-
-export function isDisplayable(item: DocItem): boolean {
-  return displayableTypes.some(t => isDoclingDocItem[t](item));
-}
+export { customDoclingItemElement } from './registry';
+export * from './ItemProvenance';
+export * from './ItemElement';
+export * from './ItemTable';
+export * from './ItemTemplate';
+export * from './ItemText';
+export * from './ItemView';
 
 export function normalBbox(bbox: BoundingBox, page: PageItem): BoundingBox {
   const { height = 1 } = page.size;

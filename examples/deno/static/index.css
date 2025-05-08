@@ -1,0 +1,136 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
+
+@view-transition {
+  navigation: auto;
+}
+
+img#icon {
+  view-transition-name: icon;
+}
+
+input#search {
+  view-transition-name: search;
+}
+
+:root {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  cursor: crosshair;
+
+  --pico-font-family-sans-serif: "IBM Plex Sans", system-ui;
+  --doc-shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.2);
+}
+
+body {
+  position: absolute;
+  min-height: 100%;
+  padding-bottom: 15rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  background-color: rgb(125, 212, 251);
+  background-image: url("/static/background.png");
+  background-position: bottom;
+  background-repeat: repeat-x;
+}
+
+main {
+  flex: 1;
+}
+
+h1 {
+  font-weight: normal;
+}
+
+/*
+* Home page.
+*/
+
+main.home {
+  width: 100%;
+  max-width: 50rem;
+  padding: 1rem;
+  margin: auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+main.home #icon {
+  max-width: 10rem;
+}
+
+main.home #icon.loading {
+  animation: shake 0.5s ease-in-out alternate infinite;
+}
+
+@keyframes shake {
+  50% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
+}
+
+/* 
+* Search page.
+*/
+
+#searchbar {
+  width: 100%;
+}
+
+header.search {
+  display: flex;
+  z-index: 1000;
+  padding: 1rem;
+  gap: 1rem;
+  background-color: var(--pico-background-color);
+  box-shadow: var(--doc-shadow);
+}
+
+header.search #icon {
+  max-width: 3rem;
+}
+
+header.search form {
+  flex: 1;
+}
+
+main.documents {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 0;
+
+  .document {
+    width: fit-content;
+    color: var(--pico-color);
+    background-color: rgb(239, 230, 219);
+    box-shadow: var(--doc-shadow);
+
+    .header {
+      padding: 1rem;
+    }
+
+    .processing {
+      background: linear-gradient(white 66%, transparent 100%);
+      padding: 1rem 1rem 3rem 1rem;
+    }
+
+    docling-img::part(pages) {
+      gap: 0;
+    }
+
+    docling-img::part(page) {
+      border-top: 1px dotted rgb(200, 200, 200);
+    }
+  }
+}

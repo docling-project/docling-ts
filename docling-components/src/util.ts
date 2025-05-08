@@ -23,7 +23,10 @@ export function itemsByPagesOf(
   }
   for (const [item] of items) {
     for (const p of item.prov ?? []) {
-      pageToItems[p.page_no].push(item);
+      // Deal with multiple provenances on a single page.
+      if (pageToItems[p.page_no].at(-1) !== item) {
+        pageToItems[p.page_no].push(item);
+      }
     }
   }
 
@@ -99,7 +102,10 @@ export async function loadItems(
   }
   for (const item of retainedItems) {
     for (const p of item.prov ?? []) {
-      pageToItems[p.page_no].push(item);
+      // Deal with multiple provenances on a single page.
+      if (pageToItems[p.page_no].at(-1) !== item) {
+        pageToItems[p.page_no].push(item);
+      }
     }
   }
 

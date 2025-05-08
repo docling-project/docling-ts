@@ -1,16 +1,15 @@
 {
-  "include": ["../docling-components/src"],
-  "exclude": ["../docling-components/**/*.test.ts"],
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"],
   "compilerOptions": {
-    "module": "esnext",
-    "target": "esnext",
-    "lib": ["esnext"],
-    "declaration": true,
-    "strict": true,
+    "target": "es2022",
+    "module": "es2015",
     "moduleResolution": "node",
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "outDir": "../docling-components/dist",
-    "rootDir": "../docling-components/src"
+    "lib": ["es2022", "dom"],
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false
   }
 }

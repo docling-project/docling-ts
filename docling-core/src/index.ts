@@ -3,6 +3,9 @@ import { DoclingDocument, NodeItem, RefItem } from './types';
 
 export * from './types';
 
+/**
+ * Generates the parsed items of a document by traversing through its hierarchy in reading order.
+ */
 export function* iterateDocumentItems(
   doc?: DoclingDocument,
   options: {
@@ -50,6 +53,9 @@ export function* iterateDocumentItems(
   }
 }
 
+/**
+ * Resolve a given item reference, within a given document, to its full document item.
+ */
 export function resolveDocumentItem(
   doc: DoclingDocument,
   item: RefItem
