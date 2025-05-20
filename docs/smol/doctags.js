@@ -4,15 +4,14 @@ const { loadPackage, pyimport, FS } = await loadPyodide();
 // Load docling dependencies.
 // Pin pillow first to ensure that Pyodide uses its own, prepackaged version.
 await loadPackage("micropip");
-await pyimport("micropip").install(["pillow==10.2.0", "docling-core==2.25"]);
+await pyimport("micropip").install(["pillow==10.2.0", "docling-core==2.31"]);
 
 const { DoclingDocument } = await pyimport("docling_core.types");
 const { Image } = await pyimport("PIL");
 
 export async function fromTags(
   tokens,
-  imageFile,
-  doc = DoclingDocument.callKwargs({ name: "DocTag conversion" })
+  imageFile
 ) {
   let image;
   if (imageFile) {
@@ -23,7 +22,10 @@ export async function fromTags(
   }
 
   const pages = [{ tokens, image }];
-  doc.load_from_doctags({ pages });
+  const doc = DoclingDocument.load_from_doctags.callKwargs({
+    doctag_document: { pages },
+    document_name: "DocTag conversion",
+  });
 
   return doc;
 }
