@@ -11,8 +11,7 @@ const { Image } = await pyimport("PIL");
 
 export async function fromTags(
   tokens,
-  imageFile,
-  doc = DoclingDocument.callKwargs({ name: "DocTag conversion" })
+  imageFile
 ) {
   let image;
   if (imageFile) {
@@ -23,7 +22,10 @@ export async function fromTags(
   }
 
   const pages = [{ tokens, image }];
-  doc.load_from_doctags({ pages });
+  const doc = DoclingDocument.load_from_doctags.callKwargs({
+    doctag_document: { pages },
+    document_name: "DocTag conversion",
+  });
 
   return doc;
 }
