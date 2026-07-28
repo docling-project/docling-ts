@@ -12,3 +12,9 @@ The [docling-core](docling-core) package mirrors type definitions and utility fu
 ## Docling Components
 
 The [docling-components](docling-components) package provides web components for displaying Docling JSON output.
+
+## Docling Client
+
+The [docling-client](docling-client) package is the official TypeScript client
+for Docling Serve and managed services implementing its API. It is modeled after
+the official python client.

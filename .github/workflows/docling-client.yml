@@ -1,0 +1,32 @@
+name: Docling Client
+
+on:
+  pull_request:
+    paths:
+      - 'docling-client/**'
+      - '.github/workflows/docling-client.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'docling-client/**'
+      - '.github/workflows/docling-client.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docling-client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: docling-client/package-lock.json
+      - run: npm ci
+      - run: npm run check
