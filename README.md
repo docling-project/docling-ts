@@ -1,6 +1,6 @@
 # Docling TS
 
-Type/JavaScript libraries and examples for working with the JSON output format of [Docling](https://docling.io).
+Type/JavaScript libraries and examples for working with the JSON output format of [Docling](https://docling.ai).
 
 > [!NOTE]
 > This is an unstable draft implementation that evolves quickly.
