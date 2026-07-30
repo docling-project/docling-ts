@@ -1,0 +1,76 @@
+{
+  "name": "@docling/docling-client",
+  "version": "0.1.0",
+  "description": "TypeScript client for Docling Serve and Docling for IBM watsonx.",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "PYTHON_CLIENT_PARITY.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "contract:check": "node scripts/check-openapi.mjs",
+    "dev": "tsup --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build"
+  },
+  "keywords": [
+    "docling",
+    "document-conversion",
+    "typescript",
+    "client",
+    "sdk"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/docling-project/docling-ts.git",
+    "directory": "docling-client"
+  },
+  "bugs": {
+    "url": "https://github.com/docling-project/docling-ts/issues"
+  },
+  "homepage": "https://github.com/docling-project/docling-ts/tree/main/docling-client",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "fflate": "^0.8.2",
+    "ipaddr.js": "^2.2.0",
+    "isomorphic-ws": "^5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "^24.1.0",
+    "@types/ws": "^8.18.1",
+    "eslint": "10.8.0",
+    "globals": "15.14.0",
+    "prettier": "3.8.3",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.65.0",
+    "vitest": "4.1.10"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
+  }
+}
