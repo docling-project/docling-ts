@@ -1,3 +1,6 @@
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -400,7 +403,8 @@ describe('conversion submission and targets', () => {
     const transport = new ScriptedTransport(task('path', 'pending'));
     const client = clientWith(transport);
 
-    await client.submitSource('/tmp/docling-ts-work/docling-client/README.md', {
+    const readmePath = join(dirname(fileURLToPath(import.meta.url)), '..', 'README.md');
+    await client.submitSource(readmePath, {
       target: { kind: 'inbody' },
     });
     expect(transport.requests[0]?.url).toContain('/v1/convert/file/async');
