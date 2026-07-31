@@ -11,6 +11,8 @@ on:
     paths:
       - 'docling-client/**'
       - '.github/workflows/docling-client.yml'
+    tags:
+      - 'docling-client/v*'
 
 permissions:
   contents: read
@@ -22,11 +24,38 @@ jobs:
       run:
         working-directory: docling-client
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: docling-client/package-lock.json
       - run: npm ci
       - run: npm run check
+
+  publish:
+    needs: check
+    if: startsWith(github.ref, 'refs/tags/docling-client/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    defaults:
+      run:
+        working-directory: docling-client
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+          cache-dependency-path: docling-client/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm publish --provenance --access public
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "@docling/docling-client ${{ github.ref_name }}"
+          generate_release_notes: true
