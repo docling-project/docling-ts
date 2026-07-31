@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "docling-client": {
+      "release-type": "node",
+      "tag-separator": "/",
+      "component": "docling-client",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
