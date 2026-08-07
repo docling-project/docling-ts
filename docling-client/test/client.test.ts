@@ -455,7 +455,10 @@ describe('conversion submission and targets', () => {
       JSON.stringify({ url: 'https://hook.example.com/done' })
     );
     expect(allCallbacks[1]).toBe(
-      JSON.stringify({ url: 'https://hook.example.com/notify', headers: { 'X-Token': 'abc' } })
+      JSON.stringify({
+        url: 'https://hook.example.com/notify',
+        headers: { 'X-Token': 'abc' },
+      })
     );
   });
 

@@ -492,11 +492,7 @@ export function preflightFileSize(
   return `File size ${source.descriptor.file_size} exceeds the configured limit of ${maxFileSize} bytes`;
 }
 
-export function appendFormValue(
-  form: FormData,
-  key: string,
-  value: unknown
-): void {
+export function appendFormValue(form: FormData, key: string, value: unknown): void {
   if (Array.isArray(value)) {
     value.forEach(item => appendFormValue(form, key, item));
   } else if (typeof value === 'string') {
@@ -504,7 +500,7 @@ export function appendFormValue(
   } else if (typeof value === 'number' || typeof value === 'boolean') {
     form.append(key, String(value));
   } else {
-  form.append(key, JSON.stringify(value));
+    form.append(key, JSON.stringify(value));
   }
 }
 
