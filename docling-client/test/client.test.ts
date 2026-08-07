@@ -399,6 +399,66 @@ describe('conversion submission and targets', () => {
     expect((form.get('files') as File).name).toBe('manual.pdf');
   });
 
+  it('emits array option fields as repeated multipart entries', async () => {
+    const transport = new ScriptedTransport(task('arrays', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitBinary(
+      {
+        filename: 'doc.pdf',
+        contentType: 'application/pdf',
+        data: new Uint8Array([1, 2, 3]),
+      },
+      {
+        options: {
+          to_formats: ['md', 'json'],
+          from_formats: ['pdf', 'docx'],
+          page_range: [1, 20],
+          ocr_lang: ['en', 'fr'],
+          do_ocr: true,
+        },
+        target: { kind: 'inbody' },
+      }
+    );
+
+    const form = transport.requests[0]?.body as FormData;
+    expect(form.getAll('to_formats')).toEqual(['md', 'json']);
+    expect(form.getAll('from_formats')).toEqual(['pdf', 'docx']);
+    expect(form.getAll('page_range')).toEqual(['1', '20']);
+    expect(form.getAll('ocr_lang')).toEqual(['en', 'fr']);
+    expect(form.get('do_ocr')).toBe('true');
+  });
+
+  it('emits callbacks as repeated multipart entries on the file endpoint', async () => {
+    const transport = new ScriptedTransport(task('callbacks', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitBinary(
+      {
+        filename: 'doc.pdf',
+        contentType: 'application/pdf',
+        data: new Uint8Array([1, 2, 3]),
+      },
+      {
+        options: { to_formats: ['md'] },
+        target: { kind: 'inbody' },
+        callbacks: [
+          { url: 'https://hook.example.com/done' },
+          { url: 'https://hook.example.com/notify', headers: { 'X-Token': 'abc' } },
+        ],
+      }
+    );
+
+    const form = transport.requests[0]?.body as FormData;
+    const allCallbacks = form.getAll('callbacks') as string[];
+    expect(allCallbacks[0]).toBe(
+      JSON.stringify({ url: 'https://hook.example.com/done' })
+    );
+    expect(allCallbacks[1]).toBe(
+      JSON.stringify({ url: 'https://hook.example.com/notify', headers: { 'X-Token': 'abc' } })
+    );
+  });
+
   it('accepts a local Node path and rejects unsupported or ZIP URLs', async () => {
     const transport = new ScriptedTransport(task('path', 'pending'));
     const client = clientWith(transport);

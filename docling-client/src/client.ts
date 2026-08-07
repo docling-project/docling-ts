@@ -17,8 +17,8 @@ import {
 } from './errors';
 import { boundedOutcomes, validateConcurrency } from './scheduler';
 import {
+  appendFormValue,
   applyPageLimits,
-  formValue,
   normalizeSourceInput,
   preflightFileSize,
   resolveConvertOptions,
@@ -120,6 +120,7 @@ export interface SubmitSourceOptions<
   options?: ConvertDocumentsOptions;
   outputFormats?: ConvertDocumentsOptions['to_formats'];
   target?: TTarget;
+  callbacks?: CallbackSpec[];
 }
 
 export interface ConvertOptions extends WaitForTaskOptions {
@@ -588,12 +589,12 @@ export class DoclingClient<TDocument = DoclingDocument> {
     );
     for (const [key, value] of Object.entries(convertOptions)) {
       if (value !== undefined && value !== null) {
-        form.append(`convert_${key}`, formValue(value));
+        appendFormValue(form, `convert_${key}`, value);
       }
     }
     for (const [key, value] of Object.entries(request.chunking_options ?? {})) {
       if (key !== 'chunker' && value !== undefined && value !== null) {
-        form.append(`chunking_${key}`, formValue(value));
+        appendFormValue(form, `chunking_${key}`, value);
       }
     }
     form.append(
@@ -1082,15 +1083,16 @@ export class DoclingClient<TDocument = DoclingDocument> {
     source: NormalizedSource,
     options: ConvertDocumentsOptions,
     target: TTarget,
-    requestOptions: SubmitCallOptions
+    requestOptions: SubmitCallOptions & { callbacks?: CallbackSpec[] }
   ): Promise<DoclingJob<SubmitResultForTarget<TTarget, TDocument>>> {
+    const callbacks = requestOptions.callbacks ?? [];
     if (source.kind === 'json') {
       return this.#submitRequestForTarget(
         {
           options,
           sources: [source.source],
           target,
-          callbacks: [],
+          callbacks,
         },
         requestOptions
       );
@@ -1102,7 +1104,7 @@ export class DoclingClient<TDocument = DoclingDocument> {
           options,
           sources: [fileSource],
           target,
-          callbacks: [],
+          callbacks,
         },
         requestOptions
       );
@@ -1110,8 +1112,12 @@ export class DoclingClient<TDocument = DoclingDocument> {
     const form = new FormData();
     for (const [key, value] of Object.entries(options)) {
       if (value !== undefined && value !== null) {
-        form.append(key, formValue(value));
+        appendFormValue(form, key, value);
       }
+    }
+    validateCallbacks(callbacks);
+    for (const callback of callbacks) {
+      form.append('callbacks', JSON.stringify(callback));
     }
     form.append('target_type', target.kind);
     form.append('files', source.blob, source.descriptor.filename);

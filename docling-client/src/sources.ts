@@ -492,14 +492,20 @@ export function preflightFileSize(
   return `File size ${source.descriptor.file_size} exceeds the configured limit of ${maxFileSize} bytes`;
 }
 
-export function formValue(value: unknown): string {
-  if (typeof value === 'string') {
-    return value;
+export function appendFormValue(
+  form: FormData,
+  key: string,
+  value: unknown
+): void {
+  if (Array.isArray(value)) {
+    value.forEach(item => appendFormValue(form, key, item));
+  } else if (typeof value === 'string') {
+    form.append(key, value);
+  } else if (typeof value === 'number' || typeof value === 'boolean') {
+    form.append(key, String(value));
+  } else {
+  form.append(key, JSON.stringify(value));
   }
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return String(value);
-  }
-  return JSON.stringify(value);
 }
 
 export async function fileSourceFromBinary(
