@@ -13,6 +13,12 @@ on:
       - '.github/workflows/docling-client.yml'
     tags:
       - 'docling-client/v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.2.3)'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -24,14 +30,43 @@ jobs:
       run:
         working-directory: docling-client
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: docling-client/package-lock.json
       - run: npm ci
       - run: npm run check
+
+  release:
+    needs: check
+    if: >
+      github.event_name == 'workflow_dispatch' &&
+      contains(vars.RELEASE_ACTORS, github.actor)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: docling-client
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Bump version and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version "${{ inputs.version }}" --no-workspaces-update \
+            --message "chore(release): docling-client v%s" \
+            --tag-version-prefix "docling-client/v"
+          git push --follow-tags
 
   publish:
     needs: check
@@ -44,18 +79,26 @@ jobs:
       run:
         working-directory: docling-client
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: lts/*
           registry-url: 'https://registry.npmjs.org'
           cache: npm
           cache-dependency-path: docling-client/package-lock.json
       - run: npm ci
       - run: npm run build
       - run: npm publish --provenance --access public
-      - uses: softprops/action-gh-release@v3
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create GitHub release
+        uses: actions/github-script@v9
         with:
-          tag_name: ${{ github.ref_name }}
-          name: "@docling/docling-client ${{ github.ref_name }}"
-          generate_release_notes: true
+          script: |
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: context.ref.replace('refs/tags/', ''),
+              name: `@docling/docling-client ${context.ref.replace('refs/tags/', '')}`,
+              generate_release_notes: true,
+            });
