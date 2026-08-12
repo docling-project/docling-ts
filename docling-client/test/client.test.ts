@@ -676,6 +676,179 @@ describe('chunk and batch requests', () => {
   });
 });
 
+describe('submitBatch target validation and result routing', () => {
+  // Mirrors: test_submit_batch_requires_target_or_targets
+  it('rejects a call with neither target nor targets', async () => {
+    const client = clientWith(new ScriptedTransport());
+    await expect(
+      client.submitBatch({
+        sources: [{ kind: 'http', url: 'https://example.test/a.pdf' }],
+      } as never)
+    ).rejects.toThrow("requires either 'target' or 'targets'");
+  });
+
+  // Mirrors: test_submit_batch_rejects_both_target_and_targets
+  it('rejects a call with both target and targets', async () => {
+    const client = clientWith(new ScriptedTransport());
+    await expect(
+      client.submitBatch({
+        sources: [{ kind: 'http', url: 'https://example.test/a.pdf' }],
+        target: { kind: 'presigned_url' },
+        targets: [{ kind: 'presigned_url' }],
+      })
+    ).rejects.toThrow("supply only one");
+  });
+
+  // Mirrors: test_submit_batch_posts_targets_list_to_batch_endpoint
+  it('sends targets array and omits singular target field when targets is used', async () => {
+    const counts = {
+      num_converted: 1, num_succeeded: 1,
+      num_partially_succeeded: 0, num_failed: 0, processing_time: 1,
+    };
+    const transport = new ScriptedTransport(task('batch-multi', 'success'), counts);
+    const client = clientWith(transport);
+
+    await (
+      await client.submitBatch({
+        sources: [{ kind: 'http', url: 'https://example.test/a.pdf' }],
+        targets: [
+          { kind: 's3', endpoint: 's3.example.test', access_key: 'a', secret_key: 'b', bucket: 'out' },
+          { kind: 'presigned_url' },
+        ],
+      })
+    ).result();
+
+    const body = transport.requests[0]?.body as Record<string, unknown>;
+    expect(body['target']).toBeUndefined();
+    expect(Array.isArray(body['targets'])).toBe(true);
+    expect((body['targets'] as unknown[]).length).toBe(2);
+    expect((body['targets'] as Array<{ kind: string }>)[0].kind).toBe('s3');
+    expect((body['targets'] as Array<{ kind: string }>)[1].kind).toBe('presigned_url');
+  });
+
+  // Mirrors: test_submit_batch_returns_presigned_result_for_presigned_target
+  it('returns full presigned result (with documents) for presigned_url target', async () => {
+    const presigned = {
+      num_converted: 1, num_succeeded: 1,
+      num_partially_succeeded: 0, num_failed: 0, processing_time: 0.25,
+      documents: [{
+        source_index: 0, source_uri: 'https://example.test/a.pdf',
+        filename: 'a.pdf', status: 'success',
+        artifacts: [{ artifact_type: 'markdown', mime_type: 'text/markdown',
+          uri: 'https://download.example.test/a.md' }],
+        errors: [],
+        timings: {},
+      }],
+    };
+    // Two responses: task status + result fetch
+    const transport = new ScriptedTransport(task('batch-presigned', 'success'), presigned);
+    const client = clientWith(transport);
+
+    const result = await (
+      await client.submitBatch({
+        sources: [{ kind: 'http', url: 'https://example.test/a.pdf' }],
+        target: { kind: 'presigned_url' },
+      })
+    ).result();
+
+    expect(result).toEqual(presigned);
+    // presigned result has a `documents` array — counts-only result does not
+    expect((result as typeof presigned).documents).toBeDefined();
+  });
+
+  // Mirrors: test_submit_batch_returns_counts_result_for_s3_target
+  it('returns counts-only result for s3 target', async () => {
+    const counts = {
+      num_converted: 1, num_succeeded: 1,
+      num_partially_succeeded: 0, num_failed: 0, processing_time: 0.25,
+    };
+    const transport = new ScriptedTransport(task('batch-s3', 'success'), counts);
+    const client = clientWith(transport);
+
+    const result = await (
+      await client.submitBatch({
+        sources: [{
+          kind: 's3', endpoint: 's3.example.test',
+          access_key: 'a', secret_key: 'b', bucket: 'input', key_prefix: 'docs/',
+        }],
+        target: {
+          kind: 's3', endpoint: 's3.example.test',
+          access_key: 'a', secret_key: 'b', bucket: 'output', key_prefix: 'converted/',
+        },
+      })
+    ).result();
+
+    expect(result).toEqual(counts);
+    expect((result as Record<string, unknown>)['documents']).toBeUndefined();
+  });
+
+  // Mirrors: test_submit_batch_returns_counts_result_for_generic_target
+  it('returns counts-only result for a generic (plugin) target', async () => {
+    const counts = {
+      num_converted: 1, num_succeeded: 1,
+      num_partially_succeeded: 0, num_failed: 0, processing_time: 0.25,
+    };
+    const transport = new ScriptedTransport(task('batch-generic', 'success'), counts);
+    const client = clientWith(transport);
+
+    const result = await (
+      await client.submitBatch({
+        sources: [{ kind: 'http', url: 'https://example.test/a.pdf' }],
+        target: { kind: 'plugin_artifact_store', bucket: 'out' },
+      })
+    ).result();
+
+    expect(result).toEqual(counts);
+    expect((result as Record<string, unknown>)['documents']).toBeUndefined();
+  });
+
+  // Mirrors: test_submit_batch_returns_storage_result_for_targets_list_with_storage_target
+  it('returns counts-only result when targets list contains a storage target', async () => {
+    const counts = {
+      num_converted: 1, num_succeeded: 1,
+      num_partially_succeeded: 0, num_failed: 0, processing_time: 0.25,
+    };
+    const transport = new ScriptedTransport(task('batch-multi-storage', 'success'), counts);
+    const client = clientWith(transport);
+
+    const result = await (
+      await client.submitBatch({
+        sources: [{ kind: 'http', url: 'https://example.test/a.pdf' }],
+        targets: [
+          { kind: 's3', endpoint: 's3.example.test', access_key: 'a', secret_key: 'b', bucket: 'out' },
+          { kind: 'presigned_url' },
+        ],
+      })
+    ).result();
+
+    expect(result).toEqual(counts);
+    expect((result as Record<string, unknown>)['documents']).toBeUndefined();
+  });
+
+  // Mirrors: test_submit_batch_returns_presigned_result_for_targets_list_without_storage
+  it('returns full presigned result when targets list contains only presigned_url', async () => {
+    const presigned = {
+      num_converted: 1, num_succeeded: 1,
+      num_partially_succeeded: 0, num_failed: 0, processing_time: 0.25,
+      documents: [],
+    };
+    const transport = new ScriptedTransport(task('batch-multi-presigned', 'success'), presigned);
+    const client = clientWith(transport);
+
+    const result = await (
+      await client.submitBatch({
+        sources: [{ kind: 'http', url: 'https://example.test/a.pdf' }],
+        targets: [{ kind: 'presigned_url' }],
+      })
+    ).result();
+
+    expect(result).toEqual(presigned);
+    expect((result as typeof presigned).documents).toBeDefined();
+  });
+});
+
+
+
 describe('high-level conversion, limits, and concurrency', () => {
   it('merges client defaults shallowly, caps page range, and materializes inline JSON', async () => {
     const transport = new ScriptedTransport(
