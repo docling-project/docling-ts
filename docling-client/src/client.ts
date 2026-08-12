@@ -2127,11 +2127,22 @@ function validateBatchRequest(request: BatchConvertSourcesRequest): void {
     }
     validateKnownConnector(source, 'source');
   }
-  if (request.target === undefined && (request.targets === undefined || request.targets.length === 0)) {
-    throw new DoclingProtocolError("Batch conversion requires either 'target' or 'targets'");
+  if (
+    request.target === undefined &&
+    (request.targets === undefined || request.targets.length === 0)
+  ) {
+    throw new DoclingProtocolError(
+      "Batch conversion requires either 'target' or 'targets'"
+    );
   }
-  if (request.target !== undefined && request.targets !== undefined && request.targets.length > 0) {
-    throw new DoclingProtocolError("Batch conversion received both 'target' and 'targets'; supply only one");
+  if (
+    request.target !== undefined &&
+    request.targets !== undefined &&
+    request.targets.length > 0
+  ) {
+    throw new DoclingProtocolError(
+      "Batch conversion received both 'target' and 'targets'; supply only one"
+    );
   }
   const effectiveTargets: BatchTarget[] =
     request.targets && request.targets.length > 0
