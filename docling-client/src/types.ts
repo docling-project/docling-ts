@@ -370,114 +370,26 @@ export interface GoogleDriveTarget extends GoogleDriveCoordinates {
   kind: 'google_drive';
 }
 
-export interface GenericSource {
+export type GenericSource = {
   kind: string;
-  [key: string]: unknown;
-}
+} & Record<string, unknown>;
 
-export interface GenericTarget {
+export type GenericTarget = {
   kind: string;
-  [key: string]: unknown;
-}
+} & Record<string, unknown>;
 
-export interface FileNetSource {
-  kind: 'filenet';
-  base_url: string;
-  username: string;
-  api_key: string;
-  repository_id: string;
-  folder_id?: string | null;
-  document_ids?: string[];
-  max_num_elements?: number | null;
-}
+export type BatchSource =
+  | HttpSource
+  | S3Source
+  | AzureBlobSource
+  | GoogleCloudStorageSource
+  | GoogleDriveSource
+  | GenericSource;
 
-export interface SharePointSource {
-  kind: 'sharepoint';
-  tenant: string;
-  client_id: string;
-  client_secret: string;
-  site_url?: string | null;
-  onedrive_user?: string | null;
-  document_library?: string | null;
-  folder_path?: string | null;
-  file_ids?: string[] | null;
-  max_num_elements?: number | null;
-}
-
-export interface SharePointTarget {
-  kind: 'sharepoint';
-  tenant: string;
-  client_id: string;
-  client_secret: string;
-  site_url?: string | null;
-  onedrive_user?: string | null;
-  document_library?: string | null;
-  folder_path?: string | null;
-}
-
-export interface OpenSearchBasicAuth {
-  kind: 'basic';
-  username: string;
-  password: string;
-}
-
-export interface OpenSearchAWSIAMAuth {
-  kind: 'aws_iam';
-  region: string;
-  aws_access_key_id?: string | null;
-  aws_secret_access_key?: string | null;
-  aws_session_token?: string | null;
-  assume_role_arn?: string | null;
-  service?: 'es' | 'aoss';
-}
-
-export interface OpenSearchDocTarget {
-  kind: 'opensearch_doc';
-  hosts: string[];
-  index: string;
-  auth?: OpenSearchBasicAuth | OpenSearchAWSIAMAuth | null;
-  use_ssl?: boolean;
-  verify_certs?: boolean;
-  id_field?: string;
-  mappings?: Record<string, string>;
-  coerce_large_ints_to_str?: boolean;
-}
-
-export interface OpenSearchChunkTarget {
-  kind: 'opensearch_chunks';
-  hosts: string[];
-  index: string;
-  auth?: OpenSearchBasicAuth | OpenSearchAWSIAMAuth | null;
-  use_ssl?: boolean;
-  verify_certs?: boolean;
-  text_field?: string;
-  metadata_field?: string;
-  page_field?: string | null;
-  headings_field?: string | null;
-  doc_id_field?: string;
-  chunk_index_field?: string;
-  coerce_large_ints_to_str?: boolean;
-  mappings?: Record<string, string>;
-}
-
-export interface AstraDBChunkTarget {
-  kind: 'astradb_chunks';
-  api_endpoint: string;
-  token: string;
-  collection_name: string;
-  keyspace?: string;
-  vectorize_provider?: string;
-  vectorize_model?: string;
-  vectorize_authentication?: Record<string, string> | null;
-  text_field?: string;
-  metadata_field?: string;
-  page_field?: string | null;
-  headings_field?: string | null;
-  doc_id_field?: string;
-  chunk_index_field?: string;
-  coerce_large_ints_to_str?: boolean;
-  mappings?: Record<string, string>;
-}
+export type BatchTarget =
+  | PresignedUrlTarget
+  | StorageTarget
+  | GenericTarget;
 
 export type StorageTarget =
   | S3Target
@@ -491,25 +403,6 @@ export type SubmitTarget =
   | PresignedUrlTarget
   | PutTarget
   | StorageTarget;
-
-export type BatchSource =
-  | HttpSource
-  | S3Source
-  | AzureBlobSource
-  | GoogleCloudStorageSource
-  | GoogleDriveSource
-  | FileNetSource
-  | SharePointSource
-  | GenericSource;
-
-export type BatchTarget =
-  | PresignedUrlTarget
-  | StorageTarget
-  | SharePointTarget
-  | OpenSearchDocTarget
-  | OpenSearchChunkTarget
-  | AstraDBChunkTarget
-  | GenericTarget;
 
 export interface CallbackSpec {
   url: string;
