@@ -386,10 +386,7 @@ export type BatchSource =
   | GoogleDriveSource
   | GenericSource;
 
-export type BatchTarget =
-  | PresignedUrlTarget
-  | StorageTarget
-  | GenericTarget;
+export type BatchTarget = PresignedUrlTarget | StorageTarget | GenericTarget;
 
 export type StorageTarget =
   | S3Target
