@@ -45,7 +45,6 @@ jobs:
             --tag-version-prefix "docling-client/v"
           git push --follow-tags
 
-      - run: npm run build
       - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
