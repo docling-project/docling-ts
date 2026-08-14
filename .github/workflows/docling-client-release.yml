@@ -50,7 +50,7 @@ jobs:
           npm version "${{ inputs.version }}" --no-workspaces-update \
             --prefix docling-client --no-git-tag-version
           git add docling-client/package.json docling-client/package-lock.json
-          git commit -m "chore(release): docling-client v${{ inputs.version }}"
+          git commit -s -m "chore(release): docling-client v${{ inputs.version }}"
           git tag "docling-client/v${{ inputs.version }}"
           git push --follow-tags
 
