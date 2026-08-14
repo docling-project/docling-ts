@@ -39,17 +39,19 @@ jobs:
           cache: npm
           cache-dependency-path: docling-client/package-lock.json
 
-      - run: npm install -g npm@latest
       - run: npm ci
       - run: npm run check
 
       - name: Bump version and tag
+        working-directory: .
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           npm version "${{ inputs.version }}" --no-workspaces-update \
-            --message "chore(release): docling-client v%s" \
-            --tag-version-prefix "docling-client/v"
+            --prefix docling-client --no-git-tag-version
+          git add docling-client/package.json docling-client/package-lock.json
+          git commit -s -m "chore(release): docling-client v${{ inputs.version }}"
+          git tag "docling-client/v${{ inputs.version }}"
           git push --follow-tags
 
       - run: npm publish --provenance --access public
