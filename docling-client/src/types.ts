@@ -42,7 +42,8 @@ export type InputFormat =
   | 'video'
   | 'email'
   | 'epub'
-  | 'boxnote';
+  | 'boxnote'
+  | 'ebcdic';
 
 export type OutputFormat =
   | 'md'
@@ -369,15 +370,23 @@ export interface GoogleDriveTarget extends GoogleDriveCoordinates {
   kind: 'google_drive';
 }
 
-export interface GenericSource {
+export type GenericSource = {
   kind: string;
-  [key: string]: unknown;
-}
+} & Record<string, unknown>;
 
-export interface GenericTarget {
+export type GenericTarget = {
   kind: string;
-  [key: string]: unknown;
-}
+} & Record<string, unknown>;
+
+export type BatchSource =
+  | HttpSource
+  | S3Source
+  | AzureBlobSource
+  | GoogleCloudStorageSource
+  | GoogleDriveSource
+  | GenericSource;
+
+export type BatchTarget = PresignedUrlTarget | StorageTarget | GenericTarget;
 
 export type StorageTarget =
   | S3Target
@@ -391,16 +400,6 @@ export type SubmitTarget =
   | PresignedUrlTarget
   | PutTarget
   | StorageTarget;
-
-export type BatchSource =
-  | HttpSource
-  | S3Source
-  | AzureBlobSource
-  | GoogleCloudStorageSource
-  | GoogleDriveSource
-  | GenericSource;
-
-export type BatchTarget = PresignedUrlTarget | StorageTarget | GenericTarget;
 
 export interface CallbackSpec {
   url: string;
@@ -419,7 +418,8 @@ export interface ConvertSourcesRequest<TTarget extends SubmitTarget = SubmitTarg
 export interface BatchConvertSourcesRequest<TTarget extends BatchTarget = BatchTarget> {
   options?: ConvertDocumentsOptions;
   sources: BatchSource[];
-  target: TTarget;
+  target?: TTarget;
+  targets?: TTarget[];
   callbacks?: CallbackSpec[];
 }
 
@@ -587,6 +587,7 @@ export type ArtifactType =
   | 'text'
   | 'doctags'
   | 'doclang'
+  | 'dclx'
   | 'resource_bundle';
 
 export interface ArtifactRef {
