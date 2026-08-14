@@ -438,7 +438,12 @@ export class DoclingClient<TDocument = DoclingDocument> {
     const payload: BatchConvertSourcesRequest<TTarget> = {
       options: convertOptions,
       sources: structuredClone(request.sources),
-      target: structuredClone(request.target),
+      ...(request.target !== undefined
+        ? { target: structuredClone(request.target) }
+        : {}),
+      ...(request.targets !== undefined
+        ? { targets: structuredClone(request.targets) }
+        : {}),
       callbacks: structuredClone(request.callbacks ?? []),
     };
     throwIfAborted(options.signal);
@@ -449,17 +454,22 @@ export class DoclingClient<TDocument = DoclingDocument> {
         signal: options.signal,
       })
     );
-    const loader = isPresignedTarget(request.target)
+    const effectiveTargetList = request.targets?.length
+      ? request.targets
+      : request.target !== undefined
+        ? [request.target]
+        : [];
+    const loader = effectiveTargetList.some(isStorageTarget)
       ? (
           taskId: string,
           lastStatus: TaskStatusResponse | undefined,
           signal?: AbortSignal
-        ) => this.#fetchPresignedResult(taskId, lastStatus, signal)
+        ) => this.#fetchCountsResult(taskId, lastStatus, signal)
       : (
           taskId: string,
           lastStatus: TaskStatusResponse | undefined,
           signal?: AbortSignal
-        ) => this.#fetchCountsResult(taskId, lastStatus, signal);
+        ) => this.#fetchPresignedResult(taskId, lastStatus, signal);
     return new DoclingJob(
       this,
       status,
@@ -1724,6 +1734,7 @@ function parsePresignedResponse(value: unknown): PresignedUrlConvertResponse {
           'text',
           'doctags',
           'doclang',
+          'dclx',
           'resource_bundle',
         ].includes(String(artifact.artifact_type))
       ) {
@@ -2099,8 +2110,8 @@ function targetNeedsJson(target: SubmitTarget): target is InBodyTarget {
   return target.kind === 'inbody';
 }
 
-function isPresignedTarget(target: BatchTarget): target is PresignedUrlTarget {
-  return target.kind === 'presigned_url';
+function isStorageTarget(target: BatchTarget): boolean {
+  return target.kind !== 'presigned_url';
 }
 
 function validateBatchRequest(request: BatchConvertSourcesRequest): void {
@@ -2117,18 +2128,39 @@ function validateBatchRequest(request: BatchConvertSourcesRequest): void {
     validateKnownConnector(source, 'source');
   }
   if (
-    !isRecord(request.target) ||
-    typeof request.target.kind !== 'string' ||
-    request.target.kind === ''
+    request.target === undefined &&
+    (request.targets === undefined || request.targets.length === 0)
   ) {
-    throw new DoclingProtocolError('Batch target kind must not be empty');
-  }
-  if (['inbody', 'zip', 'put'].includes(request.target.kind)) {
     throw new DoclingProtocolError(
-      `Batch conversion does not accept ${request.target.kind} targets`
+      "Batch conversion requires either 'target' or 'targets'"
     );
   }
-  validateKnownConnector(request.target, 'target');
+  if (
+    request.target !== undefined &&
+    request.targets !== undefined &&
+    request.targets.length > 0
+  ) {
+    throw new DoclingProtocolError(
+      "Batch conversion received both 'target' and 'targets'; supply only one"
+    );
+  }
+  const effectiveTargets: BatchTarget[] =
+    request.targets && request.targets.length > 0
+      ? request.targets
+      : request.target !== undefined
+        ? [request.target]
+        : [];
+  for (const target of effectiveTargets) {
+    if (!isRecord(target) || typeof target.kind !== 'string' || target.kind === '') {
+      throw new DoclingProtocolError('Batch target kind must not be empty');
+    }
+    if (['inbody', 'zip', 'put'].includes(target.kind)) {
+      throw new DoclingProtocolError(
+        `Batch conversion does not accept ${target.kind} targets`
+      );
+    }
+    validateKnownConnector(target, 'target');
+  }
   validateCallbacks(request.callbacks);
 }
 
