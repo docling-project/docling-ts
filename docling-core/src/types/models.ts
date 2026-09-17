@@ -5,17 +5,8 @@
 /* Do not modify it by hand - just update the pydantic models and then re-run the script
 */
 
-/**
- * CoordOrigin.
- */
 export type CoordOrigin = "TOPLEFT" | "BOTTOMLEFT";
-/**
- * ContentLayer.
- */
-export type ContentLayer = "body" | "furniture";
-/**
- * CodeLanguageLabel.
- */
+export type ContentLayer = "body" | "furniture" | "background" | "invisible" | "notes";
 export type CodeLanguageLabel =
   | "Ada"
   | "Awk"
@@ -36,6 +27,7 @@ export type CodeLanguageLabel =
   | "Dart"
   | "dc"
   | "Dockerfile"
+  | "DocLang"
   | "Elixir"
   | "Erlang"
   | "FORTRAN"
@@ -46,8 +38,10 @@ export type CodeLanguageLabel =
   | "Haxe"
   | "Java"
   | "JavaScript"
+  | "JSON"
   | "Julia"
   | "Kotlin"
+  | "Latex"
   | "Lisp"
   | "Lua"
   | "Matlab"
@@ -69,18 +63,12 @@ export type CodeLanguageLabel =
   | "Scala"
   | "Scheme"
   | "Swift"
+  | "Tikz"
   | "TypeScript"
   | "unknown"
   | "VisualBasic"
   | "XML"
   | "YAML";
-/**
- * ContentLayer.
- */
-export type ContentLayer1 = "body" | "furniture";
-/**
- * DocItemLabel.
- */
 export type DocItemLabel =
   | "caption"
   | "chart"
@@ -100,15 +88,18 @@ export type DocItemLabel =
   | "checkbox_unselected"
   | "form"
   | "key_value_region"
+  | "grading_scale"
+  | "handwritten_text"
+  | "empty_value"
   | "paragraph"
-  | "reference";
-/**
- * ContentLayer.
- */
-export type ContentLayer2 = "body" | "furniture";
-/**
- * GroupLabel.
- */
+  | "reference"
+  | "field_region"
+  | "field_heading"
+  | "field_item"
+  | "field_key"
+  | "field_value"
+  | "field_hint"
+  | "marker";
 export type GroupLabel =
   | "unspecified"
   | "list"
@@ -120,75 +111,13 @@ export type GroupLabel =
   | "form_area"
   | "key_value_area"
   | "comment_section"
-  | "inline";
-/**
- * ContentLayer.
- */
-export type ContentLayer3 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer4 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer5 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer6 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer7 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer8 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer9 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer10 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer11 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer12 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer13 = "body" | "furniture";
-/**
- * GraphCellLabel.
- */
+  | "inline"
+  | "picture_area";
 export type GraphCellLabel = "unspecified" | "key" | "value" | "checkbox";
-/**
- * GraphLinkLabel.
- */
 export type GraphLinkLabel = "unspecified" | "to_value" | "to_key" | "to_parent" | "to_child";
-/**
- * ContentLayer.
- */
-export type ContentLayer14 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer15 = "body" | "furniture";
-/**
- * ContentLayer.
- */
-export type ContentLayer16 = "body" | "furniture";
+export type Script = "baseline" | "sub" | "super";
+export type Orientation = "rot_0" | "rot_90" | "rot_180" | "rot_270";
 
-/**
- * BoundingBox.
- */
 export interface BoundingBox {
   l: number;
   t: number;
@@ -196,248 +125,151 @@ export interface BoundingBox {
   b: number;
   coord_origin?: CoordOrigin;
 }
-/**
- * CodeItem.
- */
-export interface CodeItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer;
-  label?: "code";
-  prov?: ProvenanceItem[];
-  orig: string;
-  text: string;
-  formatting?: Formatting | null;
-  hyperlink?: string | null;
-  captions?: RefItem[];
-  references?: RefItem[];
-  footnotes?: RefItem[];
-  image?: ImageRef | null;
-  code_language?: CodeLanguageLabel;
+export interface Size {
+  width?: number;
+  height?: number;
 }
-/**
- * RefItem.
- */
 export interface RefItem {
   $ref: string;
 }
-/**
- * ProvenanceItem.
- */
 export interface ProvenanceItem {
   page_no: number;
   bbox: BoundingBox;
-  /**
-   * @minItems 2
-   * @maxItems 2
-   */
-  charspan: [unknown, unknown];
+  charspan: [number, number];
 }
-/**
- * Formatting.
- */
 export interface Formatting {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
   strikethrough?: boolean;
+  script?: Script;
 }
-/**
- * ImageRef.
- */
 export interface ImageRef {
   mimetype: string;
   dpi: number;
   size: Size;
   uri: string;
 }
-/**
- * Size.
- */
-export interface Size {
-  width?: number;
-  height?: number;
-}
-/**
- * DocItem.
- */
-export interface DocItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer1;
-  label: DocItemLabel;
-  prov?: ProvenanceItem[];
-}
-/**
- * DoclingDocument.
- */
-export interface DoclingDocument {
-  schema_name?: "DoclingDocument";
-  version?: string;
-  name: string;
-  origin?: DocumentOrigin | null;
-  furniture?: GroupItem;
-  body?: GroupItem1;
-  groups?: (OrderedList | UnorderedList | InlineGroup | GroupItem2)[];
-  texts?: (TitleItem | SectionHeaderItem | ListItem | CodeItem | FormulaItem | TextItem)[];
-  pictures?: PictureItem[];
-  tables?: TableItem[];
-  key_value_items?: KeyValueItem[];
-  form_items?: FormItem[];
-  pages?: {
-    [k: string]: PageItem;
-  };
-}
-/**
- * FileSource.
- */
 export interface DocumentOrigin {
   mimetype: string;
   binary_hash: number;
   filename: string;
   uri?: string | null;
 }
-/**
- * @deprecated
- * GroupItem.
- */
-export interface GroupItem {
+
+// ---------------------------------------------------------------------------
+// Meta models
+// ---------------------------------------------------------------------------
+
+export interface BasePrediction {
+  confidence?: number | null;
+  created_by?: string | null;
+  [key: string]: unknown;
+}
+export interface SummaryMetaField extends BasePrediction {
+  text: string;
+}
+export interface LanguageMetaField extends BasePrediction {
+  code: string;
+}
+export interface EntityMention extends BasePrediction {
+  text: string;
+  orig?: string | null;
+  label?: string | null;
+  charspan?: [number, number] | null;
+}
+export interface EntitiesMetaField {
+  mentions: EntityMention[];
+  [key: string]: unknown;
+}
+export interface KeywordsMetaField {
+  values: string[];
+  [key: string]: unknown;
+}
+export interface TopicsMetaField {
+  values: string[];
+  [key: string]: unknown;
+}
+export interface BaseMeta {
+  summary?: SummaryMetaField | null;
+  language?: LanguageMetaField | null;
+  entities?: EntitiesMetaField | null;
+  keywords?: KeywordsMetaField | null;
+  topics?: TopicsMetaField | null;
+  [key: string]: unknown;
+}
+export interface DescriptionMetaField extends BasePrediction {
+  text: string;
+}
+export interface FloatingMeta extends BaseMeta {
+  description?: DescriptionMetaField | null;
+}
+export interface CodeMetaField extends BasePrediction {
+  text: string;
+  language?: CodeLanguageLabel | null;
+}
+
+// ---------------------------------------------------------------------------
+// Node items
+// ---------------------------------------------------------------------------
+
+export interface NodeItem {
   self_ref: string;
   parent?: RefItem | null;
   children?: RefItem[];
-  content_layer?: ContentLayer2;
+  content_layer?: ContentLayer;
+  meta?: BaseMeta | null;
+}
+export interface DocItem extends NodeItem {
+  label?: DocItemLabel;
+  prov?: ProvenanceItem[];
+  source?: unknown[];
+  comments?: RefItem[];
+}
+export interface FloatingItem extends DocItem {
+  meta?: FloatingMeta | null;
+  captions?: RefItem[];
+  references?: RefItem[];
+  footnotes?: RefItem[];
+  image?: ImageRef | null;
+}
+
+// ---------------------------------------------------------------------------
+// Group items
+// ---------------------------------------------------------------------------
+
+export interface GroupItem extends NodeItem {
   name?: string;
   label?: GroupLabel;
 }
 /**
- * GroupItem.
+ * ListGroup (formerly UnorderedList).
  */
-export interface GroupItem1 {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer2;
-  name?: string;
-  label?: GroupLabel;
-}
-/**
- * OrderedList.
- */
-export interface OrderedList {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer3;
-  name?: string;
-  label?: "ordered_list";
-}
-/**
- * UnorderedList.
- */
-export interface UnorderedList {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer4;
+export interface ListGroup extends NodeItem {
   name?: string;
   label?: "list";
 }
+/** @deprecated Use ListGroup instead. */
+export type UnorderedList = ListGroup;
 /**
- * InlineGroup.
+ * OrderedList.
+ * @deprecated Use ListGroup instead.
  */
-export interface InlineGroup {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer5;
+export interface OrderedList extends NodeItem {
+  name?: string;
+  label?: "ordered_list";
+}
+export interface InlineGroup extends NodeItem {
   name?: string;
   label?: "inline";
 }
-/**
- * GroupItem.
- */
-export interface GroupItem2 {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer2;
-  name?: string;
-  label?: GroupLabel;
-}
-/**
- * TitleItem.
- */
-export interface TitleItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer6;
-  label?: "title";
-  prov?: ProvenanceItem[];
-  orig: string;
-  text: string;
-  formatting?: Formatting | null;
-  hyperlink?: string | null;
-}
-/**
- * SectionItem.
- */
-export interface SectionHeaderItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer7;
-  label?: "section_header";
-  prov?: ProvenanceItem[];
-  orig: string;
-  text: string;
-  formatting?: Formatting | null;
-  hyperlink?: string | null;
-  level?: number;
-}
-/**
- * SectionItem.
- */
-export interface ListItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer8;
-  label?: "list_item";
-  prov?: ProvenanceItem[];
-  orig: string;
-  text: string;
-  formatting?: Formatting | null;
-  hyperlink?: string | null;
-  enumerated?: boolean;
-  marker?: string;
-}
-/**
- * FormulaItem.
- */
-export interface FormulaItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer9;
-  label?: "formula";
-  prov?: ProvenanceItem[];
-  orig: string;
-  text: string;
-  formatting?: Formatting | null;
-  hyperlink?: string | null;
-}
-/**
- * TextItem.
- */
-export interface TextItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer10;
-  label:
+
+// ---------------------------------------------------------------------------
+// Text items
+// ---------------------------------------------------------------------------
+
+export interface TextItem extends DocItem {
+  label?:
     | "caption"
     | "checkbox_selected"
     | "checkbox_unselected"
@@ -446,110 +278,73 @@ export interface TextItem {
     | "page_header"
     | "paragraph"
     | "reference"
-    | "text";
-  prov?: ProvenanceItem[];
+    | "text"
+    | "empty_value"
+    | "field_key"
+    | "field_hint"
+    | "marker"
+    | "handwritten_text"
+    // subtype labels (narrowed in subtype interfaces):
+    | "title"
+    | "section_header"
+    | "list_item"
+    | "formula"
+    | "field_heading"
+    | "field_value";
   orig: string;
   text: string;
   formatting?: Formatting | null;
   hyperlink?: string | null;
 }
-/**
- * PictureItem.
- */
-export interface PictureItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer11;
-  label?: "picture" | "chart";
-  prov?: ProvenanceItem[];
-  captions?: RefItem[];
-  references?: RefItem[];
-  footnotes?: RefItem[];
-  image?: ImageRef | null;
-  annotations?: (
-    | PictureClassificationData
-    | PictureDescriptionData
-    | PictureMoleculeData
-    | PictureMiscData
-    | PictureTabularChartData
-    | PictureLineChartData
-    | PictureBarChartData
-    | PictureStackedBarChartData
-    | PicturePieChartData
-    | PictureScatterChartData
-  )[];
-}
-/**
- * PictureClassificationData.
- */
-export interface PictureClassificationData {
-  kind?: "classification";
-  provenance: string;
-  predicted_classes: PictureClassificationClass[];
-}
-/**
- * PictureClassificationData.
- */
-export interface PictureClassificationClass {
-  class_name: string;
-  confidence: number;
-}
-/**
- * PictureDescriptionData.
- */
-export interface PictureDescriptionData {
-  kind?: "description";
+export interface TitleItem extends TextItem {
+  label?: "title";
+  orig: string;
   text: string;
-  provenance: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
 }
-/**
- * PictureMoleculeData.
- */
-export interface PictureMoleculeData {
-  kind?: "molecule_data";
-  smi: string;
-  confidence: number;
-  class_name: string;
-  segmentation: [unknown, unknown][];
-  provenance: string;
+export interface SectionHeaderItem extends TextItem {
+  label?: "section_header";
+  orig: string;
+  text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
+  level?: number;
 }
-/**
- * PictureMiscData.
- */
-export interface PictureMiscData {
-  kind?: "misc";
-  content: {
-    [k: string]: unknown;
-  };
+export interface ListItem extends TextItem {
+  label?: "list_item";
+  orig: string;
+  text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
+  enumerated?: boolean;
+  marker?: string;
 }
-/**
- * Base class for picture chart data.
- *
- * Attributes:
- *     title (str): The title of the chart.
- *     chart_data (TableData): Chart data in the table format.
- */
-export interface PictureTabularChartData {
-  title: string;
-  kind?: "tabular_chart_data";
-  chart_data: TableData;
+export interface FormulaItem extends TextItem {
+  label?: "formula";
+  orig: string;
+  text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
 }
-/**
- * BaseTableData.
- */
-export interface TableData {
-  table_cells?: TableCell[];
-  num_rows?: number;
-  num_cols?: number;
-  /**
-   * grid.
-   */
-  grid: TableCell[][];
+
+// ---------------------------------------------------------------------------
+// Code item
+// ---------------------------------------------------------------------------
+
+export interface CodeItem extends FloatingItem {
+  label?: "code";
+  orig: string;
+  text: string;
+  formatting?: Formatting | null;
+  hyperlink?: string | null;
+  code_language?: CodeLanguageLabel;
 }
-/**
- * TableCell.
- */
+
+// ---------------------------------------------------------------------------
+// Table items
+// ---------------------------------------------------------------------------
+
 export interface TableCell {
   bbox?: BoundingBox | null;
   row_span?: number;
@@ -562,187 +357,157 @@ export interface TableCell {
   column_header?: boolean;
   row_header?: boolean;
   row_section?: boolean;
+  fillable?: boolean;
 }
-/**
- * Represents data of a line chart.
- *
- * Attributes:
- *     kind (Literal["line_chart_data"]): The type of the chart.
- *     x_axis_label (str): The label for the x-axis.
- *     y_axis_label (str): The label for the y-axis.
- *     lines (List[ChartLine]): A list of lines in the chart.
- */
-export interface PictureLineChartData {
+export interface RichTableCell extends TableCell {
+  $ref: string;
+}
+export interface TableData {
+  table_cells?: (TableCell | RichTableCell)[];
+  num_rows?: number;
+  num_cols?: number;
+  orientation?: Orientation;
+  grid: (TableCell | RichTableCell)[][];
+}
+export interface TableItem extends FloatingItem {
+  label?: "document_index" | "table";
+  data: TableData;
+}
+
+// ---------------------------------------------------------------------------
+// Picture items
+// ---------------------------------------------------------------------------
+
+export interface BasePictureData {
+  kind?: string;
+}
+export interface PictureClassificationClass {
+  class_name: string;
+  confidence: number;
+}
+export interface PictureClassificationData extends BasePictureData {
+  kind?: "classification";
+  provenance: string;
+  predicted_classes: PictureClassificationClass[];
+}
+
+export interface PictureDescriptionData extends BasePictureData {
+  kind?: "description";
+  text: string;
+  provenance: string;
+}
+export interface PictureMoleculeData extends BasePictureData {
+  kind?: "molecule_data";
+  smi: string;
+  confidence: number;
+  class_name: string;
+  segmentation: [number, number][];
+  provenance: string;
+}
+
+export interface PictureMiscData extends BasePictureData {
+  kind?: "misc";
+  content: Record<string, unknown>;
+}
+
+export interface PictureChartData extends BasePictureData {
   title: string;
+}
+export interface PictureTabularChartData extends PictureChartData {
+  kind?: "tabular_chart_data";
+  chart_data: TableData;
+}
+export interface ChartLine {
+  label: string;
+  values: [number, number][];
+}
+export interface PictureLineChartData extends PictureChartData {
   kind?: "line_chart_data";
   x_axis_label: string;
   y_axis_label: string;
   lines: ChartLine[];
 }
-/**
- * Represents a line in a line chart.
- *
- * Attributes:
- *     label (str): The label for the line.
- *     values (List[Tuple[float, float]]): A list of (x, y) coordinate pairs
- *         representing the line's data points.
- */
-export interface ChartLine {
+export interface ChartBar {
   label: string;
-  values: [unknown, unknown][];
+  values: number;
 }
-/**
- * Represents data of a bar chart.
- *
- * Attributes:
- *     kind (Literal["bar_chart_data"]): The type of the chart.
- *     x_axis_label (str): The label for the x-axis.
- *     y_axis_label (str): The label for the y-axis.
- *     bars (List[ChartBar]): A list of bars in the chart.
- */
-export interface PictureBarChartData {
-  title: string;
+export interface PictureBarChartData extends PictureChartData {
   kind?: "bar_chart_data";
   x_axis_label: string;
   y_axis_label: string;
   bars: ChartBar[];
 }
-/**
- * Represents a bar in a bar chart.
- *
- * Attributes:
- *     label (str): The label for the bar.
- *     values (float): The value associated with the bar.
- */
-export interface ChartBar {
-  label: string;
-  values: number;
+export interface ChartStackedBar {
+  label: string[];
+  values: [string, number][];
 }
-/**
- * Represents data of a stacked bar chart.
- *
- * Attributes:
- *     kind (Literal["stacked_bar_chart_data"]): The type of the chart.
- *     x_axis_label (str): The label for the x-axis.
- *     y_axis_label (str): The label for the y-axis.
- *     stacked_bars (List[ChartStackedBar]): A list of stacked bars in the chart.
- */
-export interface PictureStackedBarChartData {
-  title: string;
+export interface PictureStackedBarChartData extends PictureChartData {
   kind?: "stacked_bar_chart_data";
   x_axis_label: string;
   y_axis_label: string;
   stacked_bars: ChartStackedBar[];
 }
-/**
- * Represents a stacked bar in a stacked bar chart.
- *
- * Attributes:
- *     label (List[str]): The labels for the stacked bars. Multiple values are stored
- *         in cases where the chart is "double stacked," meaning bars are stacked both
- *         horizontally and vertically.
- *     values (List[Tuple[str, int]]): A list of values representing different segments
- *         of the stacked bar along with their label.
- */
-export interface ChartStackedBar {
-  label: string[];
-  values: [unknown, unknown][];
-}
-/**
- * Represents data of a pie chart.
- *
- * Attributes:
- *     kind (Literal["pie_chart_data"]): The type of the chart.
- *     slices (List[ChartSlice]): A list of slices in the pie chart.
- */
-export interface PicturePieChartData {
-  title: string;
-  kind?: "pie_chart_data";
-  slices: ChartSlice[];
-}
-/**
- * Represents a slice in a pie chart.
- *
- * Attributes:
- *     label (str): The label for the slice.
- *     value (float): The value represented by the slice.
- */
 export interface ChartSlice {
   label: string;
   value: number;
 }
-/**
- * Represents data of a scatter chart.
- *
- * Attributes:
- *     kind (Literal["scatter_chart_data"]): The type of the chart.
- *     x_axis_label (str): The label for the x-axis.
- *     y_axis_label (str): The label for the y-axis.
- *     points (List[ChartPoint]): A list of points in the scatter chart.
- */
-export interface PictureScatterChartData {
-  title: string;
+export interface PicturePieChartData extends PictureChartData {
+  kind?: "pie_chart_data";
+  slices: ChartSlice[];
+}
+export interface ChartPoint {
+  value: [number, number];
+}
+export interface PictureScatterChartData extends PictureChartData {
   kind?: "scatter_chart_data";
   x_axis_label: string;
   y_axis_label: string;
   points: ChartPoint[];
 }
-/**
- * Represents a point in a scatter chart.
- *
- * Attributes:
- *     value (Tuple[float, float]): A (x, y) coordinate pair representing a point in a
- *         chart.
- */
-export interface ChartPoint {
-  /**
-   * @minItems 2
-   * @maxItems 2
-   */
-  value: [unknown, unknown];
+
+export interface PictureClassificationPrediction extends BasePrediction {
+  class_name: string;
 }
-/**
- * TableItem.
- */
-export interface TableItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer12;
-  label?: "document_index" | "table";
-  prov?: ProvenanceItem[];
-  captions?: RefItem[];
-  references?: RefItem[];
-  footnotes?: RefItem[];
-  image?: ImageRef | null;
-  data: TableData;
+export interface PictureClassificationMetaField {
+  predictions: PictureClassificationPrediction[];
+  [key: string]: unknown;
 }
-/**
- * KeyValueItem.
- */
-export interface KeyValueItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer13;
-  label?: "key_value_region";
-  prov?: ProvenanceItem[];
-  captions?: RefItem[];
-  references?: RefItem[];
-  footnotes?: RefItem[];
-  image?: ImageRef | null;
-  graph: GraphData;
+export interface MoleculeMetaField extends BasePrediction {
+  smi: string;
 }
-/**
- * GraphData.
- */
-export interface GraphData {
-  cells?: GraphCell[];
-  links?: GraphLink[];
+export interface TabularChartMetaField extends BasePrediction {
+  title?: string | null;
+  chart_data: TableData;
 }
-/**
- * GraphCell.
- */
+export interface PictureMeta extends FloatingMeta {
+  classification?: PictureClassificationMetaField | null;
+  molecule?: MoleculeMetaField | null;
+  tabular_chart?: TabularChartMetaField | null;
+  code?: CodeMetaField | null;
+}
+
+export interface PictureItem extends FloatingItem {
+  label?: "picture" | "chart";
+  meta?: PictureMeta | null;
+  /** @deprecated Use meta instead. */
+  annotations?: (
+    | PictureDescriptionData
+    | PictureMiscData
+    | PictureClassificationData
+    | PictureMoleculeData
+    | PictureTabularChartData
+    | PictureLineChartData
+    | PictureBarChartData
+    | PictureStackedBarChartData
+    | PicturePieChartData
+    | PictureScatterChartData
+  )[];
+}
+
+// ---------------------------------------------------------------------------
+// Key-value / form items
+// ---------------------------------------------------------------------------
+
 export interface GraphCell {
   label: GraphCellLabel;
   cell_id: number;
@@ -751,74 +516,80 @@ export interface GraphCell {
   prov?: ProvenanceItem | null;
   item_ref?: RefItem | null;
 }
-/**
- * GraphLink.
- */
 export interface GraphLink {
   label: GraphLinkLabel;
   source_cell_id: number;
   target_cell_id: number;
 }
-/**
- * FormItem.
- */
-export interface FormItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer14;
-  label?: "form";
-  prov?: ProvenanceItem[];
-  captions?: RefItem[];
-  references?: RefItem[];
-  footnotes?: RefItem[];
-  image?: ImageRef | null;
+export interface GraphData {
+  cells?: GraphCell[];
+  links?: GraphLink[];
+}
+export interface KeyValueItem extends FloatingItem {
+  label?: "key_value_region";
   graph: GraphData;
 }
-/**
- * PageItem.
- */
+export interface FormItem extends FloatingItem {
+  label?: "form";
+  graph: GraphData;
+}
+
+// ---------------------------------------------------------------------------
+// Field-region items
+// ---------------------------------------------------------------------------
+
+export interface FieldRegionItem extends DocItem {
+  label?: "field_region";
+}
+export interface FieldHeadingItem extends TextItem {
+  label?: "field_heading";
+  level?: number;
+}
+export interface FieldItem extends DocItem {
+  label?: "field_item";
+}
+export interface FieldValueItem extends TextItem {
+  label?: "field_value";
+  kind?: "read_only" | "fillable";
+}
+
+// ---------------------------------------------------------------------------
+// Page item
+// ---------------------------------------------------------------------------
+
 export interface PageItem {
   size: Size;
   image?: ImageRef | null;
   page_no: number;
 }
-/**
- * FloatingItem.
- */
-export interface FloatingItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer15;
-  label: DocItemLabel;
-  prov?: ProvenanceItem[];
-  captions?: RefItem[];
-  references?: RefItem[];
-  footnotes?: RefItem[];
-  image?: ImageRef | null;
-}
-/**
- * NodeItem.
- */
-export interface NodeItem {
-  self_ref: string;
-  parent?: RefItem | null;
-  children?: RefItem[];
-  content_layer?: ContentLayer16;
-}
-/**
- * BasePictureData.
- */
-export interface BasePictureData {
-  kind: string;
-}
-/**
- * Base class for picture chart data.
- *
- * Attributes:
- *     title (str): The title of the chart.
- */
-export interface PictureChartData {
-  title: string;
+
+// ---------------------------------------------------------------------------
+// DoclingDocument
+// ---------------------------------------------------------------------------
+
+export interface DoclingDocument {
+  schema_name?: "DoclingDocument";
+  version?: string;
+  name: string;
+  origin?: DocumentOrigin | null;
+  furniture?: GroupItem;
+  body?: GroupItem;
+  groups?: (ListGroup | InlineGroup | GroupItem)[];
+  texts?: (
+    | TitleItem
+    | SectionHeaderItem
+    | ListItem
+    | CodeItem
+    | FormulaItem
+    | FieldHeadingItem
+    | FieldValueItem
+    | TextItem
+  )[];
+  pictures?: PictureItem[];
+  tables?: TableItem[];
+  key_value_items?: KeyValueItem[];
+  form_items?: FormItem[];
+  field_regions?: FieldRegionItem[];
+  field_items?: FieldItem[];
+  pages?: Record<string, PageItem>;
 }

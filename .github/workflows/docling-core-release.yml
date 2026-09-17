@@ -1,0 +1,70 @@
+name: Docling Core Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.2.3)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: contains(vars.RELEASE_ACTORS, github.actor)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    defaults:
+      run:
+        working-directory: docling-core
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.CI_APP_ID }}
+          private-key: ${{ secrets.CI_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+          cache-dependency-path: docling-core/package-lock.json
+
+      - run: npm ci
+      - run: npm run check
+
+      - name: Bump version and tag
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version "${{ inputs.version }}" --no-workspaces-update \
+            --prefix docling-core --no-git-tag-version
+          git add docling-core/package.json docling-core/package-lock.json
+          git commit -s -m "chore(release): docling-core v${{ inputs.version }}"
+          git tag "docling-core/v${{ inputs.version }}"
+          git push --follow-tags
+
+      - run: npm publish --provenance --access public
+
+      - name: Create GitHub release
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const version = '${{ inputs.version }}'.replace(/^v/, '');
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `docling-core/v${version}`,
+              name: `@docling/docling-core v${version}`,
+              generate_release_notes: true,
+            });
