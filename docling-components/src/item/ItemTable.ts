@@ -18,9 +18,9 @@ export class ItemTable extends DoclingItemElement<TableItem> {
                   ${row.map(cell => {
                     if (!isCovered(cell)) {
                       return html`<td
-                        class=${cell.column_header || cell.row_header
-                          ? 'header'
-                          : ''}
+                        class=${
+                          cell.column_header || cell.row_header ? 'header' : ''
+                        }
                         colspan=${cell.col_span ?? 1}
                         rowspan=${cell.row_span ?? 1}
                       >

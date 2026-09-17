@@ -21,9 +21,9 @@ export class AnnotationPictureClassification extends DoclingAnnotationElement<
 
   renderAnnotation(
     annotation: PictureClassificationData,
-    item: PictureItem,
-    page: PageItem,
-    prov?: ProvenanceItem
+    _item: PictureItem,
+    _page: PageItem,
+    _prov?: ProvenanceItem
   ): TemplateResult {
     const classes = annotation.predicted_classes ?? [];
     const threshold = Math.pow(10, -1 * this.precision);
@@ -50,17 +50,19 @@ export class AnnotationPictureClassification extends DoclingAnnotationElement<
               <td>${format(confidence)}</td>
             </tr>`
         )}
-        ${restClasses.length === 0
-          ? nothing
-          : html`<tr
-              class="more"
-              title=${restClasses
-                .map(c => `${c.class_name}\t\t\t${c.confidence}`)
-                .join('\n')}
-            >
-              <td>${restClasses.length} more</td>
-              <td>< ${format(threshold)}</td>
-            </tr>`}
+        ${
+          restClasses.length === 0
+            ? nothing
+            : html`<tr
+                class="more"
+                title=${restClasses
+                  .map(c => `${c.class_name}\t\t\t${c.confidence}`)
+                  .join('\n')}
+              >
+                <td>${restClasses.length} more</td>
+                <td>< ${format(threshold)}</td>
+              </tr>`
+        }
       </tbody>
     </table>`;
   }

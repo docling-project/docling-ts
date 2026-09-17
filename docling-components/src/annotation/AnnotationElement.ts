@@ -29,7 +29,7 @@ export abstract class DoclingAnnotationElement<
     annotation: A,
     item: I,
     page: PageItem,
-    prov?: ProvenanceItem 
+    prov?: ProvenanceItem
   ): TemplateResult;
 
   abstract canDrawAnnotation(annotation: object): annotation is A;

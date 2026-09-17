@@ -17,9 +17,9 @@ export class AnnotationPictureDescription extends DoclingAnnotationElement<
 > {
   renderAnnotation(
     annotation: PictureDescriptionData,
-    item: PictureItem,
-    page: PageItem,
-    prov?: ProvenanceItem
+    _item: PictureItem,
+    _page: PageItem,
+    _prov?: ProvenanceItem
   ): TemplateResult {
     return html`<p><span>Description</span>${annotation.text}</p>`;
   }

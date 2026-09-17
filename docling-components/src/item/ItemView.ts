@@ -39,6 +39,8 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
       [];
     const isCustomized = this.isCustomized;
 
+    type ElementClass = new () => DoclingItemElement | DoclingAnnotationElement;
+
     // Item elements.
     if (isCustomized) {
       this.itemChildren
@@ -46,12 +48,15 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
         .forEach(c => shadowElements.push(c));
     } else {
       customDoclingItemElements
-        .filter((el: any) => el.prototype.canDrawItem(item))
-        .forEach(el => shadowElements.push(new (el as any)()));
+        .filter(el => el.prototype.canDrawItem(item))
+        .forEach(el =>
+          shadowElements.push(new (el as unknown as ElementClass)())
+        );
     }
 
     // Annotation elements.
-    const annotations = ((item as any).annotations ?? []) as Annotation[];
+    const annotations = ((item as Record<string, unknown>).annotations ??
+      []) as Annotation[];
     for (const ann of annotations) {
       const annElements: DoclingAnnotationElement[] = [];
 
@@ -64,11 +69,15 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
       } else {
         customDoclingAnnotationElements
           .filter(
-            (el: any) =>
+            el =>
               el.prototype.canDrawItem(item) &&
               el.prototype.canDrawAnnotation(ann)
           )
-          .forEach(el => annElements.push(new (el as any)()));
+          .forEach(el =>
+            annElements.push(
+              new (el as unknown as ElementClass)() as DoclingAnnotationElement
+            )
+          );
       }
 
       for (const el of annElements) {
@@ -88,13 +97,16 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
   }
 
   canDrawItem(item: object): item is DocItem {
+    type WithAnnotations = { annotations?: Annotation[] };
     if (isDocling.DocItem(item) && this.isCustomized) {
       return (
-        this.itemChildren.some((c: any) => c.canDrawItem(item)) ||
+        this.itemChildren.some(c => c.canDrawItem(item)) ||
         this.annotationChildren.some(
-          (c: any) =>
+          c =>
             c.canDrawItem(item) &&
-            (item as any).annotations?.some((a: any) => c.canDrawAnnotation(a))
+            (item as WithAnnotations).annotations?.some(a =>
+              c.canDrawAnnotation(a)
+            )
         )
       );
     } else {
@@ -103,7 +115,7 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
         customDoclingAnnotationElements.some(
           el =>
             el.prototype.canDrawItem(item) &&
-            (item as any).annotations?.some((a: any) =>
+            (item as WithAnnotations).annotations?.some(a =>
               el.prototype.canDrawAnnotation(a)
             )
         )

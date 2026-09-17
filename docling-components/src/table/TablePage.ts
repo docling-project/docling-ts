@@ -29,25 +29,29 @@ export class TablePage extends LitElement {
 
   render() {
     return html`
-      ${this.pagenumbers
-        ? html`
-            <tr>
-              <td
-                part="page-number-top"
-                class="page-number"
-                title="Page ${this.page?.page_no}"
-                colspan=${this.columns?.length ?? 1}
-              >
-                ${this.page?.page_no}
-              </td>
-            </tr>
-          `
-        : nothing}
+      ${
+        this.pagenumbers
+          ? html`
+              <tr>
+                <td
+                  part="page-number-top"
+                  class="page-number"
+                  title="Page ${this.page?.page_no}"
+                  colspan=${this.columns?.length ?? 1}
+                >
+                  ${this.page?.page_no}
+                </td>
+              </tr>
+            `
+          : nothing
+      }
       ${this.items?.map(
         item =>
           html`<tr
-            part=${'item' +
-            (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')}
+            part=${
+              'item' +
+              (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')
+            }
             style=${ifDefined(this.itemStyle?.(this.page!, item))}
           >
             ${this.columns.map(col => {
@@ -66,18 +70,20 @@ export class TablePage extends LitElement {
             })}
           </tr>`
       )}
-      ${this.pagenumbers
-        ? html`<tr>
-            <td
-              part="page-number-bottom"
-              class="page-number"
-              title="Page ${this.page?.page_no}"
-              colspan=${this.columns?.length ?? 1}
-            >
-              ${this.page?.page_no}
-            </td>
-          </tr>`
-        : nothing}
+      ${
+        this.pagenumbers
+          ? html`<tr>
+              <td
+                part="page-number-bottom"
+                class="page-number"
+                title="Page ${this.page?.page_no}"
+                colspan=${this.columns?.length ?? 1}
+              >
+                ${this.page?.page_no}
+              </td>
+            </tr>`
+          : nothing
+      }
     `;
   }
 

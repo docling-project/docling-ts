@@ -17,14 +17,12 @@ export class ImgTrace extends LitElement {
       const { width = 1, height = 1 } = size;
 
       const centers = this.items.map(item => {
-        const box = normalBbox(item.prov?.find(p => p.page_no === page_no)?.bbox!, this.page!);
-        return [
-          (box.l + box.r) / 2,
-          (box.t + box.b) / 2,
-        ];
+        const bbox = item.prov?.find(p => p.page_no === page_no)?.bbox;
+        const box = normalBbox(bbox ?? { l: 0, t: 0, r: 0, b: 0 }, this.page!);
+        return [(box.l + box.r) / 2, (box.t + box.b) / 2];
       });
 
-      const d = `M${centers[0][0]} 0 ${centers.slice(0).map((c) => `L${c[0]} ${c[1]}`)} L${centers.at(-1)![0]} ${height}`;
+      const d = `M${centers[0][0]} 0 ${centers.slice(0).map(c => `L${c[0]} ${c[1]}`)} L${centers.at(-1)![0]} ${height}`;
 
       return html`<svg viewBox="0 0 ${width} ${height}">
         <marker

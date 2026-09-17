@@ -24,7 +24,7 @@ export class ImgPages extends LitElement {
   src: string = '';
 
   @property()
-  trim: 'pages' = 'pages';
+  trim = 'pages' as const;
 
   @property()
   itemPart?: (page: PageItem, item: DocItem) => string;

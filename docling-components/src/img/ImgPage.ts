@@ -60,8 +60,9 @@ export class ImgPage extends LitElement {
             width=${image.size.width}
             viewBox="0 0 ${width} ${height}"
           >
-            ${this.backdrop
-              ? svg`
+            ${
+              this.backdrop
+                ? svg`
                 <image
                   class="backdrop"
                   href=${image.uri}
@@ -86,7 +87,8 @@ export class ImgPage extends LitElement {
                   })}
                 </clippath>
               `
-              : nothing}
+                : nothing
+            }
 
             <image
               id="image"
@@ -122,7 +124,7 @@ export class ImgPage extends LitElement {
                       e.currentTarget as HTMLDivElement
                     ).getBoundingClientRect();
 
-                    // Sizes of surrounding areas: Top, right, bottom, left.
+                    // Sizes of surrounding areas: Top, right, bottom, left.
                     const areas = [
                       bounds.top * window.innerWidth,
                       (window.innerWidth - bounds.right) * window.innerHeight,
@@ -142,23 +144,25 @@ export class ImgPage extends LitElement {
           </svg>
 
           ${this.renderTrace()}
-          ${this.pagenumbers
-            ? html`<header
-                  part="page-number-top"
-                  class="page-number-top"
-                  title="Page ${page_no}"
-                >
-                  ${page_no}
-                </header>
+          ${
+            this.pagenumbers
+              ? html`<header
+                    part="page-number-top"
+                    class="page-number-top"
+                    title="Page ${page_no}"
+                  >
+                    ${page_no}
+                  </header>
 
-                <header
-                  part="page-number-bottom"
-                  class="page-number-bottom"
-                  title="Page ${page_no}"
-                >
-                  ${page_no}
-                </header>`
-            : nothing}
+                  <header
+                    part="page-number-bottom"
+                    class="page-number-bottom"
+                    title="Page ${page_no}"
+                  >
+                    ${page_no}
+                  </header>`
+              : nothing
+          }
         </div>
       `;
     } else {
