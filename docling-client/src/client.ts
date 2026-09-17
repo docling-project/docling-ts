@@ -141,9 +141,7 @@ export interface ChunkCallOptions extends WaitForTaskOptions {
 }
 
 type AnySubmitResult<TDocument> =
-  | AutoSubmitResult<TDocument>
-  | RawServiceResult
-  | PresignedUrlConvertDocumentResponse;
+  AutoSubmitResult<TDocument> | RawServiceResult | PresignedUrlConvertDocumentResponse;
 
 export class DoclingClient<TDocument = DoclingDocument> {
   readonly #baseUrl: string;
@@ -1453,8 +1451,7 @@ function parseTaskStatus(value: unknown): TaskStatusResponse {
   validateOptionalNullableInteger(value.task_position, 'task_position');
   validateOptionalNullableString(value.error_message, 'error_message');
   let taskMeta: TaskStatusResponse['task_meta'] = value.task_meta as
-    | TaskStatusResponse['task_meta']
-    | undefined;
+    TaskStatusResponse['task_meta'] | undefined;
   if (value.task_meta !== undefined && value.task_meta !== null) {
     if (!isRecord(value.task_meta)) {
       throw schemaMismatch('Docling task_meta must be an object or null');
@@ -1480,8 +1477,7 @@ function parseTaskStatus(value: unknown): TaskStatusResponse {
     };
   }
   let failure: TaskStatusResponse['failure'] = value.failure as
-    | TaskStatusResponse['failure']
-    | undefined;
+    TaskStatusResponse['failure'] | undefined;
   if (value.failure !== undefined && value.failure !== null) {
     failure = parseFailureInfo(value.failure);
   }
