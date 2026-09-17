@@ -1,0 +1,159 @@
+name: Sync upstream docling-core
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # Every day at 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      target_version:
+        description: 'Specific docling-core release version/tag (e.g., v2.18.0) - leave blank for latest'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout docling-ts
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Target docling-core Version
+        id: version_check
+        run: |
+          if [ -n "${{ github.event.inputs.target_version }}" ]; then
+            TAG="${{ github.event.inputs.target_version }}"
+          else
+            echo "Fetching latest release from docling-project/docling-core..."
+            TAG=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/docling-project/docling-core/releases/latest | jq -r .tag_name)
+          fi
+
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            echo "Error: Could not retrieve release tag."
+            exit 1
+          fi
+
+          CLEAN_VERSION="${TAG#v}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+
+          # Current version configured in docling-ts/docling-core/package.json
+          CURRENT_VERSION=$(jq -r '.config.docling // empty' docling-core/package.json)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+          echo "Target version: $CLEAN_VERSION (tag: $TAG)"
+          echo "Current version in docling-core config: $CURRENT_VERSION"
+
+          if [ "$CLEAN_VERSION" = "$CURRENT_VERSION" ] && [ -z "${{ github.event.inputs.target_version }}" ]; then
+            echo "should_update=false" >> $GITHUB_OUTPUT
+            echo "Already up-to-date with docling-core $CLEAN_VERSION."
+          else
+            echo "should_update=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout upstream docling-core repository
+        if: steps.version_check.outputs.should_update == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: docling-project/docling-core
+          ref: ${{ steps.version_check.outputs.tag }}
+          path: upstream-docling-core
+
+      - name: Set up Node.js
+        if: steps.version_check.outputs.should_update == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: docling-core/package-lock.json
+
+      - name: Install Copilot CLI
+        if: steps.version_check.outputs.should_update == 'true'
+        run: npm install -g @github/copilot
+
+      - name: Run Copilot CLI to update TypeScript models and tests
+        if: steps.version_check.outputs.should_update == 'true'
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version_check.outputs.tag }}
+          VERSION: ${{ steps.version_check.outputs.version }}
+        run: |
+          # Update docling-core config version in package.json
+          jq --arg ver "$VERSION" '.config.docling = $ver' docling-core/package.json > docling-core/package.json.tmp \
+            && mv docling-core/package.json.tmp docling-core/package.json
+
+          # Install dependencies for checking
+          cd docling-core && npm ci && cd ..
+
+          # Run Copilot CLI in programmatic non-interactive mode
+          copilot -p "You are updating the TypeScript package 'docling-core' in this repository to match the Python implementation in 'upstream-docling-core/docling_core/'.
+          Target release version: $TAG.
+          
+          Please perform the following tasks:
+          1. Inspect the Python codebase in upstream-docling-core/docling_core/ (especially docling_core/types/ and document hierarchy/traversal logic).
+          2. Update docling-core/src/types/models.ts to reflect all updated/new models, fields, and types.
+          3. Update docling-core/src/types/typing.ts to add or adjust type predicates and discriminators (e.g. isDoclingDocItem, isDoclingAnnotation, isDocling).
+          4. Inspect and update remaining code under docling-core/src/ (e.g. docling-core/src/index.ts, iterateDocumentItems, resolveDocumentItem, etc.) for any corresponding changes or new features from the Python repository.
+          5. Update docling-core/tests/ to add tests for any new or modified types and functions.
+          6. Run 'npm run check' inside docling-core/ to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found." \
+          --allow-tool='shell(*)' \
+          --allow-tool=write \
+          --no-ask-user
+
+      - name: Remove upstream checkout before commit
+        if: steps.version_check.outputs.should_update == 'true'
+        run: rm -rf upstream-docling-core
+
+      - name: Commit changes and create PR using GitHub CLI
+        if: steps.version_check.outputs.should_update == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version_check.outputs.tag }}
+          VERSION: ${{ steps.version_check.outputs.version }}
+        run: |
+          BRANCH_NAME="sync/docling-core-${VERSION}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH_NAME"
+          git add docling-core/
+          
+          if git diff --cached --quiet; then
+            echo "No changes detected after running Copilot CLI."
+            exit 0
+          fi
+
+          git commit -m "feat(docling-core): sync types with docling-core ${TAG}"
+          git push -u origin "$BRANCH_NAME" --force
+
+          PR_BODY=$(cat <<EOF
+          ## Automated Upstream Sync: docling-core [${TAG}](https://github.com/docling-project/docling-core/releases/tag/${TAG})
+
+          This pull request was generated automatically using **GitHub Copilot CLI** in GitHub Actions.
+
+          ### Actions Taken:
+          - Analyzed Python schemas and logic in upstream release \`${TAG}\`.
+          - Updated TypeScript interfaces in \`docling-core/src/types/models.ts\`.
+          - Updated type predicates in \`docling-core/src/types/typing.ts\`.
+          - Updated traversal & utility logic in \`docling-core/src/index.ts\`.
+          - Updated and verified test suite (\`npm run check\`).
+          EOF
+          )
+
+          EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number')
+          if [ -n "$EXISTING_PR" ]; then
+            gh pr edit "$EXISTING_PR" --title "feat(docling-core): update types for docling-core ${TAG}" --body "$PR_BODY"
+          else
+            gh pr create \
+              --base main \
+              --head "$BRANCH_NAME" \
+              --title "feat(docling-core): update types for docling-core ${TAG}" \
+              --body "$PR_BODY"
+          fi
