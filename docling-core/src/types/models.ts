@@ -1,122 +1,123 @@
 /* tslint:disable */
-/* eslint-disable */
 /**
 /* This file was automatically generated from pydantic models by running pydantic2ts.
 /* Do not modify it by hand - just update the pydantic models and then re-run the script
 */
 
-export type CoordOrigin = "TOPLEFT" | "BOTTOMLEFT";
-export type ContentLayer = "body" | "furniture" | "background" | "invisible" | "notes";
+export type CoordOrigin = 'TOPLEFT' | 'BOTTOMLEFT';
+export type ContentLayer =
+  'body' | 'furniture' | 'background' | 'invisible' | 'notes';
 export type CodeLanguageLabel =
-  | "Ada"
-  | "Awk"
-  | "Bash"
-  | "bc"
-  | "C"
-  | "C#"
-  | "C++"
-  | "CMake"
-  | "COBOL"
-  | "CSS"
-  | "Ceylon"
-  | "Clojure"
-  | "Crystal"
-  | "Cuda"
-  | "Cython"
-  | "D"
-  | "Dart"
-  | "dc"
-  | "Dockerfile"
-  | "DocLang"
-  | "Elixir"
-  | "Erlang"
-  | "FORTRAN"
-  | "Forth"
-  | "Go"
-  | "HTML"
-  | "Haskell"
-  | "Haxe"
-  | "Java"
-  | "JavaScript"
-  | "JSON"
-  | "Julia"
-  | "Kotlin"
-  | "Latex"
-  | "Lisp"
-  | "Lua"
-  | "Matlab"
-  | "MoonScript"
-  | "Nim"
-  | "OCaml"
-  | "ObjectiveC"
-  | "Octave"
-  | "PHP"
-  | "Pascal"
-  | "Perl"
-  | "Prolog"
-  | "Python"
-  | "Racket"
-  | "Ruby"
-  | "Rust"
-  | "SML"
-  | "SQL"
-  | "Scala"
-  | "Scheme"
-  | "Swift"
-  | "Tikz"
-  | "TypeScript"
-  | "unknown"
-  | "VisualBasic"
-  | "XML"
-  | "YAML";
+  | 'Ada'
+  | 'Awk'
+  | 'Bash'
+  | 'bc'
+  | 'C'
+  | 'C#'
+  | 'C++'
+  | 'CMake'
+  | 'COBOL'
+  | 'CSS'
+  | 'Ceylon'
+  | 'Clojure'
+  | 'Crystal'
+  | 'Cuda'
+  | 'Cython'
+  | 'D'
+  | 'Dart'
+  | 'dc'
+  | 'Dockerfile'
+  | 'DocLang'
+  | 'Elixir'
+  | 'Erlang'
+  | 'FORTRAN'
+  | 'Forth'
+  | 'Go'
+  | 'HTML'
+  | 'Haskell'
+  | 'Haxe'
+  | 'Java'
+  | 'JavaScript'
+  | 'JSON'
+  | 'Julia'
+  | 'Kotlin'
+  | 'Latex'
+  | 'Lisp'
+  | 'Lua'
+  | 'Matlab'
+  | 'MoonScript'
+  | 'Nim'
+  | 'OCaml'
+  | 'ObjectiveC'
+  | 'Octave'
+  | 'PHP'
+  | 'Pascal'
+  | 'Perl'
+  | 'Prolog'
+  | 'Python'
+  | 'Racket'
+  | 'Ruby'
+  | 'Rust'
+  | 'SML'
+  | 'SQL'
+  | 'Scala'
+  | 'Scheme'
+  | 'Swift'
+  | 'Tikz'
+  | 'TypeScript'
+  | 'unknown'
+  | 'VisualBasic'
+  | 'XML'
+  | 'YAML';
 export type DocItemLabel =
-  | "caption"
-  | "chart"
-  | "footnote"
-  | "formula"
-  | "list_item"
-  | "page_footer"
-  | "page_header"
-  | "picture"
-  | "section_header"
-  | "table"
-  | "text"
-  | "title"
-  | "document_index"
-  | "code"
-  | "checkbox_selected"
-  | "checkbox_unselected"
-  | "form"
-  | "key_value_region"
-  | "grading_scale"
-  | "handwritten_text"
-  | "empty_value"
-  | "paragraph"
-  | "reference"
-  | "field_region"
-  | "field_heading"
-  | "field_item"
-  | "field_key"
-  | "field_value"
-  | "field_hint"
-  | "marker";
+  | 'caption'
+  | 'chart'
+  | 'footnote'
+  | 'formula'
+  | 'list_item'
+  | 'page_footer'
+  | 'page_header'
+  | 'picture'
+  | 'section_header'
+  | 'table'
+  | 'text'
+  | 'title'
+  | 'document_index'
+  | 'code'
+  | 'checkbox_selected'
+  | 'checkbox_unselected'
+  | 'form'
+  | 'key_value_region'
+  | 'grading_scale'
+  | 'handwritten_text'
+  | 'empty_value'
+  | 'paragraph'
+  | 'reference'
+  | 'field_region'
+  | 'field_heading'
+  | 'field_item'
+  | 'field_key'
+  | 'field_value'
+  | 'field_hint'
+  | 'marker';
 export type GroupLabel =
-  | "unspecified"
-  | "list"
-  | "ordered_list"
-  | "chapter"
-  | "section"
-  | "sheet"
-  | "slide"
-  | "form_area"
-  | "key_value_area"
-  | "comment_section"
-  | "inline"
-  | "picture_area";
-export type GraphCellLabel = "unspecified" | "key" | "value" | "checkbox";
-export type GraphLinkLabel = "unspecified" | "to_value" | "to_key" | "to_parent" | "to_child";
-export type Script = "baseline" | "sub" | "super";
-export type Orientation = "rot_0" | "rot_90" | "rot_180" | "rot_270";
+  | 'unspecified'
+  | 'list'
+  | 'ordered_list'
+  | 'chapter'
+  | 'section'
+  | 'sheet'
+  | 'slide'
+  | 'form_area'
+  | 'key_value_area'
+  | 'comment_section'
+  | 'inline'
+  | 'picture_area';
+export type GraphCellLabel = 'unspecified' | 'key' | 'value' | 'checkbox';
+export type GraphLinkLabel =
+  'unspecified' | 'to_value' | 'to_key' | 'to_parent' | 'to_child';
+export type Script = 'baseline' | 'sub' | 'super';
+export type Orientation = 'rot_0' | 'rot_90' | 'rot_180' | 'rot_270';
 
 export interface BoundingBox {
   l: number;
@@ -247,7 +248,7 @@ export interface GroupItem extends NodeItem {
  */
 export interface ListGroup extends NodeItem {
   name?: string;
-  label?: "list";
+  label?: 'list';
 }
 /** @deprecated Use ListGroup instead. */
 export type UnorderedList = ListGroup;
@@ -257,11 +258,11 @@ export type UnorderedList = ListGroup;
  */
 export interface OrderedList extends NodeItem {
   name?: string;
-  label?: "ordered_list";
+  label?: 'ordered_list';
 }
 export interface InlineGroup extends NodeItem {
   name?: string;
-  label?: "inline";
+  label?: 'inline';
 }
 
 // ---------------------------------------------------------------------------
@@ -270,41 +271,41 @@ export interface InlineGroup extends NodeItem {
 
 export interface TextItem extends DocItem {
   label?:
-    | "caption"
-    | "checkbox_selected"
-    | "checkbox_unselected"
-    | "footnote"
-    | "page_footer"
-    | "page_header"
-    | "paragraph"
-    | "reference"
-    | "text"
-    | "empty_value"
-    | "field_key"
-    | "field_hint"
-    | "marker"
-    | "handwritten_text"
+    | 'caption'
+    | 'checkbox_selected'
+    | 'checkbox_unselected'
+    | 'footnote'
+    | 'page_footer'
+    | 'page_header'
+    | 'paragraph'
+    | 'reference'
+    | 'text'
+    | 'empty_value'
+    | 'field_key'
+    | 'field_hint'
+    | 'marker'
+    | 'handwritten_text'
     // subtype labels (narrowed in subtype interfaces):
-    | "title"
-    | "section_header"
-    | "list_item"
-    | "formula"
-    | "field_heading"
-    | "field_value";
+    | 'title'
+    | 'section_header'
+    | 'list_item'
+    | 'formula'
+    | 'field_heading'
+    | 'field_value';
   orig: string;
   text: string;
   formatting?: Formatting | null;
   hyperlink?: string | null;
 }
 export interface TitleItem extends TextItem {
-  label?: "title";
+  label?: 'title';
   orig: string;
   text: string;
   formatting?: Formatting | null;
   hyperlink?: string | null;
 }
 export interface SectionHeaderItem extends TextItem {
-  label?: "section_header";
+  label?: 'section_header';
   orig: string;
   text: string;
   formatting?: Formatting | null;
@@ -312,7 +313,7 @@ export interface SectionHeaderItem extends TextItem {
   level?: number;
 }
 export interface ListItem extends TextItem {
-  label?: "list_item";
+  label?: 'list_item';
   orig: string;
   text: string;
   formatting?: Formatting | null;
@@ -321,7 +322,7 @@ export interface ListItem extends TextItem {
   marker?: string;
 }
 export interface FormulaItem extends TextItem {
-  label?: "formula";
+  label?: 'formula';
   orig: string;
   text: string;
   formatting?: Formatting | null;
@@ -333,7 +334,7 @@ export interface FormulaItem extends TextItem {
 // ---------------------------------------------------------------------------
 
 export interface CodeItem extends FloatingItem {
-  label?: "code";
+  label?: 'code';
   orig: string;
   text: string;
   formatting?: Formatting | null;
@@ -370,7 +371,7 @@ export interface TableData {
   grid: (TableCell | RichTableCell)[][];
 }
 export interface TableItem extends FloatingItem {
-  label?: "document_index" | "table";
+  label?: 'document_index' | 'table';
   data: TableData;
 }
 
@@ -386,18 +387,18 @@ export interface PictureClassificationClass {
   confidence: number;
 }
 export interface PictureClassificationData extends BasePictureData {
-  kind?: "classification";
+  kind?: 'classification';
   provenance: string;
   predicted_classes: PictureClassificationClass[];
 }
 
 export interface PictureDescriptionData extends BasePictureData {
-  kind?: "description";
+  kind?: 'description';
   text: string;
   provenance: string;
 }
 export interface PictureMoleculeData extends BasePictureData {
-  kind?: "molecule_data";
+  kind?: 'molecule_data';
   smi: string;
   confidence: number;
   class_name: string;
@@ -406,7 +407,7 @@ export interface PictureMoleculeData extends BasePictureData {
 }
 
 export interface PictureMiscData extends BasePictureData {
-  kind?: "misc";
+  kind?: 'misc';
   content: Record<string, unknown>;
 }
 
@@ -414,7 +415,7 @@ export interface PictureChartData extends BasePictureData {
   title: string;
 }
 export interface PictureTabularChartData extends PictureChartData {
-  kind?: "tabular_chart_data";
+  kind?: 'tabular_chart_data';
   chart_data: TableData;
 }
 export interface ChartLine {
@@ -422,7 +423,7 @@ export interface ChartLine {
   values: [number, number][];
 }
 export interface PictureLineChartData extends PictureChartData {
-  kind?: "line_chart_data";
+  kind?: 'line_chart_data';
   x_axis_label: string;
   y_axis_label: string;
   lines: ChartLine[];
@@ -432,7 +433,7 @@ export interface ChartBar {
   values: number;
 }
 export interface PictureBarChartData extends PictureChartData {
-  kind?: "bar_chart_data";
+  kind?: 'bar_chart_data';
   x_axis_label: string;
   y_axis_label: string;
   bars: ChartBar[];
@@ -442,7 +443,7 @@ export interface ChartStackedBar {
   values: [string, number][];
 }
 export interface PictureStackedBarChartData extends PictureChartData {
-  kind?: "stacked_bar_chart_data";
+  kind?: 'stacked_bar_chart_data';
   x_axis_label: string;
   y_axis_label: string;
   stacked_bars: ChartStackedBar[];
@@ -452,14 +453,14 @@ export interface ChartSlice {
   value: number;
 }
 export interface PicturePieChartData extends PictureChartData {
-  kind?: "pie_chart_data";
+  kind?: 'pie_chart_data';
   slices: ChartSlice[];
 }
 export interface ChartPoint {
   value: [number, number];
 }
 export interface PictureScatterChartData extends PictureChartData {
-  kind?: "scatter_chart_data";
+  kind?: 'scatter_chart_data';
   x_axis_label: string;
   y_axis_label: string;
   points: ChartPoint[];
@@ -487,7 +488,7 @@ export interface PictureMeta extends FloatingMeta {
 }
 
 export interface PictureItem extends FloatingItem {
-  label?: "picture" | "chart";
+  label?: 'picture' | 'chart';
   meta?: PictureMeta | null;
   /** @deprecated Use meta instead. */
   annotations?: (
@@ -526,11 +527,11 @@ export interface GraphData {
   links?: GraphLink[];
 }
 export interface KeyValueItem extends FloatingItem {
-  label?: "key_value_region";
+  label?: 'key_value_region';
   graph: GraphData;
 }
 export interface FormItem extends FloatingItem {
-  label?: "form";
+  label?: 'form';
   graph: GraphData;
 }
 
@@ -539,18 +540,18 @@ export interface FormItem extends FloatingItem {
 // ---------------------------------------------------------------------------
 
 export interface FieldRegionItem extends DocItem {
-  label?: "field_region";
+  label?: 'field_region';
 }
 export interface FieldHeadingItem extends TextItem {
-  label?: "field_heading";
+  label?: 'field_heading';
   level?: number;
 }
 export interface FieldItem extends DocItem {
-  label?: "field_item";
+  label?: 'field_item';
 }
 export interface FieldValueItem extends TextItem {
-  label?: "field_value";
-  kind?: "read_only" | "fillable";
+  label?: 'field_value';
+  kind?: 'read_only' | 'fillable';
 }
 
 // ---------------------------------------------------------------------------
@@ -568,7 +569,7 @@ export interface PageItem {
 // ---------------------------------------------------------------------------
 
 export interface DoclingDocument {
-  schema_name?: "DoclingDocument";
+  schema_name?: 'DoclingDocument';
   version?: string;
   name: string;
   origin?: DocumentOrigin | null;

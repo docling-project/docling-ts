@@ -6,9 +6,6 @@ import {
   type FieldItem,
   type FieldRegionItem,
   type FieldValueItem,
-  type FormItem,
-  type GroupItem,
-  type KeyValueItem,
   type ListItem,
   type NodeItem,
   type PictureBarChartData,
@@ -64,8 +61,12 @@ describe('isDocling.GroupItem', () => {
 
 describe('isDocling.DocItem', () => {
   it('accepts non-group node items', () => {
-    expect(isDocling.DocItem({ self_ref: '#/texts/0', label: 'text' })).toBe(true);
-    expect(isDocling.DocItem({ self_ref: '#/tables/0', label: 'table' })).toBe(true);
+    expect(isDocling.DocItem({ self_ref: '#/texts/0', label: 'text' })).toBe(
+      true
+    );
+    expect(isDocling.DocItem({ self_ref: '#/tables/0', label: 'table' })).toBe(
+      true
+    );
   });
 
   it('rejects group items', () => {
@@ -101,34 +102,137 @@ describe('isDocling.Document', () => {
 describe('isDoclingDocItem', () => {
   const cases: Array<[string, NodeItem, boolean]> = [
     ['CodeItem', { self_ref: '#/texts/0', label: 'code' } as CodeItem, true],
-    ['CodeItem rejects non-code', { self_ref: '#/texts/0', label: 'text' } as TextItem, false],
+    [
+      'CodeItem rejects non-code',
+      { self_ref: '#/texts/0', label: 'text' } as TextItem,
+      false,
+    ],
 
-    ['ListItem', { self_ref: '#/texts/0', label: 'list_item' } as ListItem, true],
-    ['SectionHeaderItem', { self_ref: '#/texts/0', label: 'section_header' } as SectionHeaderItem, true],
-    ['TableItem - table', { self_ref: '#/tables/0', label: 'table' } as TableItem, true],
-    ['TableItem - document_index', { self_ref: '#/tables/0', label: 'document_index' } as TableItem, true],
-    ['PictureItem - picture', { self_ref: '#/pictures/0', label: 'picture' } as PictureItem, true],
-    ['PictureItem - chart', { self_ref: '#/pictures/0', label: 'chart' } as PictureItem, true],
+    [
+      'ListItem',
+      { self_ref: '#/texts/0', label: 'list_item' } as ListItem,
+      true,
+    ],
+    [
+      'SectionHeaderItem',
+      { self_ref: '#/texts/0', label: 'section_header' } as SectionHeaderItem,
+      true,
+    ],
+    [
+      'TableItem - table',
+      { self_ref: '#/tables/0', label: 'table' } as TableItem,
+      true,
+    ],
+    [
+      'TableItem - document_index',
+      { self_ref: '#/tables/0', label: 'document_index' } as TableItem,
+      true,
+    ],
+    [
+      'PictureItem - picture',
+      { self_ref: '#/pictures/0', label: 'picture' } as PictureItem,
+      true,
+    ],
+    [
+      'PictureItem - chart',
+      { self_ref: '#/pictures/0', label: 'chart' } as PictureItem,
+      true,
+    ],
 
-    ['TextItem - text', { self_ref: '#/texts/0', label: 'text' } as TextItem, true],
-    ['TextItem - caption', { self_ref: '#/texts/0', label: 'caption' } as TextItem, true],
-    ['TextItem - footnote', { self_ref: '#/texts/0', label: 'footnote' } as TextItem, true],
-    ['TextItem - paragraph', { self_ref: '#/texts/0', label: 'paragraph' } as TextItem, true],
-    ['TextItem - page_header', { self_ref: '#/texts/0', label: 'page_header' } as TextItem, true],
-    ['TextItem - page_footer', { self_ref: '#/texts/0', label: 'page_footer' } as TextItem, true],
-    ['TextItem - checkbox_selected', { self_ref: '#/texts/0', label: 'checkbox_selected' } as TextItem, true],
-    ['TextItem - checkbox_unselected', { self_ref: '#/texts/0', label: 'checkbox_unselected' } as TextItem, true],
-    ['TextItem - reference', { self_ref: '#/texts/0', label: 'reference' } as TextItem, true],
-    ['TextItem - empty_value', { self_ref: '#/texts/0', label: 'empty_value' } as TextItem, true],
-    ['TextItem - field_key', { self_ref: '#/texts/0', label: 'field_key' } as TextItem, true],
-    ['TextItem - field_hint', { self_ref: '#/texts/0', label: 'field_hint' } as TextItem, true],
-    ['TextItem - marker', { self_ref: '#/texts/0', label: 'marker' } as TextItem, true],
-    ['TextItem - handwritten_text', { self_ref: '#/texts/0', label: 'handwritten_text' } as TextItem, true],
+    [
+      'TextItem - text',
+      { self_ref: '#/texts/0', label: 'text' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - caption',
+      { self_ref: '#/texts/0', label: 'caption' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - footnote',
+      { self_ref: '#/texts/0', label: 'footnote' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - paragraph',
+      { self_ref: '#/texts/0', label: 'paragraph' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - page_header',
+      { self_ref: '#/texts/0', label: 'page_header' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - page_footer',
+      { self_ref: '#/texts/0', label: 'page_footer' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - checkbox_selected',
+      { self_ref: '#/texts/0', label: 'checkbox_selected' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - checkbox_unselected',
+      { self_ref: '#/texts/0', label: 'checkbox_unselected' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - reference',
+      { self_ref: '#/texts/0', label: 'reference' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - empty_value',
+      { self_ref: '#/texts/0', label: 'empty_value' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - field_key',
+      { self_ref: '#/texts/0', label: 'field_key' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - field_hint',
+      { self_ref: '#/texts/0', label: 'field_hint' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - marker',
+      { self_ref: '#/texts/0', label: 'marker' } as TextItem,
+      true,
+    ],
+    [
+      'TextItem - handwritten_text',
+      { self_ref: '#/texts/0', label: 'handwritten_text' } as TextItem,
+      true,
+    ],
 
-    ['FieldRegionItem', { self_ref: '#/field_regions/0', label: 'field_region' } as FieldRegionItem, true],
-    ['FieldHeadingItem', { self_ref: '#/texts/0', label: 'field_heading' } as FieldHeadingItem, true],
-    ['FieldItem', { self_ref: '#/field_items/0', label: 'field_item' } as FieldItem, true],
-    ['FieldValueItem', { self_ref: '#/texts/0', label: 'field_value' } as FieldValueItem, true],
+    [
+      'FieldRegionItem',
+      {
+        self_ref: '#/field_regions/0',
+        label: 'field_region',
+      } as FieldRegionItem,
+      true,
+    ],
+    [
+      'FieldHeadingItem',
+      { self_ref: '#/texts/0', label: 'field_heading' } as FieldHeadingItem,
+      true,
+    ],
+    [
+      'FieldItem',
+      { self_ref: '#/field_items/0', label: 'field_item' } as FieldItem,
+      true,
+    ],
+    [
+      'FieldValueItem',
+      { self_ref: '#/texts/0', label: 'field_value' } as FieldValueItem,
+      true,
+    ],
   ];
 
   it.each(cases)('%s', (_name, item, expected) => {
@@ -169,7 +273,15 @@ describe('isDoclingAnnotation', () => {
     title: 'Sales',
     x_axis_label: 'Year',
     y_axis_label: 'Revenue',
-    lines: [{ label: 'Product A', values: [[2020, 100], [2021, 120]] }],
+    lines: [
+      {
+        label: 'Product A',
+        values: [
+          [2020, 100],
+          [2021, 120],
+        ],
+      },
+    ],
   };
   const barChart: PictureBarChartData = {
     kind: 'bar_chart_data',
@@ -188,7 +300,10 @@ describe('isDoclingAnnotation', () => {
   const pie: PicturePieChartData = {
     kind: 'pie_chart_data',
     title: 'Pie',
-    slices: [{ label: 'A', value: 0.6 }, { label: 'B', value: 0.4 }],
+    slices: [
+      { label: 'A', value: 0.6 },
+      { label: 'B', value: 0.4 },
+    ],
   };
   const scatter: PictureScatterChartData = {
     kind: 'scatter_chart_data',
@@ -199,7 +314,9 @@ describe('isDoclingAnnotation', () => {
   };
 
   it('PictureClassification accepts classification, rejects others', () => {
-    expect(isDoclingAnnotation.PictureClassification(classification)).toBe(true);
+    expect(isDoclingAnnotation.PictureClassification(classification)).toBe(
+      true
+    );
     expect(isDoclingAnnotation.PictureClassification(description)).toBe(false);
     expect(isDoclingAnnotation.PictureClassification(misc)).toBe(false);
   });

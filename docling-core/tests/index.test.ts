@@ -105,7 +105,9 @@ describe('iterateDocumentItems (minimal document)', () => {
     // Add a unique child ref that only exists via the picture
     doc.pictures![0].children = [{ $ref: '#/texts/1' }];
     // Remove texts/1 from body so it only appears if picture is traversed
-    doc.body!.children = doc.body!.children!.filter(c => c.$ref !== '#/texts/1');
+    doc.body!.children = doc.body!.children!.filter(
+      c => c.$ref !== '#/texts/1'
+    );
     const items = [...iterateDocumentItems(doc)];
     const refs = items.map(([item]) => item.self_ref);
     expect(refs).not.toContain('#/texts/1');
@@ -115,7 +117,9 @@ describe('iterateDocumentItems (minimal document)', () => {
     const doc = loadMinimalDocument();
     doc.pictures![0].children = [{ $ref: '#/texts/1' }];
     // Remove texts/1 from body so it only appears via picture traversal
-    doc.body!.children = doc.body!.children!.filter(c => c.$ref !== '#/texts/1');
+    doc.body!.children = doc.body!.children!.filter(
+      c => c.$ref !== '#/texts/1'
+    );
     const items = [...iterateDocumentItems(doc, { traversePictures: true })];
     const refs = items.map(([item]) => item.self_ref);
     expect(refs).toContain('#/texts/1');
@@ -129,22 +133,31 @@ describe('iterateDocumentItems (minimal document)', () => {
       name: 'Level Test',
       body: {
         self_ref: '#/body',
-        children: [
-          { $ref: '#/texts/0' },
-          { $ref: '#/groups/0' },
-        ],
+        children: [{ $ref: '#/texts/0' }, { $ref: '#/groups/0' }],
       },
       texts: [
         { self_ref: '#/texts/0', label: 'title', orig: 'Title', text: 'Title' },
-        { self_ref: '#/texts/1', label: 'text', orig: 'Nested', text: 'Nested' },
+        {
+          self_ref: '#/texts/1',
+          label: 'text',
+          orig: 'Nested',
+          text: 'Nested',
+        },
       ],
       groups: [
-        { self_ref: '#/groups/0', children: [{ $ref: '#/texts/1' }], name: 'g', label: 'section' },
+        {
+          self_ref: '#/groups/0',
+          children: [{ $ref: '#/texts/1' }],
+          name: 'g',
+          label: 'section',
+        },
       ],
     };
     // Use first occurrence for each ref
     const seen = new Map<string, number>();
-    for (const [item, level] of iterateDocumentItems(doc, { withGroups: true })) {
+    for (const [item, level] of iterateDocumentItems(doc, {
+      withGroups: true,
+    })) {
       if (!seen.has(item.self_ref)) seen.set(item.self_ref, level);
     }
 
@@ -164,11 +177,15 @@ describe('iterateDocumentItems (minimal document)', () => {
       { page_no: 2, bbox: { l: 0, t: 0, r: 100, b: 20 }, charspan: [0, 15] },
     ];
 
-    const page1Refs = [...iterateDocumentItems(doc, { pageNo: 1 })].map(([item]) => item.self_ref);
+    const page1Refs = [...iterateDocumentItems(doc, { pageNo: 1 })].map(
+      ([item]) => item.self_ref
+    );
     expect(page1Refs).toContain('#/texts/0');
     expect(page1Refs).not.toContain('#/texts/1');
 
-    const page2Refs = [...iterateDocumentItems(doc, { pageNo: 2 })].map(([item]) => item.self_ref);
+    const page2Refs = [...iterateDocumentItems(doc, { pageNo: 2 })].map(
+      ([item]) => item.self_ref
+    );
     expect(page2Refs).not.toContain('#/texts/0');
     expect(page2Refs).toContain('#/texts/1');
   });
@@ -176,7 +193,9 @@ describe('iterateDocumentItems (minimal document)', () => {
   it('allows iterating from a custom root', () => {
     const doc = loadMinimalDocument();
     const group = doc.groups![0]; // has child texts/0
-    const items = [...iterateDocumentItems(doc, { root: group, withGroups: true })];
+    const items = [
+      ...iterateDocumentItems(doc, { root: group, withGroups: true }),
+    ];
     const selfRefs = items.map(([item]) => item.self_ref);
     // group itself is the root, yielded at level 0
     expect(selfRefs).toContain('#/groups/0');
@@ -210,7 +229,8 @@ describe('iterateDocumentItems (test-document.json)', () => {
 
   it('yields groups when withGroups is true', () => {
     const withoutGroups = [...iterateDocumentItems(doc)].length;
-    const withGroups = [...iterateDocumentItems(doc, { withGroups: true })].length;
+    const withGroups = [...iterateDocumentItems(doc, { withGroups: true })]
+      .length;
     expect(withGroups).toBeGreaterThan(withoutGroups);
   });
 
@@ -223,7 +243,9 @@ describe('iterateDocumentItems (test-document.json)', () => {
   it('item counts match expected document structure', () => {
     const items = [...iterateDocumentItems(doc)];
     const tables = items.filter(([item]) => isDoclingDocItem.TableItem(item));
-    const pictures = items.filter(([item]) => isDoclingDocItem.PictureItem(item));
+    const pictures = items.filter(([item]) =>
+      isDoclingDocItem.PictureItem(item)
+    );
 
     expect(tables.length).toBe(doc.tables?.length ?? 0);
     expect(pictures.length).toBe(doc.pictures?.length ?? 0);
@@ -231,7 +253,9 @@ describe('iterateDocumentItems (test-document.json)', () => {
 
   it('section headers are correctly identified', () => {
     const items = [...iterateDocumentItems(doc)];
-    const headers = items.filter(([item]) => isDoclingDocItem.SectionHeaderItem(item));
+    const headers = items.filter(([item]) =>
+      isDoclingDocItem.SectionHeaderItem(item)
+    );
     expect(headers.length).toBeGreaterThan(0);
     for (const [item] of headers) {
       expect((item as SectionHeaderItem).label).toBe('section_header');
@@ -259,7 +283,9 @@ describe('iterateDocumentItems (test-document.json)', () => {
       .filter(([, level]) => level === 1)
       .map(([item]) => item.self_ref);
 
-    const bodyChildRefs = new Set((doc.body?.children ?? []).map(ref => ref.$ref));
+    const bodyChildRefs = new Set(
+      (doc.body?.children ?? []).map(ref => ref.$ref)
+    );
     for (const ref of new Set(level1)) {
       expect(bodyChildRefs.has(ref)).toBe(true);
     }
