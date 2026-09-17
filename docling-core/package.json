@@ -3,8 +3,21 @@
   "version": "2.97.0",
   "description": "TypeScript definitions and functions for using Docling output.",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
   "files": [
     "dist"
   ],
@@ -23,7 +36,9 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build"
+    "publint": "publint",
+    "attw": "attw --pack .",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build && npm run publint && npm run attw"
   },
   "keywords": [
     "html",
@@ -54,15 +69,20 @@
     "Panos Vagenas <pva@zurich.ibm.com>"
   ],
   "license": "MIT",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/docling-project/docling-ts.git"
+    "url": "git+https://github.com/docling-project/docling-ts.git"
   },
   "bugs": {
     "url": "https://github.com/DS4SD/docling-project/issues"
   },
   "homepage": "https://github.com/DS4SD/docling-project/tree/main/docling-core",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "10.0.1",
     "eslint": "10.10.0",
     "eslint-config-prettier": "10.1.8",
@@ -70,6 +90,7 @@
     "globals": "17.12.0",
     "json-schema-to-typescript": "16.0.0",
     "prettier": "3.9.7",
+    "publint": "^0.3.24",
     "tsup": "8.5.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.0",
