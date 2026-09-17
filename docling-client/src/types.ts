@@ -80,9 +80,7 @@ export type VlmResponseFormat =
   | 'dots_json';
 export type VlmInferenceFramework = 'mlx' | 'transformers' | 'vllm';
 export type TransformersModelType =
-  | 'automodel'
-  | 'automodel-causallm'
-  | 'automodel-imagetexttotext';
+  'automodel' | 'automodel-causallm' | 'automodel-imagetexttotext';
 export type LegacyVlmModelType =
   | 'smoldocling'
   | 'smoldocling_vllm'
@@ -389,17 +387,10 @@ export type BatchSource =
 export type BatchTarget = PresignedUrlTarget | StorageTarget | GenericTarget;
 
 export type StorageTarget =
-  | S3Target
-  | AzureBlobTarget
-  | GoogleCloudStorageTarget
-  | GoogleDriveTarget;
+  S3Target | AzureBlobTarget | GoogleCloudStorageTarget | GoogleDriveTarget;
 
 export type SubmitTarget =
-  | InBodyTarget
-  | ZipTarget
-  | PresignedUrlTarget
-  | PutTarget
-  | StorageTarget;
+  InBodyTarget | ZipTarget | PresignedUrlTarget | PutTarget | StorageTarget;
 
 export interface CallbackSpec {
   url: string;
@@ -463,8 +454,7 @@ export interface HierarchicalChunkSourcesRequest extends BaseChunkSourcesRequest
  * DoclingDocument in the same task.
  */
 export type ChunkSourcesRequest =
-  | HybridChunkSourcesRequest
-  | HierarchicalChunkSourcesRequest;
+  HybridChunkSourcesRequest | HierarchicalChunkSourcesRequest;
 
 export type ChunkSourceOptions =
   | Omit<HybridChunkSourcesRequest, 'sources'>
@@ -472,12 +462,7 @@ export type ChunkSourceOptions =
 
 export type TaskType = 'convert' | 'chunk';
 export type TaskStatus =
-  | 'pending'
-  | 'started'
-  | 'success'
-  | 'failure'
-  | 'partial_success'
-  | 'skipped';
+  'pending' | 'started' | 'success' | 'failure' | 'partial_success' | 'skipped';
 
 export interface TaskProcessingMeta {
   num_docs: number;
@@ -506,12 +491,7 @@ export interface TaskStatusResponse {
 }
 
 export type ConversionStatus =
-  | 'pending'
-  | 'started'
-  | 'success'
-  | 'partial_success'
-  | 'skipped'
-  | 'failure';
+  'pending' | 'started' | 'success' | 'partial_success' | 'skipped' | 'failure';
 
 export type FailureCategory =
   | 'policy'
@@ -525,11 +505,7 @@ export type FailureCategory =
   | 'unknown';
 
 export type DoclingComponentType =
-  | 'document_backend'
-  | 'model'
-  | 'doc_assembler'
-  | 'user_input'
-  | 'pipeline';
+  'document_backend' | 'model' | 'doc_assembler' | 'user_input' | 'pipeline';
 
 export type QualityGrade = 'poor' | 'fair' | 'good' | 'excellent' | 'unspecified';
 
@@ -692,8 +668,7 @@ export type SubmitResultForTarget<
       : PresignedUrlConvertDocumentResponse;
 
 export type AutoSubmitResult<TDocument = DoclingDocument> =
-  | ConversionResult<TDocument>
-  | PresignedUrlConvertResponse;
+  ConversionResult<TDocument> | PresignedUrlConvertResponse;
 
 /** Clearer alias for the legacy Python-compatible counts response name. */
 export type RemoteTargetResponse = PresignedUrlConvertDocumentResponse;
@@ -704,8 +679,7 @@ export type BatchResultForTarget<TTarget extends BatchTarget> =
     : PresignedUrlConvertDocumentResponse;
 
 export type InBodyConversionResponse<TDocument = DoclingDocument> =
-  | ConvertDocumentResponse<TDocument>
-  | ChunkDocumentResponse<TDocument>;
+  ConvertDocumentResponse<TDocument> | ChunkDocumentResponse<TDocument>;
 
 export interface TaskFailureResult {
   kind: 'TaskFailureResult';
