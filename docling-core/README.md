@@ -55,7 +55,4 @@ This package does not
 
 ## Develop
 
-This package is tied to a specific version of the docling document format. Upgrade to a newer version of the document format:
-
-- In `package.json` set `config.docling` to the target version. For example, `"docling": "v23.3.0"`
-- Generate the corresponding types: `npm run generate`
+This package is tied to a specific version of the docling document format. Model and type definitions in `src/types/models.ts` and `src/types/typing.ts` correspond to the schemas defined in [Docling Core](https://github.com/docling-project/docling-core).
