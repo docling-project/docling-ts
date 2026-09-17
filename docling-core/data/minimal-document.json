@@ -1,0 +1,99 @@
+{
+  "schema_name": "DoclingDocument",
+  "version": "1.0.0",
+  "name": "Test Doc",
+  "body": {
+    "self_ref": "#/body",
+    "parent": null,
+    "children": [
+      { "$ref": "#/texts/0" },
+      { "$ref": "#/texts/1" },
+      { "$ref": "#/tables/0" },
+      { "$ref": "#/pictures/0" },
+      { "$ref": "#/groups/0" }
+    ]
+  },
+  "texts": [
+    {
+      "self_ref": "#/texts/0",
+      "parent": { "$ref": "#/body" },
+      "children": [],
+      "label": "title",
+      "orig": "My Title",
+      "text": "My Title"
+    },
+    {
+      "self_ref": "#/texts/1",
+      "parent": { "$ref": "#/body" },
+      "children": [],
+      "label": "section_header",
+      "orig": "1. Introduction",
+      "text": "1. Introduction",
+      "level": 1
+    }
+  ],
+  "tables": [
+    {
+      "self_ref": "#/tables/0",
+      "parent": { "$ref": "#/body" },
+      "children": [],
+      "label": "table",
+      "data": {
+        "num_rows": 2,
+        "num_cols": 2,
+        "grid": [
+          [
+            {
+              "start_row_offset_idx": 0,
+              "end_row_offset_idx": 1,
+              "start_col_offset_idx": 0,
+              "end_col_offset_idx": 1,
+              "text": "A"
+            },
+            {
+              "start_row_offset_idx": 0,
+              "end_row_offset_idx": 1,
+              "start_col_offset_idx": 1,
+              "end_col_offset_idx": 2,
+              "text": "B"
+            }
+          ],
+          [
+            {
+              "start_row_offset_idx": 1,
+              "end_row_offset_idx": 2,
+              "start_col_offset_idx": 0,
+              "end_col_offset_idx": 1,
+              "text": "1"
+            },
+            {
+              "start_row_offset_idx": 1,
+              "end_row_offset_idx": 2,
+              "start_col_offset_idx": 1,
+              "end_col_offset_idx": 2,
+              "text": "2"
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "pictures": [
+    {
+      "self_ref": "#/pictures/0",
+      "parent": { "$ref": "#/body" },
+      "children": [],
+      "label": "picture",
+      "annotations": []
+    }
+  ],
+  "groups": [
+    {
+      "self_ref": "#/groups/0",
+      "parent": { "$ref": "#/body" },
+      "children": [{ "$ref": "#/texts/0" }],
+      "name": "intro",
+      "label": "section"
+    }
+  ]
+}
