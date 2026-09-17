@@ -14,6 +14,6 @@ export function customDoclingAnnotationElement(
       target as typeof DoclingAnnotationElement
     );
 
-    return decorator(target, context as any);
+    return decorator(target, context as ClassDecoratorContext);
   };
 }

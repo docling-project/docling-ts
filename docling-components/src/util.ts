@@ -15,7 +15,9 @@ export function pagesOf(doc?: DoclingDocument): PageItem[] {
 export function itemsByPagesOf(
   doc: DoclingDocument
 ): Record<number, DocItem[]> {
-  const items = Array.from(iterateDocumentItems(doc, { traversePictures: true })) as [DocItem, number][];
+  const items = Array.from(
+    iterateDocumentItems(doc, { traversePictures: true })
+  ) as [DocItem, number][];
 
   const pageToItems: Record<number, DocItem[]> = {};
   for (const p of pagesOf(doc)) {

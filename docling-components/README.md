@@ -24,7 +24,10 @@ Either download the package and serve it as part of the rest of the website, or 
   <head>
     ...
 
-    <script type="module" src="https://unpkg.com/@docling/docling-components/dist/index.es.js" />
+    <script
+      type="module"
+      src="https://unpkg.com/@docling/docling-components/dist/index.es.js"
+    />
   </head>
 
   ...
@@ -147,10 +150,7 @@ Select the columns that you want to have shown and in what order:
 You can use this to display the cropped image of a single document item as well:
 
 ```html
-<docling-table
-  src="conversion.json"
-  items="#/tables/2"
->
+<docling-table src="conversion.json" items="#/tables/2">
   <docling-column>
     <docling-item-provenance></docling-item-provenance>
   </docling-column>
@@ -158,13 +158,16 @@ You can use this to display the cropped image of a single document item as well:
 ```
 
 ## Item components
+
 Most types of document item have a prepackaged component that will be used to visualize it:
-| Tag        | Item label |
-| ---------- | ---------- |
-| `<docling-item-text>` | checkbox_selected<br /> checkbox_unselected<br /> footnote<br /> page_footer<br /> page_header<br /> paragraph<br /> text<br /> reference |
-| `<docling-item-table>` | table |
+
+| Tag                    | Item label                                                                                                                                |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `<docling-item-text>`  | checkbox_selected<br /> checkbox_unselected<br /> footnote<br /> page_footer<br /> page_header<br /> paragraph<br /> text<br /> reference |
+| `<docling-item-table>` | table                                                                                                                                     |
 
 You can use these tags directly with elements like `<docling-tooltip>` to specify what components will be used, including optional parameters. For example, to exclusively show tooltips for table components:
+
 ```
 <docling-tooltip>
   <docling-item-table></docling-item-table>
@@ -174,13 +177,16 @@ You can use these tags directly with elements like `<docling-tooltip>` to specif
 You can create your own item components by extending from the `DoclingItemElement` class at `/src/item/ItemElement.ts` and annotating the class with `@customDoclingItemElement('docling-my-first-item-component')` to have it registered as both a custom web element and as a default component for rendering document items.
 
 ## Annotation components
+
 Some types of document item annotation have a prepackaged component that will be used to visualize it:
-| Tag        | Item label | Annotation kind |
-| ---------- | ---------- | --------------- |
-| `<docling-picture-classification>` | chart <br /> picture | classification |
-| `<docling-picture-description>` | chart <br /> picture | description  |
+
+| Tag                                | Item label           | Annotation kind |
+| ---------------------------------- | -------------------- | --------------- |
+| `<docling-picture-classification>` | chart <br /> picture | classification  |
+| `<docling-picture-description>`    | chart <br /> picture | description     |
 
 You can use these tags directly with elements like `<docling-tooltip>` to specify what components will be used. For example, to overlay pictures with their classification, if any:
+
 ```
 <docling-overlay>
   <docling-picture-classification></docling-picture-classification>

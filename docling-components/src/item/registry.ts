@@ -11,6 +11,6 @@ export function customDoclingItemElement(
   return function (target, context?: ClassDecoratorContext) {
     customDoclingItemElements.push(target as typeof DoclingItemElement);
 
-    return decorator(target, context as any);
+    return decorator(target, context as ClassDecoratorContext);
   };
 }
