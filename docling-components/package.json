@@ -62,7 +62,7 @@
     "eslint": "^9.14.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
-    "globals": "^15.12.0",
+    "globals": "^17.12.0",
     "prettier": "^3.4.2",
     "stylelint": "^17.15.0",
     "typescript-eslint": "^8.22.0",
