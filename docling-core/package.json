@@ -21,9 +21,6 @@
   "files": [
     "dist"
   ],
-  "config": {
-    "docling": "2.128.0"
-  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
