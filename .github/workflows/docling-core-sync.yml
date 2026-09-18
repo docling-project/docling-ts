@@ -44,17 +44,35 @@ jobs:
           echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
 
           # Current version configured in docling-ts/docling-core/package.json
-          CURRENT_VERSION=$(jq -r '.config.docling // empty' docling-core/package.json)
+          CURRENT_VERSION=$(jq -r '.version // empty' docling-core/package.json)
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
           echo "Target version: $CLEAN_VERSION (tag: $TAG)"
-          echo "Current version in docling-core config: $CURRENT_VERSION"
+          echo "Current version in docling-core package.json: $CURRENT_VERSION"
 
-          if [ "$CLEAN_VERSION" = "$CURRENT_VERSION" ] && [ -z "${{ github.event.inputs.target_version }}" ]; then
-            echo "should_update=false" >> $GITHUB_OUTPUT
-            echo "Already up-to-date with docling-core $CLEAN_VERSION."
-          else
+          if [ -n "${{ github.event.inputs.target_version }}" ]; then
             echo "should_update=true" >> $GITHUB_OUTPUT
+            echo "Manual target_version provided ($TAG). Forcing update."
+          else
+            # Extract major and minor numbers for comparison (e.g., 2.18.0 -> 2 and 18)
+            TARGET_MAJOR=$(echo "$CLEAN_VERSION" | cut -d. -f1)
+            TARGET_MINOR=$(echo "$CLEAN_VERSION" | cut -d. -f2)
+            CURRENT_MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+            CURRENT_MINOR=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+
+            # Default empty values to 0
+            TARGET_MAJOR=${TARGET_MAJOR:-0}
+            TARGET_MINOR=${TARGET_MINOR:-0}
+            CURRENT_MAJOR=${CURRENT_MAJOR:-0}
+            CURRENT_MINOR=${CURRENT_MINOR:-0}
+
+            if [ "$TARGET_MAJOR" -gt "$CURRENT_MAJOR" ] || { [ "$TARGET_MAJOR" -eq "$CURRENT_MAJOR" ] && [ "$TARGET_MINOR" -gt "$CURRENT_MINOR" ]; }; then
+              echo "should_update=true" >> $GITHUB_OUTPUT
+              echo "Newer major/minor docling-core found ($CLEAN_VERSION > $CURRENT_VERSION). Triggering sync."
+            else
+              echo "should_update=false" >> $GITHUB_OUTPUT
+              echo "docling-core major.minor ($TARGET_MAJOR.$TARGET_MINOR) is not greater than current ($CURRENT_MAJOR.$CURRENT_MINOR). Skipping sync."
+            fi
           fi
 
       - name: Checkout upstream docling-core repository
@@ -80,14 +98,11 @@ jobs:
       - name: Run Copilot CLI to update TypeScript models and tests
         if: steps.version_check.outputs.should_update == 'true'
         env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
-          # Update docling-core config version in package.json
-          jq --arg ver "$VERSION" '.config.docling = $ver' docling-core/package.json > docling-core/package.json.tmp \
-            && mv docling-core/package.json.tmp docling-core/package.json
-
           # Install dependencies for checking
           cd docling-core && npm ci && cd ..
 
