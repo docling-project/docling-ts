@@ -100,6 +100,7 @@ jobs:
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
@@ -107,7 +108,7 @@ jobs:
           cd docling-core && npm ci && cd ..
 
           # Run Copilot CLI in programmatic non-interactive mode
-          copilot -p "You are updating the TypeScript package 'docling-core' in this repository to match the Python implementation in 'upstream-docling-core/docling_core/'.
+          copilot --model gpt-5.6-luna -p "You are updating the TypeScript package 'docling-core' in this repository to match the Python implementation in 'upstream-docling-core/docling_core/'.
           Target release version: $TAG.
           
           Please perform the following tasks:
@@ -118,8 +119,10 @@ jobs:
           5. Update docling-core/tests/ to add tests for any new or modified types and functions.
           6. Run 'npm run check' inside docling-core/ to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found." \
           --allow-tool='shell(*)' \
+          --allow-tool='fetch(*)' \
+          --allow-tool='mcp(*)' \
           --allow-tool=write \
-          --no-ask-user
+          --allow-tool=read
 
       - name: Remove upstream checkout before commit
         if: steps.version_check.outputs.should_update == 'true'
