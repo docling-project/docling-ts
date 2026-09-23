@@ -128,7 +128,7 @@ jobs:
       - name: Commit changes and create PR using GitHub CLI
         if: steps.version_check.outputs.should_update == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
