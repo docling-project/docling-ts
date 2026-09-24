@@ -91,13 +91,15 @@ jobs:
         if: steps.version_check.outputs.should_update == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: docling-core/package-lock.json
 
-      - name: Install Bob CLI
+      - name: Install Bob Shell
         if: steps.version_check.outputs.should_update == 'true'
-        run: npm install -g @ibm/bob
+        run: |
+          curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash
+          echo "$HOME/.bob/bin" >> "$GITHUB_PATH"
 
       - name: Install docling-core dependencies
         if: steps.version_check.outputs.should_update == 'true'
