@@ -110,20 +110,20 @@ jobs:
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
-          bob run --accept-license --mode agent "You are updating the TypeScript package in the 'docling-core/' subdirectory to match the Python implementation in 'upstream-docling-core/docling_core/'.
-          Target release version: $TAG.
+          bob run --accept-license --mode agent --trust --max-turns 1000 \
+            "You are updating the TypeScript package in the 'docling-core/' subdirectory to match the Python implementation in 'upstream-docling-core/docling_core/'.
+            Target release version: $TAG (upgrading from the current version in docling-core/package.json).
 
-          Please perform the following tasks:
-          1. Inspect the Python codebase in upstream-docling-core/docling_core/ (especially docling_core/types/ and document hierarchy/traversal logic).
-          2. Update docling-core/src/types/models.ts to reflect all updated/new models, fields, and types.
-          3. Update docling-core/src/types/typing.ts to add or adjust type predicates and discriminators (e.g. isDoclingDocItem, isDoclingAnnotation, isDocling).
-          4. Inspect and update remaining code under docling-core/src/ (e.g. docling-core/src/index.ts, iterateDocumentItems, resolveDocumentItem, etc.) for any corresponding changes or new features from the Python repository.
-          5. Update docling-core/tests/ to add tests for any new or modified types and functions.
-          6. Run 'cd docling-core && npm run check' to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found.
+            Please perform the following tasks:
+            1. Inspect the Python codebase in upstream-docling-core/docling_core/ (especially docling_core/types/ and document hierarchy/traversal logic).
+            2. Update docling-core/src/types/models.ts to reflect all updated/new models, fields, and types.
+            3. Update docling-core/src/types/typing.ts to add or adjust type predicates and discriminators (e.g. isDoclingDocItem, isDoclingAnnotation, isDocling).
+            4. Inspect and update remaining code under docling-core/src/ (e.g. docling-core/src/index.ts, iterateDocumentItems, resolveDocumentItem, etc.) for any corresponding changes or new features from the Python repository.
+            5. Update docling-core/tests/ to add tests for any new or modified types and functions.
+            6. Run 'cd docling-core && npm run check' to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found.
 
-          Please respect these rules:
-          - Do not make any changes to package.json and package-lock.json (including the version number; this will be changed upon actual release).
-          "
+            Rules:
+            - Do not modify package.json or package-lock.json."
 
       - name: Remove upstream checkout before commit
         if: steps.version_check.outputs.should_update == 'true'
@@ -145,7 +145,7 @@ jobs:
           git add docling-core/
 
           if git diff --cached --quiet; then
-            echo "No changes detected after running Copilot CLI."
+            echo "No changes detected after running Bob CLI."
             exit 0
           fi
 
