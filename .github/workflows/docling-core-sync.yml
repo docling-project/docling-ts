@@ -10,18 +10,22 @@ on:
         required: false
         type: string
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   check-and-sync:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout docling-ts
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Get Target docling-core Version
         id: version_check
@@ -91,40 +95,35 @@ jobs:
           cache: npm
           cache-dependency-path: docling-core/package-lock.json
 
-      - name: Install Copilot CLI
+      - name: Install Bob CLI
         if: steps.version_check.outputs.should_update == 'true'
-        run: npm install -g @github/copilot
+        run: npm install -g @ibm/bob
 
       - name: Install docling-core dependencies
         if: steps.version_check.outputs.should_update == 'true'
-        working-directory: docling-core
-        run: npm ci
+        run: cd docling-core && npm ci
 
-      - name: Run Copilot CLI to update TypeScript models and tests
+      - name: Run Bob CLI to update TypeScript models and tests
         if: steps.version_check.outputs.should_update == 'true'
-        working-directory: docling-core
         env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          BOB_API_KEY: ${{ secrets.BOB_API_KEY }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
-          copilot --model gpt-5.6-luna -p "You are updating the TypeScript package 'docling-core' (current directory) to match the Python implementation in '../upstream-docling-core/docling_core/'.
+          bob run --accept-license --mode agent -p "You are updating the TypeScript package in the 'docling-core/' subdirectory to match the Python implementation in 'upstream-docling-core/docling_core/'.
           Target release version: $TAG.
 
           Please perform the following tasks:
-          1. Inspect the Python codebase in ../upstream-docling-core/docling_core/ (especially docling_core/types/ and document hierarchy/traversal logic).
-          2. Update src/types/models.ts to reflect all updated/new models, fields, and types.
-          3. Update src/types/typing.ts to add or adjust type predicates and discriminators (e.g. isDoclingDocItem, isDoclingAnnotation, isDocling).
-          4. Inspect and update remaining code under src/ (e.g. src/index.ts, iterateDocumentItems, resolveDocumentItem, etc.) for any corresponding changes or new features from the Python repository.
-          5. Update tests/ to add tests for any new or modified types and functions.
-          6. Run 'npm run check' to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found." \
-          --allow-tool='shell(*)' \
-          --allow-tool='fetch(*)' \
-          --allow-tool='mcp(*)' \
-          --allow-tool=write \
-          --allow-tool=read
+          1. Inspect the Python codebase in upstream-docling-core/docling_core/ (especially docling_core/types/ and document hierarchy/traversal logic).
+          2. Update docling-core/src/types/models.ts to reflect all updated/new models, fields, and types.
+          3. Update docling-core/src/types/typing.ts to add or adjust type predicates and discriminators (e.g. isDoclingDocItem, isDoclingAnnotation, isDocling).
+          4. Inspect and update remaining code under docling-core/src/ (e.g. docling-core/src/index.ts, iterateDocumentItems, resolveDocumentItem, etc.) for any corresponding changes or new features from the Python repository.
+          5. Update docling-core/tests/ to add tests for any new or modified types and functions.
+          6. Run 'cd docling-core && npm run check' to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found.
+
+          Please respect these rules:
+          - Do not make any changes to package.json and package-lock.json (including the version number; this will be changed upon actual release).
+          "
 
       - name: Remove upstream checkout before commit
         if: steps.version_check.outputs.should_update == 'true'
@@ -133,14 +132,14 @@ jobs:
       - name: Commit and push changes
         if: steps.version_check.outputs.should_update == 'true'
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
           BRANCH_NAME="sync/docling-core-${VERSION}"
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
 
           git checkout -B "$BRANCH_NAME"
           git add docling-core/
@@ -160,7 +159,7 @@ jobs:
       - name: Create or update pull request
         if: steps.version_check.outputs.should_update == 'true' && steps.commit.outputs.branch_name != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
@@ -169,7 +168,7 @@ jobs:
           PR_BODY=$(cat <<EOF
           ## Automated Upstream Sync: docling-core [${TAG}](https://github.com/docling-project/docling-core/releases/tag/${TAG})
 
-          This pull request was generated automatically using **GitHub Copilot CLI** in GitHub Actions.
+          This pull request was generated automatically using **IBM Bob CLI** in GitHub Actions.
 
           ### Actions Taken:
           - Analyzed Python schemas and logic in upstream release \`${TAG}\`.
