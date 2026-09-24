@@ -80,23 +80,28 @@ jobs:
           fi
 
       - name: Check for existing open PR
-        if: steps.version_check.outputs.should_update == 'true' && github.event.inputs.target_version == ''
         id: pr_check
+        if: steps.version_check.outputs.should_update == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
           BRANCH_NAME="sync/docling-core-${VERSION}"
-          EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --state open --json number --jq '.[0].number')
-          if [ -n "$EXISTING_PR" ]; then
-            echo "Open PR #${EXISTING_PR} already exists for branch ${BRANCH_NAME}. Skipping sync."
-            echo "skip=true" >> $GITHUB_OUTPUT
+          # A manual dispatch always forces a sync; otherwise skip if a PR is already open
+          if [ -n "${{ github.event.inputs.target_version }}" ]; then
+            echo "should_sync=true" >> $GITHUB_OUTPUT
           else
-            echo "skip=false" >> $GITHUB_OUTPUT
+            EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --state open --json number --jq '.[0].number')
+            if [ -n "$EXISTING_PR" ]; then
+              echo "Open PR #${EXISTING_PR} already exists for branch ${BRANCH_NAME}. Skipping sync."
+              echo "should_sync=false" >> $GITHUB_OUTPUT
+            else
+              echo "should_sync=true" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - name: Checkout upstream docling-core repository
-        if: steps.version_check.outputs.should_update == 'true' && steps.pr_check.outputs.skip != 'true'
+        if: steps.pr_check.outputs.should_sync == 'true'
         uses: actions/checkout@v4
         with:
           repository: docling-project/docling-core
@@ -104,7 +109,7 @@ jobs:
           path: upstream-docling-core
 
       - name: Set up Node.js
-        if: steps.version_check.outputs.should_update == 'true' && steps.pr_check.outputs.skip != 'true'
+        if: steps.pr_check.outputs.should_sync == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -112,15 +117,15 @@ jobs:
           cache-dependency-path: docling-core/package-lock.json
 
       - name: Install Bob Shell
-        if: steps.version_check.outputs.should_update == 'true' && steps.pr_check.outputs.skip != 'true'
+        if: steps.pr_check.outputs.should_sync == 'true'
         run: curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm
 
       - name: Install docling-core dependencies
-        if: steps.version_check.outputs.should_update == 'true' && steps.pr_check.outputs.skip != 'true'
+        if: steps.pr_check.outputs.should_sync == 'true'
         run: cd docling-core && npm ci
 
       - name: Run Bob CLI to update TypeScript models and tests
-        if: steps.version_check.outputs.should_update == 'true' && steps.pr_check.outputs.skip != 'true'
+        if: steps.pr_check.outputs.should_sync == 'true'
         env:
           BOB_API_KEY: ${{ secrets.BOB_API_KEY }}
           TAG: ${{ steps.version_check.outputs.tag }}
@@ -143,11 +148,12 @@ jobs:
             - Limit the number of searches that you do and focus on the (entire) files that contain the model and traversal code.
 
       - name: Remove upstream checkout before commit
-        if: steps.version_check.outputs.should_update == 'true' && steps.pr_check.outputs.skip != 'true'
+        if: steps.pr_check.outputs.should_sync == 'true'
         run: rm -rf upstream-docling-core
 
       - name: Commit and push changes
-        if: steps.version_check.outputs.should_update == 'true' && steps.pr_check.outputs.skip != 'true'
+        id: commit
+        if: steps.pr_check.outputs.should_sync == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TAG: ${{ steps.version_check.outputs.tag }}
@@ -169,12 +175,10 @@ jobs:
           git commit -m "feat(docling-core): sync types with docling-core ${TAG}"
           git push -u origin "$BRANCH_NAME" --force
 
-          # Pass branch name to next step
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-        id: commit
 
       - name: Create or update pull request
-        if: steps.version_check.outputs.should_update == 'true' && steps.pr_check.outputs.skip != 'true' && steps.commit.outputs.branch_name != ''
+        if: steps.commit.outputs.branch_name != ''
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TAG: ${{ steps.version_check.outputs.tag }}
