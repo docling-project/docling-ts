@@ -97,9 +97,7 @@ jobs:
 
       - name: Install Bob Shell
         if: steps.version_check.outputs.should_update == 'true'
-        run: |
-          curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash
-          echo "$HOME/.bob/bin" >> "$GITHUB_PATH"
+        run: curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm
 
       - name: Install docling-core dependencies
         if: steps.version_check.outputs.should_update == 'true'
@@ -112,7 +110,7 @@ jobs:
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
-          bob run --accept-license --mode agent -p "You are updating the TypeScript package in the 'docling-core/' subdirectory to match the Python implementation in 'upstream-docling-core/docling_core/'.
+          bob run --accept-license --mode agent "You are updating the TypeScript package in the 'docling-core/' subdirectory to match the Python implementation in 'upstream-docling-core/docling_core/'.
           Target release version: $TAG.
 
           Please perform the following tasks:
