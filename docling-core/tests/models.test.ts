@@ -6,8 +6,14 @@ import {
   type FieldItem,
   type FieldRegionItem,
   type FieldValueItem,
+  type FormItem,
+  type FormulaItem,
+  type InlineGroup,
+  type KeyValueItem,
+  type ListGroup,
   type ListItem,
   type NodeItem,
+  type OrderedList,
   type PictureBarChartData,
   type PictureClassificationData,
   type PictureDescriptionData,
@@ -18,9 +24,11 @@ import {
   type PicturePieChartData,
   type PictureScatterChartData,
   type PictureStackedBarChartData,
+  type PictureTabularChartData,
   type SectionHeaderItem,
   type TableItem,
   type TextItem,
+  type TitleItem,
   isDocling,
   isDoclingAnnotation,
   isDoclingDocItem,
@@ -47,9 +55,24 @@ describe('isDocling.GroupItem', () => {
     expect(isDocling.GroupItem(body)).toBe(true);
   });
 
+  it('identifies furniture by self_ref', () => {
+    const furniture: NodeItem = { self_ref: '#/furniture' };
+    expect(isDocling.GroupItem(furniture)).toBe(true);
+  });
+
   it('identifies group by self_ref prefix', () => {
     const group: NodeItem = { self_ref: '#/groups/0' };
     expect(isDocling.GroupItem(group)).toBe(true);
+  });
+
+  it('identifies ListGroup, OrderedList, InlineGroup', () => {
+    const lg: ListGroup = { self_ref: '#/groups/0', label: 'list' };
+    const ol: OrderedList = { self_ref: '#/groups/1', label: 'ordered_list' };
+    const ig: InlineGroup = { self_ref: '#/groups/2', label: 'inline' };
+    expect(isDocling.ListGroup(lg)).toBe(true);
+    expect(isDocling.ListGroup(ol)).toBe(false);
+    expect(isDocling.OrderedList(ol)).toBe(true);
+    expect(isDocling.InlineGroup(ig)).toBe(true);
   });
 
   it('rejects non-group nodes', () => {
@@ -108,6 +131,25 @@ describe('isDoclingDocItem', () => {
       false,
     ],
 
+    ['TitleItem', { self_ref: '#/texts/0', label: 'title' } as TitleItem, true],
+    [
+      'FormulaItem',
+      { self_ref: '#/texts/0', label: 'formula' } as FormulaItem,
+      true,
+    ],
+    [
+      'KeyValueItem',
+      {
+        self_ref: '#/key_value_items/0',
+        label: 'key_value_region',
+      } as KeyValueItem,
+      true,
+    ],
+    [
+      'FormItem',
+      { self_ref: '#/form_items/0', label: 'form' } as FormItem,
+      true,
+    ],
     [
       'ListItem',
       { self_ref: '#/texts/0', label: 'list_item' } as ListItem,
@@ -312,6 +354,11 @@ describe('isDoclingAnnotation', () => {
     y_axis_label: 'Y',
     points: [{ value: [1, 2] }],
   };
+  const tabularChart: PictureTabularChartData = {
+    kind: 'tabular_chart_data',
+    title: 'Tabular',
+    chart_data: { grid: [] },
+  };
 
   it('PictureClassification accepts classification, rejects others', () => {
     expect(isDoclingAnnotation.PictureClassification(classification)).toBe(
@@ -367,5 +414,11 @@ describe('isDoclingAnnotation', () => {
     expect(isDoclingAnnotation.PictureScatterChart(scatter)).toBe(true);
     expect(isDoclingAnnotation.PictureScatterChart(pie)).toBe(false);
     expect(isDoclingAnnotation.PictureScatterChart(lineChart)).toBe(false);
+  });
+
+  it('PictureTabularChart accepts tabular_chart_data, rejects others', () => {
+    expect(isDoclingAnnotation.PictureTabularChart(tabularChart)).toBe(true);
+    expect(isDoclingAnnotation.PictureTabularChart(pie)).toBe(false);
+    expect(isDoclingAnnotation.PictureTabularChart(barChart)).toBe(false);
   });
 });

@@ -109,11 +109,252 @@ export type GroupLabel =
   | 'comment_section'
   | 'inline'
   | 'picture_area';
+export type PictureClassificationLabel =
+  | 'bar_chart'
+  | 'box_plot'
+  | 'flow_chart'
+  | 'line_chart'
+  | 'pie_chart'
+  | 'scatter_plot'
+  | 'table'
+  | 'other_chart'
+  | 'full_page_image'
+  | 'page_thumbnail'
+  | 'photograph'
+  | 'chemistry_structure'
+  | 'bar_code'
+  | 'icon'
+  | 'logo'
+  | 'qr_code'
+  | 'signature'
+  | 'stamp'
+  | 'engineering_drawing'
+  | 'screenshot_from_computer'
+  | 'screenshot_from_manual'
+  | 'geographical_map'
+  | 'topographical_map'
+  | 'calendar'
+  | 'crossword_puzzle'
+  | 'music'
+  | 'other'
+  | 'cad_drawing'
+  | 'electrical_diagram'
+  | 'map'
+  | 'heatmap'
+  | 'chemistry_markush_structure'
+  | 'chemistry_molecular_structure'
+  | 'natural_image'
+  | 'picture_group'
+  | 'remote_sensing'
+  | 'scatter_chart'
+  | 'screenshot'
+  | 'stacked_bar_chart'
+  | 'stratigraphic_chart';
+export type TableCellLabel =
+  'col_header' | 'row_header' | 'row_section' | 'body';
 export type GraphCellLabel = 'unspecified' | 'key' | 'value' | 'checkbox';
 export type GraphLinkLabel =
   'unspecified' | 'to_value' | 'to_key' | 'to_parent' | 'to_child';
+export type HumanLanguageLabel =
+  | 'aa'
+  | 'ab'
+  | 'ae'
+  | 'af'
+  | 'ak'
+  | 'am'
+  | 'an'
+  | 'ar'
+  | 'as'
+  | 'av'
+  | 'ay'
+  | 'az'
+  | 'ba'
+  | 'be'
+  | 'bg'
+  | 'bh'
+  | 'bi'
+  | 'bm'
+  | 'bn'
+  | 'bo'
+  | 'br'
+  | 'bs'
+  | 'ca'
+  | 'ce'
+  | 'ch'
+  | 'co'
+  | 'cr'
+  | 'cs'
+  | 'cu'
+  | 'cv'
+  | 'cy'
+  | 'da'
+  | 'de'
+  | 'dv'
+  | 'dz'
+  | 'ee'
+  | 'el'
+  | 'en'
+  | 'eo'
+  | 'es'
+  | 'et'
+  | 'eu'
+  | 'fa'
+  | 'ff'
+  | 'fi'
+  | 'fj'
+  | 'fo'
+  | 'fr'
+  | 'fy'
+  | 'ga'
+  | 'gd'
+  | 'gl'
+  | 'gn'
+  | 'gu'
+  | 'gv'
+  | 'ha'
+  | 'he'
+  | 'hi'
+  | 'ho'
+  | 'hr'
+  | 'ht'
+  | 'hu'
+  | 'hy'
+  | 'hz'
+  | 'ia'
+  | 'id'
+  | 'ie'
+  | 'ig'
+  | 'ii'
+  | 'ik'
+  | 'io'
+  | 'is'
+  | 'it'
+  | 'iu'
+  | 'ja'
+  | 'jv'
+  | 'ka'
+  | 'kg'
+  | 'ki'
+  | 'kj'
+  | 'kk'
+  | 'kl'
+  | 'km'
+  | 'kn'
+  | 'ko'
+  | 'kr'
+  | 'ks'
+  | 'ku'
+  | 'kv'
+  | 'kw'
+  | 'ky'
+  | 'la'
+  | 'lb'
+  | 'lg'
+  | 'li'
+  | 'ln'
+  | 'lo'
+  | 'lt'
+  | 'lu'
+  | 'lv'
+  | 'mg'
+  | 'mh'
+  | 'mi'
+  | 'mk'
+  | 'ml'
+  | 'mn'
+  | 'mr'
+  | 'ms'
+  | 'mt'
+  | 'my'
+  | 'na'
+  | 'nb'
+  | 'nd'
+  | 'ne'
+  | 'ng'
+  | 'nl'
+  | 'nn'
+  | 'no'
+  | 'nr'
+  | 'nv'
+  | 'ny'
+  | 'oc'
+  | 'oj'
+  | 'om'
+  | 'or'
+  | 'os'
+  | 'pa'
+  | 'pi'
+  | 'pl'
+  | 'ps'
+  | 'pt'
+  | 'qu'
+  | 'rm'
+  | 'rn'
+  | 'ro'
+  | 'ru'
+  | 'rw'
+  | 'sa'
+  | 'sc'
+  | 'sd'
+  | 'se'
+  | 'sg'
+  | 'sh'
+  | 'si'
+  | 'sk'
+  | 'sl'
+  | 'sm'
+  | 'sn'
+  | 'so'
+  | 'sq'
+  | 'sr'
+  | 'ss'
+  | 'st'
+  | 'su'
+  | 'sv'
+  | 'sw'
+  | 'ta'
+  | 'te'
+  | 'tg'
+  | 'th'
+  | 'ti'
+  | 'tk'
+  | 'tl'
+  | 'tn'
+  | 'to'
+  | 'tr'
+  | 'ts'
+  | 'tt'
+  | 'tw'
+  | 'ty'
+  | 'ug'
+  | 'uk'
+  | 'ur'
+  | 'uz'
+  | 've'
+  | 'vi'
+  | 'vo'
+  | 'wa'
+  | 'wo'
+  | 'xh'
+  | 'yi'
+  | 'yo'
+  | 'za'
+  | 'zh'
+  | 'zu';
+export type MetaFieldName =
+  | 'summary'
+  | 'language'
+  | 'entities'
+  | 'keywords'
+  | 'topics'
+  | 'description'
+  | 'classification'
+  | 'molecule'
+  | 'tabular_chart';
 export type Script = 'baseline' | 'sub' | 'super';
 export type Orientation = 'rot_0' | 'rot_90' | 'rot_180' | 'rot_270';
+export type ImageRefMode = 'placeholder' | 'embedded' | 'referenced';
+export type CaptionPlacement = 'standard' | 'layout';
 
 export interface BoundingBox {
   l: number;
@@ -167,7 +408,7 @@ export interface SummaryMetaField extends BasePrediction {
   text: string;
 }
 export interface LanguageMetaField extends BasePrediction {
-  code: string;
+  code: HumanLanguageLabel;
 }
 export interface EntityMention extends BasePrediction {
   text: string;
@@ -217,11 +458,23 @@ export interface NodeItem {
   content_layer?: ContentLayer;
   meta?: BaseMeta | null;
 }
+export interface FineRef extends RefItem {
+  range?: [number, number] | null;
+}
+export interface TrackSource {
+  kind: 'track';
+  start_time: number;
+  end_time: number;
+  identifier?: string | null;
+  voice?: string | null;
+}
+export type SourceType = TrackSource;
+
 export interface DocItem extends NodeItem {
   label?: DocItemLabel;
   prov?: ProvenanceItem[];
-  source?: unknown[];
-  comments?: RefItem[];
+  source?: SourceType[];
+  comments?: FineRef[];
 }
 export interface FloatingItem extends DocItem {
   meta?: FloatingMeta | null;
@@ -281,6 +534,7 @@ export interface TextItem extends DocItem {
     | 'field_hint'
     | 'marker'
     | 'handwritten_text'
+    | 'grading_scale'
     // subtype labels (narrowed in subtype interfaces):
     | 'title'
     | 'section_header'
@@ -359,16 +613,21 @@ export interface TableCell {
 export interface RichTableCell extends TableCell {
   $ref: string;
 }
+export type AnyTableCell = TableCell | RichTableCell;
 export interface TableData {
-  table_cells?: (TableCell | RichTableCell)[];
+  table_cells?: AnyTableCell[];
   num_rows?: number;
   num_cols?: number;
   orientation?: Orientation;
-  grid: (TableCell | RichTableCell)[][];
+  grid: AnyTableCell[][];
 }
+export type TableAnnotationType = PictureDescriptionData | PictureMiscData;
+
 export interface TableItem extends FloatingItem {
   label?: 'document_index' | 'table';
   data: TableData;
+  /** @deprecated Use meta instead. */
+  annotations?: TableAnnotationType[];
 }
 
 // ---------------------------------------------------------------------------
@@ -483,22 +742,23 @@ export interface PictureMeta extends FloatingMeta {
   code?: CodeMetaField | null;
 }
 
+export type PictureDataType =
+  | PictureDescriptionData
+  | PictureMiscData
+  | PictureClassificationData
+  | PictureMoleculeData
+  | PictureTabularChartData
+  | PictureLineChartData
+  | PictureBarChartData
+  | PictureStackedBarChartData
+  | PicturePieChartData
+  | PictureScatterChartData;
+
 export interface PictureItem extends FloatingItem {
   label?: 'picture' | 'chart';
   meta?: PictureMeta | null;
   /** @deprecated Use meta instead. */
-  annotations?: (
-    | PictureDescriptionData
-    | PictureMiscData
-    | PictureClassificationData
-    | PictureMoleculeData
-    | PictureTabularChartData
-    | PictureLineChartData
-    | PictureBarChartData
-    | PictureStackedBarChartData
-    | PicturePieChartData
-    | PictureScatterChartData
-  )[];
+  annotations?: PictureDataType[];
 }
 
 // ---------------------------------------------------------------------------
@@ -549,6 +809,19 @@ export interface FieldValueItem extends TextItem {
   label?: 'field_value';
   kind?: 'read_only' | 'fillable';
 }
+
+export type ContentItem =
+  | TextItem
+  | TitleItem
+  | SectionHeaderItem
+  | ListItem
+  | CodeItem
+  | FormulaItem
+  | PictureItem
+  | TableItem
+  | KeyValueItem
+  | FieldRegionItem
+  | FieldItem;
 
 // ---------------------------------------------------------------------------
 // Page item
