@@ -144,8 +144,8 @@ jobs:
             6. Run 'cd docling-core && npm run check' to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found.
 
             Rules:
-            - Do not modify package.json or package-lock.json."
-            - Limit the number of searches that you do and focus on the (entire) files that contain the model and traversal code.
+            - Do not modify package.json or package-lock.json.
+            - Limit the number of searches that you do and focus on the (entire) files that contain the model and traversal code."
 
       - name: Remove upstream checkout before commit
         if: steps.pr_check.outputs.should_sync == 'true'
