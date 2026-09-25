@@ -29,11 +29,15 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "npm run test:unit",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
     "publint": "publint",
     "attw": "attw --pack .",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run build && npm run publint && npm run attw"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run build && npm run publint && npm run attw && npm run test:unit && npm run test:e2e",
+    "test:e2e:real-cdn": "REAL_CDN=1 playwright test --project=cdn"
   },
   "keywords": [
     "html",
@@ -88,6 +92,8 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "serve": "^14.2.4",
     "eslint": "10.11.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",

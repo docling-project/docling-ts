@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Docling Components — CDN</title>
+    <!--
+      This fixture loads the component from the published CDN package.
+      The version is injected at test time via the CDN_VERSION env var
+      (default: "latest").  In CI this is set to the version under test
+      so the CDN integration test validates the published artefact.
+    -->
+    <script type="module">
+      const version =
+        new URLSearchParams(location.search).get('version') ?? 'latest';
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = `https://unpkg.com/@docling/docling-components@${version}`;
+      document.head.appendChild(script);
+    </script>
+  </head>
+  <body>
+    <docling-img
+      id="img"
+      src="/docling-components/tests/fixtures/document.json"
+    ></docling-img>
+    <docling-table
+      id="table"
+      src="/docling-components/tests/fixtures/document.json"
+      items="#/tables/0"
+    ></docling-table>
+  </body>
+</html>

@@ -23,10 +23,34 @@ jobs:
         working-directory: docling-components
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: docling-components/package-lock.json
+
       - run: npm ci
+
+      # Install only the Chromium browser used by Playwright (no system deps
+      # needed for the headless shell on ubuntu-latest).
+      - run: npx playwright install chromium
+
+      # format, lint, typecheck, build, publint, attw, vitest unit tests,
+      # and Playwright e2e + visual regression (including CDN project) —
+      # all in one command.  The CDN tests intercept unpkg requests and
+      # serve the local dist build, so no published release is required.
+      # Set REAL_CDN=1 (or use npm run test:e2e:real-cdn) to hit the
+      # actual CDN after a release.
       - run: npm run check
+
+      # Upload the Playwright HTML report and any diff screenshots as
+      # artifacts so failures can be inspected without re-running locally.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            docling-components/playwright-report/
+            docling-components/test-results/
+          retention-days: 14

@@ -8,7 +8,14 @@ import globals from 'globals';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'bin', 'build', 'node_modules'],
+    ignores: [
+      'dist',
+      'bin',
+      'build',
+      'node_modules',
+      'playwright-report',
+      'test-results',
+    ],
   },
   js.configs.recommended,
   eslint.configs.recommended,
