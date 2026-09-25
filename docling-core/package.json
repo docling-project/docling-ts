@@ -1,6 +1,6 @@
 {
   "name": "@docling/docling-core",
-  "version": "2.97.1",
+  "version": "2.98.0",
   "description": "TypeScript definitions and functions for using Docling output.",
   "type": "module",
   "main": "dist/index.cjs",
