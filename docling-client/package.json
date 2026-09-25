@@ -67,7 +67,7 @@
     "@eslint/js": "10.0.1",
     "@types/node": "^26.5.1",
     "@types/ws": "^8.18.1",
-    "eslint": "10.10.0",
+    "eslint": "10.11.0",
     "globals": "17.12.0",
     "prettier": "3.9.8",
     "publint": "^0.3.24",
