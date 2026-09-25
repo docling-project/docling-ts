@@ -3,24 +3,41 @@
   "version": "0.0.7",
   "description": "Web components for displaying Docling output.",
   "type": "module",
-  "main": "./dist/index.es.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.es.js"
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "npm run lint-code ; npm run lint-styles",
-    "lint:fix": "npm run lint-code -- --fix ; npm run lint-styles -- --fix",
-    "lint-code": "eslint .",
-    "lint-styles": "stylelint --allow-empty-input --ignore-path .gitignore '**/*.{css,scss,sass}'",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run test:unit",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
+    "test:e2e:real-cdn": "REAL_CDN=1 playwright test --project=cdn",
     "publint": "publint",
-    "check": "npm run format:check && npm run lint && npm run build && npm run publint"
+    "attw": "attw --pack .",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run build && npm run publint && npm run attw && npm run test:unit && npm run test:e2e"
   },
   "keywords": [
     "html",
@@ -51,31 +68,41 @@
     "Panos Vagenas <pva@zurich.ibm.com>"
   ],
   "license": "MIT",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DS4SD/docling-ts.git"
+    "url": "git+https://github.com/docling-project/docling-ts.git",
+    "directory": "docling-components"
   },
   "bugs": {
-    "url": "https://github.com/DS4SD/docling-ts/issues"
+    "url": "https://github.com/docling-project/docling-ts/issues"
   },
-  "homepage": "https://github.com/DS4SD/docling-ts/tree/main/docling-components",
+  "homepage": "https://github.com/docling-project/docling-ts/tree/main/docling-components",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@docling/docling-core": "^0.0.7",
+    "@docling/docling-core": "^2.98.0",
     "@lit/task": "^1.0.2",
     "lit": "^3.3.0"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.10.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.3",
-    "globals": "^17.12.0",
-    "prettier": "^3.4.2",
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "serve": "^14.2.4",
+    "eslint": "10.11.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.6",
+    "globals": "17.12.0",
+    "prettier": "3.9.8",
     "publint": "^0.3.24",
-    "stylelint": "^17.15.0",
-    "stylelint-config-standard": "^40.0.0",
-    "stylelint-prettier": "^5.0.3",
-    "typescript-eslint": "^8.22.0",
-    "vite": "^8.3.0"
+    "tsup": "8.5.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0",
+    "vitest": "5.0.1"
   }
 }

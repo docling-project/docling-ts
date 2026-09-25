@@ -3,6 +3,7 @@ import {
   PageItem,
   ProvenanceItem,
   TextItem,
+  TitleItem,
 } from '@docling/docling-core';
 import { css, html, TemplateResult } from 'lit';
 import { DoclingItemElement } from './ItemElement';
@@ -40,11 +41,13 @@ export class ItemText extends DoclingItemElement<TextItem> {
     }
   }
 
-  canDrawItem(item: object): item is TextItem {
+  canDrawItem(item: object): item is TextItem | TitleItem {
     return (
       isDoclingDocItem.TextItem(item) ||
+      isDoclingDocItem.TitleItem(item) ||
       isDoclingDocItem.SectionHeaderItem(item) ||
-      isDoclingDocItem.ListItem(item)
+      isDoclingDocItem.ListItem(item) ||
+      isDoclingDocItem.FormulaItem(item)
     );
   }
 

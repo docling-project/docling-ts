@@ -52,7 +52,3 @@ This package does not
 
 - Convert documents directly from within a JavaScript runtime. It is not a port of Docling.
 - Support Docling output formats other than JSON, such as Markdown.
-
-## Develop
-
-This package is tied to a specific version of the docling document format. Model and type definitions in `src/types/models.ts` and `src/types/typing.ts` correspond to the schemas defined in [Docling Core](https://github.com/docling-project/docling-core).

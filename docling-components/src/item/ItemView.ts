@@ -1,7 +1,9 @@
 import {
   DocItem,
   isDocling,
+  isDoclingDocItem,
   PageItem,
+  PictureItem,
   ProvenanceItem,
 } from '@docling/docling-core';
 import { customElement } from 'lit/decorators.js';
@@ -54,9 +56,10 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
         );
     }
 
-    // Annotation elements.
-    const annotations = ((item as Record<string, unknown>).annotations ??
-      []) as Annotation[];
+    // Annotation elements (only PictureItem carries annotations).
+    const annotations: Annotation[] = isDoclingDocItem.PictureItem(item)
+      ? ((item as PictureItem).annotations ?? [])
+      : [];
     for (const ann of annotations) {
       const annElements: DoclingAnnotationElement[] = [];
 

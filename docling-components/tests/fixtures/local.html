@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Docling Components — Local Build</title>
+    <style>
+      body {
+        margin: 0;
+        background: white;
+      }
+
+      /* gallery layout for the all-pages test */
+      #visual-gallery {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: #f5f5f5;
+      }
+
+      #visual-gallery::part(page) {
+        max-width: 180px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+    </style>
+    <script type="module" src="/docling-components/dist/index.js"></script>
+  </head>
+  <body>
+    <!--
+      Integration fixture: uses the small synthetic document so tests are
+      fast and self-contained with no external file dependency.
+    -->
+    <docling-img
+      id="img"
+      src="/docling-components/tests/fixtures/document.json"
+    ></docling-img>
+    <docling-table
+      id="table"
+      src="/docling-components/tests/fixtures/document.json"
+      items="#/tables/0"
+    ></docling-table>
+
+    <!--
+      Visual fixtures: use the real Docling Technical Report.
+
+      Page images
+        #visual-img-p1   page 1 — title, Docling logo, authors, abstract
+        #visual-img-p8   page 8 — line-chart picture + two tables
+
+      Augmented / styled variants
+        #visual-backdrop  page 1 with backdrop (faded page image behind items)
+        #visual-pagenums  pages 1-3 with page numbers shown
+        #visual-gallery   all 9 pages in a flex-wrap thumbnail gallery
+
+      Single-table views
+        #visual-table-0   table[0] 4×8 performance grid
+        #visual-table-1   table[1] 2×6 benchmark results
+        #visual-table-2   table[2] 13×5 full benchmark detail
+        #visual-table-prov  table[2] with provenance column alongside parsed
+
+      Multi-table views (multiple items in one docling-table)
+        #visual-table-all       all 3 tables stacked in one component
+        #visual-table-all-prov  all 3 tables with provenance column
+        #visual-table-pagenums  all 3 tables with page-number headers
+    -->
+
+    <!-- ── Single-page image renders ──────────────────────────────────── -->
+
+    <docling-img
+      id="visual-img-p1"
+      src="/docs/examples/example.pdf.json"
+      items="#/pages/1"
+    ></docling-img>
+
+    <docling-img
+      id="visual-img-p8"
+      src="/docs/examples/example.pdf.json"
+      items="#/pages/8"
+    ></docling-img>
+
+    <!-- ── Augmented variants ──────────────────────────────────────────── -->
+
+    <docling-img
+      id="visual-backdrop"
+      src="/docs/examples/example.pdf.json"
+      items="#/pages/1"
+      backdrop
+    ></docling-img>
+
+    <docling-img
+      id="visual-pagenums"
+      src="/docs/examples/example.pdf.json"
+      items="#/pages/1,#/pages/2,#/pages/3"
+      pagenumbers
+    ></docling-img>
+
+    <docling-img
+      id="visual-gallery"
+      src="/docs/examples/example.pdf.json"
+      pagenumbers
+    ></docling-img>
+
+    <!-- ── Table views ─────────────────────────────────────────────────── -->
+
+    <docling-table
+      id="visual-table-0"
+      src="/docs/examples/example.pdf.json"
+      items="#/tables/0"
+    ></docling-table>
+
+    <docling-table
+      id="visual-table-1"
+      src="/docs/examples/example.pdf.json"
+      items="#/tables/1"
+    ></docling-table>
+
+    <docling-table
+      id="visual-table-2"
+      src="/docs/examples/example.pdf.json"
+      items="#/tables/2"
+    ></docling-table>
+
+    <!-- table[2] with an explicit parsed column + a provenance (crop) column -->
+    <docling-table
+      id="visual-table-prov"
+      src="/docs/examples/example.pdf.json"
+      items="#/tables/2"
+    >
+      <docling-column></docling-column>
+      <docling-column>
+        <docling-item-provenance></docling-item-provenance>
+      </docling-column>
+    </docling-table>
+
+    <!-- ── Multi-table views ──────────────────────────────────────────── -->
+
+    <!-- all 3 tables in one component (default two-column layout) -->
+    <docling-table
+      id="visual-table-all"
+      src="/docs/examples/example.pdf.json"
+      items="#/tables/0,#/tables/1,#/tables/2"
+    ></docling-table>
+
+    <!-- all 3 tables with explicit parsed + provenance columns -->
+    <docling-table
+      id="visual-table-all-prov"
+      src="/docs/examples/example.pdf.json"
+      items="#/tables/0,#/tables/1,#/tables/2"
+    >
+      <docling-column></docling-column>
+      <docling-column>
+        <docling-item-provenance></docling-item-provenance>
+      </docling-column>
+    </docling-table>
+
+    <!-- all 3 tables with page-number headers between pages -->
+    <docling-table
+      id="visual-table-pagenums"
+      src="/docs/examples/example.pdf.json"
+      items="#/tables/0,#/tables/1,#/tables/2"
+      pagenumbers
+    ></docling-table>
+  </body>
+</html>
