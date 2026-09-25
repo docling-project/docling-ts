@@ -6,9 +6,15 @@ import {
   FieldItem,
   FieldRegionItem,
   FieldValueItem,
+  FormItem,
+  FormulaItem,
   GroupItem,
+  InlineGroup,
+  KeyValueItem,
+  ListGroup,
   ListItem,
   NodeItem,
+  OrderedList,
   PictureBarChartData,
   PictureClassificationData,
   PictureDescriptionData,
@@ -19,9 +25,11 @@ import {
   PicturePieChartData,
   PictureScatterChartData,
   PictureStackedBarChartData,
+  PictureTabularChartData,
   SectionHeaderItem,
   TableItem,
   TextItem,
+  TitleItem,
 } from './models';
 
 /**
@@ -45,6 +53,9 @@ export const isDoclingDocItem = {
   FieldItem: isItemByLabel<FieldItem>('field_item'),
   FieldRegionItem: isItemByLabel<FieldRegionItem>('field_region'),
   FieldValueItem: isItemByLabel<FieldValueItem>('field_value'),
+  FormItem: isItemByLabel<FormItem>('form'),
+  FormulaItem: isItemByLabel<FormulaItem>('formula'),
+  KeyValueItem: isItemByLabel<KeyValueItem>('key_value_region'),
   ListItem: isItemByLabel<ListItem>('list_item'),
   PictureItem: isItemByLabel<PictureItem>('chart', 'picture'),
   SectionHeaderItem: isItemByLabel<SectionHeaderItem>('section_header'),
@@ -57,6 +68,7 @@ export const isDoclingDocItem = {
     'field_hint',
     'field_key',
     'footnote',
+    'grading_scale',
     'handwritten_text',
     'marker',
     'page_footer',
@@ -65,6 +77,7 @@ export const isDoclingDocItem = {
     'reference',
     'text'
   ),
+  TitleItem: isItemByLabel<TitleItem>('title'),
 };
 
 type PictureAnnotation = NonNullable<PictureItem['annotations']>[number];
@@ -104,6 +117,8 @@ export const isDoclingAnnotation = {
   PictureStackedBarChart: isPictureAnnotationByKind<PictureStackedBarChartData>(
     'stacked_bar_chart_data'
   ),
+  PictureTabularChart:
+    isPictureAnnotationByKind<PictureTabularChartData>('tabular_chart_data'),
 };
 
 /**
@@ -119,7 +134,26 @@ export const isDocling = {
   GroupItem(item: object): item is GroupItem {
     return (
       isDocling.NodeItem(item) &&
-      (item.self_ref.startsWith('#/groups/') || item.self_ref === '#/body')
+      (item.self_ref.startsWith('#/groups/') ||
+        item.self_ref === '#/body' ||
+        item.self_ref === '#/furniture')
+    );
+  },
+  ListGroup(item: object): item is ListGroup {
+    return (
+      isDocling.GroupItem(item) && 'label' in item && item.label === 'list'
+    );
+  },
+  OrderedList(item: object): item is OrderedList {
+    return (
+      isDocling.GroupItem(item) &&
+      'label' in item &&
+      item.label === 'ordered_list'
+    );
+  },
+  InlineGroup(item: object): item is InlineGroup {
+    return (
+      isDocling.GroupItem(item) && 'label' in item && item.label === 'inline'
     );
   },
   NodeItem(item: object): item is NodeItem {
