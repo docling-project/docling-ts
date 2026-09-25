@@ -1,4 +1,8 @@
-import { isDoclingDocItem, TableCell, TableItem } from '@docling/docling-core';
+import {
+  AnyTableCell,
+  isDoclingDocItem,
+  TableItem,
+} from '@docling/docling-core';
 import { css, html } from 'lit';
 import { DoclingItemElement } from './ItemElement';
 import { customDoclingItemElement } from '.';
@@ -35,7 +39,7 @@ export class ItemTable extends DoclingItemElement<TableItem> {
       </div>
     `;
 
-    function isCovered(cell: TableCell) {
+    function isCovered(cell: AnyTableCell) {
       const covered = coveredCells.has(
         [cell.start_col_offset_idx, cell.start_row_offset_idx].join()
       );
