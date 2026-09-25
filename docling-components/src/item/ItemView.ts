@@ -3,6 +3,7 @@ import {
   isDocling,
   isDoclingDocItem,
   PageItem,
+  PictureDescriptionData,
   PictureItem,
   ProvenanceItem,
 } from '@docling/docling-core';
@@ -57,9 +58,33 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
     }
 
     // Annotation elements (only PictureItem carries annotations).
-    const annotations: Annotation[] = isDoclingDocItem.PictureItem(item)
-      ? ((item as PictureItem).annotations ?? [])
-      : [];
+    // Read from both the new .meta path and the deprecated .annotations array
+    // so documents serialised either way are handled correctly.
+    const annotations: Annotation[] = [];
+    if (isDoclingDocItem.PictureItem(item)) {
+      const pic = item as PictureItem;
+      const meta = pic.meta;
+      if (meta?.description?.text) {
+        const desc: PictureDescriptionData = {
+          kind: 'description',
+          text: meta.description.text,
+          provenance: meta.description.created_by ?? '',
+        };
+        annotations.push(desc);
+      }
+      if (meta?.classification?.predictions?.length) {
+        annotations.push({
+          kind: 'classification',
+          provenance: 'meta',
+          predicted_classes: meta.classification.predictions.map(p => ({
+            class_name: p.class_name,
+            confidence: p.confidence ?? 1,
+          })),
+        });
+      }
+      // Deprecated path: keep for backwards compatibility.
+      annotations.push(...(pic.annotations ?? []));
+    }
     for (const ann of annotations) {
       const annElements: DoclingAnnotationElement[] = [];
 

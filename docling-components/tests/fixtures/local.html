@@ -62,6 +62,10 @@
         #visual-table-all       all 3 tables stacked in one component
         #visual-table-all-prov  all 3 tables with provenance column
         #visual-table-pagenums  all 3 tables with page-number headers
+
+      Item-type views (docling-table showing text/code items)
+        #visual-text-p1   section headers + list items + title from page 1 (docling-table)
+        #visual-code      code item with language badge (docling-table)
     -->
 
     <!-- ── Single-page image renders ──────────────────────────────────── -->
@@ -160,5 +164,25 @@
       items="#/tables/0,#/tables/1,#/tables/2"
       pagenumbers
     ></docling-table>
+
+    <!-- ── Item-type views ────────────────────────────────────────── -->
+
+    <!-- section headers (all levels) + title + list items from page 1 -->
+    <docling-table
+      id="visual-text-p1"
+      src="/docs/examples/example.pdf.json"
+      items="#/pages/1"
+    >
+      <docling-column></docling-column>
+    </docling-table>
+
+    <!-- the single Python code block (page 2), showing language badge -->
+    <docling-table
+      id="visual-code"
+      src="/docs/examples/example.pdf.json"
+      items="#/texts/22"
+    >
+      <docling-column></docling-column>
+    </docling-table>
   </body>
 </html>

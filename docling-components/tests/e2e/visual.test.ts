@@ -28,6 +28,10 @@
  *     table-all       tables 0+1+2 stacked, default two-column layout
  *     table-all-prov  tables 0+1+2 with explicit parsed + provenance columns
  *     table-pagenums  tables 0+1+2 with page-number headers between pages
+ *
+ *   Item-type views
+ *     text-p1   section headers + title + list items rendered by ItemText
+ *     code      CodeItem with Python language badge rendered by ItemCode
  */
 
 import { expect, test, type Page } from '@playwright/test';
@@ -215,5 +219,23 @@ test.describe('visual regression', () => {
     await waitForTask(page, '#visual-table-pagenums');
     const box = await rectOf(page, '#visual-table-pagenums');
     await shot(page, 'table-pagenums.png', box);
+  });
+
+  // ── Item-type views ──────────────────────────────────────────────
+
+  test('text — page 1: title, section headers, list items (ItemText)', async ({
+    page,
+  }) => {
+    await waitForTask(page, '#visual-text-p1');
+    const box = await rectOf(page, '#visual-text-p1');
+    await shot(page, 'text-p1.png', box);
+  });
+
+  test('code — Python code block with language badge (ItemCode)', async ({
+    page,
+  }) => {
+    await waitForTask(page, '#visual-code');
+    const box = await rectOf(page, '#visual-code');
+    await shot(page, 'code.png', box);
   });
 });
