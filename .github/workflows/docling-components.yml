@@ -18,11 +18,21 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: docling-components
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.CI_APP_ID }}
+          private-key: ${{ secrets.CI_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - uses: actions/setup-node@v4
         with:
@@ -36,12 +46,30 @@ jobs:
       # needed for the headless shell on ubuntu-latest).
       - run: npx playwright install chromium
 
+      # Generate any missing linux baselines in tests/snapshots-ci/ and
+      # commit them back to the branch. On the very first push of a new test
+      # (or after intentional component changes) this writes the ground-truth;
+      # on all subsequent runs the directory is already populated so nothing
+      # is committed and the check step does strict comparison.
+      - name: Generate missing visual baselines
+        run: |
+          npm run build
+          npx playwright test --project=local tests/e2e/visual.test.ts --update-snapshots
+        continue-on-error: true
+
+      - name: Commit new baselines (if any)
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docling-components/tests/snapshots-ci/
+          git diff --cached --quiet || git commit -s -m "test: update visual baselines [skip ci]"
+          git push
+
       # format, lint, typecheck, build, publint, attw, vitest unit tests,
       # and Playwright e2e + visual regression (including CDN project) —
-      # all in one command.  The CDN tests intercept unpkg requests and
-      # serve the local dist build, so no published release is required.
-      # Set REAL_CDN=1 (or use npm run test:e2e:real-cdn) to hit the
-      # actual CDN after a release.
+      # The CDN tests intercept unpkg requests and serve the local dist build,
+      # so no published release is required.
       - run: npm run check
 
       # Upload the Playwright HTML report and any diff screenshots as
