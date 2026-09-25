@@ -55,8 +55,8 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
     }
 
     // Annotation elements.
-    const annotations = ((item as Record<string, unknown>).annotations ??
-      []) as Annotation[];
+    const annotations = ((item as unknown as Record<string, unknown>)
+      .annotations ?? []) as Annotation[];
     for (const ann of annotations) {
       const annElements: DoclingAnnotationElement[] = [];
 
