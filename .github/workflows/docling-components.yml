@@ -33,6 +33,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
+          # Check out the actual branch head so we're not in detached HEAD state.
+          # github.head_ref is set on pull_request events; github.ref_name on push.
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - uses: actions/setup-node@v4
         with:
@@ -64,7 +67,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docling-components/tests/snapshots-ci/
           git diff --cached --quiet || git commit -s -m "test: update visual baselines [skip ci]"
-          git push
+          git push origin HEAD
 
       # format, lint, typecheck, build, publint, attw, vitest unit tests,
       # and Playwright e2e + visual regression (including CDN project) —
