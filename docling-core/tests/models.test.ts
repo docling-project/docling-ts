@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CURRENT_VERSION,
+  DEFAULT_CONTENT_LAYERS,
+  DEFAULT_EXPORT_LABELS,
+  DOCUMENT_TOKENS_EXPORT_LABELS,
   type CodeItem,
   type DoclingDocument,
   type FieldHeadingItem,
@@ -33,6 +37,30 @@ import {
   isDoclingAnnotation,
   isDoclingDocItem,
 } from '../src/types';
+
+describe('Constants', () => {
+  it('exports CURRENT_VERSION as 1.10.0', () => {
+    expect(CURRENT_VERSION).toBe('1.10.0');
+  });
+
+  it('exports DEFAULT_CONTENT_LAYERS with body', () => {
+    expect(DEFAULT_CONTENT_LAYERS).toEqual(['body']);
+  });
+
+  it('exports DEFAULT_EXPORT_LABELS with 23 labels', () => {
+    expect(DEFAULT_EXPORT_LABELS).toContain('title');
+    expect(DEFAULT_EXPORT_LABELS).toContain('marker');
+    expect(DEFAULT_EXPORT_LABELS).toContain('field_key');
+    expect(DEFAULT_EXPORT_LABELS).toContain('handwritten_text');
+    expect(DEFAULT_EXPORT_LABELS.length).toBe(23);
+  });
+
+  it('exports DOCUMENT_TOKENS_EXPORT_LABELS containing footnote, caption, form', () => {
+    expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('footnote');
+    expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('caption');
+    expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('form');
+  });
+});
 
 // ---------------------------------------------------------------------------
 // isDocling — NodeItem / GroupItem / DocItem
