@@ -37,13 +37,21 @@ export function* iterateDocumentItems(
       }
     }
 
-    // Handle picture traversal - only traverse children if requested
-    if (isDocling.PictureItem(item) && !options.traversePictures) {
-      return;
-    }
+    const rootIsPicture = isDocling.PictureItem(item);
+    const allowedPicRefs = new Set(
+      rootIsPicture ? (item.captions ?? []).map(r => r.$ref) : []
+    );
 
     // Traverse children.
     for (const childRef of item.children ?? []) {
+      if (
+        rootIsPicture &&
+        !options.traversePictures &&
+        !allowedPicRefs.has(childRef.$ref)
+      ) {
+        continue;
+      }
+
       const child = resolveDocumentItem(doc!, childRef);
 
       if (isDocling.NodeItem(child)) {
