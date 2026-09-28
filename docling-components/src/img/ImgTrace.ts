@@ -1,7 +1,8 @@
-import { DocItem, PageItem } from '@docling/docling-core';
+import { PageItem } from '@docling/docling-core';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { normalBbox } from '../item';
+import { DocItem } from '../util';
 
 @customElement('docling-trace')
 export class ImgTrace extends LitElement {

@@ -1,7 +1,7 @@
-import { DocItem, PageItem } from '@docling/docling-core';
+import { PageItem } from '@docling/docling-core';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
+import { DocItem } from '../util';
 import { TableColumn } from './TableColumn';
 
 @customElement('docling-table-page')
@@ -45,31 +45,33 @@ export class TablePage extends LitElement {
             `
           : nothing
       }
-      ${this.items?.map(
-        item =>
-          html`<tr
-            part=${
-              'item' +
-              (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')
-            }
-            style=${ifDefined(this.itemStyle?.(this.page!, item))}
-          >
-            ${this.columns.map(col => {
-              const copy = col.cloneNode(true) as TableColumn;
-              copy.item = item;
-              copy.page = this.page;
+      ${this.items?.map(item => {
+        const level = item.level ?? 0;
+        const itemStyle = this.itemStyle?.(this.page!, item);
+        return html`<tr
+          part=${
+            'item' +
+            (this.itemPart ? ' ' + this.itemPart(this.page!, item) : '')
+          }
+          data-level=${level}
+          style="--docling-level: ${level}; ${itemStyle ?? ''}"
+        >
+          ${this.columns.map(col => {
+            const copy = col.cloneNode(true) as TableColumn;
+            copy.item = item;
+            copy.page = this.page;
 
-              return html`
-                <td
-                  @onclick=${(e: MouseEvent) =>
-                    this.onClickItem?.(e, this.page!, item)}
-                >
-                  ${copy}
-                </td>
-              `;
-            })}
-          </tr>`
-      )}
+            return html`
+              <td
+                @onclick=${(e: MouseEvent) =>
+                  this.onClickItem?.(e, this.page!, item)}
+              >
+                ${copy}
+              </td>
+            `;
+          })}
+        </tr>`;
+      })}
       ${
         this.pagenumbers
           ? html`<tr>
@@ -117,6 +119,13 @@ export class TablePage extends LitElement {
       padding: 1rem;
       background-color: white;
       vertical-align: top;
+    }
+
+    td:first-child {
+      border-left: calc(
+          max(var(--docling-level, 0) - 1, 0) * var(--docling-depth-width, 4px)
+        )
+        solid var(--docling-depth-color, rgb(160, 160, 160));
     }
 
     tr:hover td {

@@ -1,8 +1,8 @@
-import { DocItem, PageItem } from '@docling/docling-core';
+import { PageItem } from '@docling/docling-core';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Task } from '@lit/task';
-import { loadItems } from '../util';
+import { DocItem, loadItems } from '../util';
 import { ItemOverlay, ItemTooltip } from '../item/ItemView';
 import { ImgTrace } from './ImgTrace';
 

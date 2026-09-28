@@ -30,8 +30,9 @@
  *     table-pagenums  tables 0+1+2 with page-number headers between pages
  *
  *   Item-type views
- *     text-p1   section headers + title + list items rendered by ItemText
- *     code      CodeItem with Python language badge rendered by ItemCode
+ *     text-p1        page 1 with left-border depth indicator (default)
+ *     text-nodepth   page 1 with depth indicator disabled (--docling-depth-width: 0)
+ *     code           CodeItem with Python language badge rendered by ItemCode
  */
 
 import { expect, test, type Page } from '@playwright/test';
@@ -223,12 +224,20 @@ test.describe('visual regression', () => {
 
   // ── Item-type views ──────────────────────────────────────────────
 
-  test('text — page 1: title, section headers, list items (ItemText)', async ({
+  test('text — page 1 with left-border depth indicator (default)', async ({
     page,
   }) => {
     await waitForTask(page, '#visual-text-p1');
     const box = await rectOf(page, '#visual-text-p1');
     await shot(page, 'text-p1.png', box);
+  });
+
+  test('text — page 1 with depth indicator disabled (--docling-depth-width: 0)', async ({
+    page,
+  }) => {
+    await waitForTask(page, '#visual-text-nodepth');
+    const box = await rectOf(page, '#visual-text-nodepth');
+    await shot(page, 'text-nodepth.png', box);
   });
 
   test('code — Python code block with language badge (ItemCode)', async ({

@@ -64,7 +64,8 @@
         #visual-table-pagenums  all 3 tables with page-number headers
 
       Item-type views (docling-table showing text/code items)
-        #visual-text-p1   section headers + list items + title from page 1 (docling-table)
+        #visual-text-p1   page 1 items with left-border depth indicator (default)
+        #visual-text-nodepth  page 1 items with depth indicator disabled (--docling-depth-width: 0)
         #visual-code      code item with language badge (docling-table)
     -->
 
@@ -167,11 +168,21 @@
 
     <!-- ── Item-type views ────────────────────────────────────────── -->
 
-    <!-- section headers (all levels) + title + list items from page 1 -->
+    <!-- page 1 items — depth indicator enabled by default -->
     <docling-table
       id="visual-text-p1"
       src="/docs/examples/example.pdf.json"
       items="#/pages/1"
+    >
+      <docling-column></docling-column>
+    </docling-table>
+
+    <!-- page 1 items — depth indicator disabled via CSS custom property -->
+    <docling-table
+      id="visual-text-nodepth"
+      src="/docs/examples/example.pdf.json"
+      items="#/pages/1"
+      style="--docling-depth-width: 0"
     >
       <docling-column></docling-column>
     </docling-table>

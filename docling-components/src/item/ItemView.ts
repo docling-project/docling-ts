@@ -58,12 +58,11 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
     }
 
     // Annotation elements (only PictureItem carries annotations).
-    // Read from both the new .meta path and the deprecated .annotations array
-    // so documents serialised either way are handled correctly.
     const annotations: Annotation[] = [];
     if (isDoclingDocItem.PictureItem(item)) {
       const pic = item as PictureItem;
       const meta = pic.meta;
+
       if (meta?.description?.text) {
         const desc: PictureDescriptionData = {
           kind: 'description',
@@ -82,8 +81,6 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
           })),
         });
       }
-      // Deprecated path: keep for backwards compatibility.
-      annotations.push(...(pic.annotations ?? []));
     }
     for (const ann of annotations) {
       const annElements: DoclingAnnotationElement[] = [];

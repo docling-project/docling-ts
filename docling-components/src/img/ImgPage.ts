@@ -1,9 +1,9 @@
 import {
-  DocItem,
   isDoclingDocItem,
   PageItem,
   ProvenanceItem,
 } from '@docling/docling-core';
+import { DocItem } from '../util';
 import { css, html, LitElement, nothing, svg } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { normalBbox } from '../item';

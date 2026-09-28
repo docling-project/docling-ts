@@ -199,7 +199,26 @@
         },
         "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA8CAIAAAB+RarbAAAAYElEQVR4nO3PAQkAMAzAsPlXNiXXcRmHPlABzezZr5rnB8DAwMDAwMDfBFwPuB5wPeB6wPWA6wHXA64HXA+4HnA94HrA9YDrAdcDrgdcD7gecD3gesD1gOsB1wOuB1zvAm91JzN+oQpdAAAAAElFTkSuQmCC"
       },
+      "meta": {
+        "description": {
+          "text": "A photograph of something",
+          "created_by": "test"
+        },
+        "classification": {
+          "predictions": [
+            {
+              "class_name": "photograph",
+              "confidence": 0.9
+            }
+          ]
+        }
+      },
       "annotations": [
+        {
+          "kind": "description",
+          "text": "A photograph of something",
+          "provenance": "test"
+        },
         {
           "kind": "classification",
           "provenance": "test",

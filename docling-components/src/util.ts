@@ -1,5 +1,5 @@
 import {
-  DocItem,
+  DocItem as CoreDocItem,
   DoclingDocument,
   PageItem,
   isDocling,
@@ -12,12 +12,17 @@ export function pagesOf(doc?: DoclingDocument): PageItem[] {
   );
 }
 
+/**
+ * DocItem extended with an optional traversal fields.
+ */
+export type DocItem = CoreDocItem & { level?: number };
+
 export function itemsByPagesOf(
   doc: DoclingDocument
 ): Record<number, DocItem[]> {
   const items = Array.from(
     iterateDocumentItems(doc, { traversePictures: true })
-  ) as [DocItem, number][];
+  ) as [CoreDocItem, number][];
 
   const pageToItems: Record<number, DocItem[]> = {};
   for (const p of pagesOf(doc)) {
@@ -40,7 +45,13 @@ export async function loadItems(
   filters: {
     items?: string | DocItem[];
   } = {}
-): Promise<{ page: PageItem; items: DocItem[]; trimmed: boolean }[]> {
+): Promise<
+  {
+    page: PageItem;
+    items: DocItem[];
+    trimmed: boolean;
+  }[]
+> {
   let doc: DoclingDocument | undefined;
   if (typeof src === 'string') {
     const fetched = await fetch(src);
@@ -50,9 +61,9 @@ export async function loadItems(
   }
 
   const pages = pagesOf(doc);
-  const allItems = Array.from(
+  const allItems: DocItem[] = Array.from(
     iterateDocumentItems(doc, { traversePictures: true })
-  ).map(([item]) => item) as DocItem[];
+  ).map(([item, level]) => Object.assign(item, { level }));
 
   // Filter by crop reference paths.
   let retainedItems: DocItem[] = allItems;

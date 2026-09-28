@@ -162,4 +162,32 @@ test.describe('local build', () => {
     expect(cells).toContain('1');
     expect(cells).toContain('2');
   });
+
+  test('docling-table renders picture annotations from meta', async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      const el = document.querySelector('#table') as HTMLElement & {
+        items: string;
+      };
+      el.items = '#/pictures/0';
+    });
+    await waitForTask(page, '#table');
+    const { descCount, classCount } = await page.evaluate(() => {
+      const tbl = document
+        .querySelector('#table')
+        ?.shadowRoot?.querySelector('docling-table-page');
+      const col = tbl?.shadowRoot?.querySelector('docling-column');
+      const descs =
+        col?.shadowRoot?.querySelectorAll('docling-picture-description')
+          .length ?? 0;
+      const classes =
+        col?.shadowRoot?.querySelectorAll('docling-picture-classification')
+          .length ?? 0;
+      return { descCount: descs, classCount: classes };
+    });
+    // Renders classification and description from picture meta.
+    expect(classCount).toBe(1);
+    expect(descCount).toBe(1);
+  });
 });

@@ -1,7 +1,8 @@
-import { DocItem, isDocling, PageItem } from '@docling/docling-core';
+import { isDocling, PageItem } from '@docling/docling-core';
 import { css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { normalBbox } from '.';
+import { DocItem } from '../util';
 import { DoclingItemElement } from './ItemElement';
 
 @customElement('docling-item-provenance')
@@ -14,9 +15,15 @@ export class ItemProvenance extends DoclingItemElement<DocItem> {
       const { width = 1, height = 1 } = this.page!.size;
       const { l, r, t, b } = normalBbox(prov.bbox, page);
 
+      const pixelRatio = (image.size.width ?? 1) / width;
+      const w = (r - l) * pixelRatio;
+      const h = (b - t) * pixelRatio;
+
       return html`
         <svg
-          width=${(r - l) * ((image.size.width ?? 1) / width)}
+          data-width=${w}
+          data-height=${h}
+          style="--docling-width: ${w}px; --docling-height: ${h}px;"
           viewBox="${l} ${t} ${r - l} ${b - t}"
         >
           <image href=${image.uri} width=${width} height=${height} />
@@ -33,6 +40,7 @@ export class ItemProvenance extends DoclingItemElement<DocItem> {
 
   static styles = css`
     svg {
+      width: calc(var(--docling-width, 100%) * var(--docling-provenance-scale, 1));
       max-width: 100%;
     }
   `;
