@@ -40,7 +40,9 @@ export class ItemProvenance extends DoclingItemElement<DocItem> {
 
   static styles = css`
     svg {
-      width: calc(var(--docling-width, 100%) * var(--docling-provenance-scale, 1));
+      width: calc(
+        var(--docling-width, 100%) * var(--docling-provenance-scale, 1)
+      );
       max-width: 100%;
     }
   `;
