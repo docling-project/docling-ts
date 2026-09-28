@@ -1,4 +1,4 @@
-name: Sync upstream docling-core
+name: Sync upstream docling-client
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       target_version:
-        description: 'Specific docling-core release version/tag (e.g., v2.18.0) - leave blank for latest'
+        description: 'Specific docling release version/tag (e.g., v2.115.0) - leave blank for latest'
         required: false
         type: string
 
@@ -27,15 +27,15 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Get Target docling-core Version
+      - name: Get Target docling Version
         id: version_check
         run: |
           if [ -n "${{ github.event.inputs.target_version }}" ]; then
             TAG="${{ github.event.inputs.target_version }}"
           else
-            echo "Fetching latest release from docling-project/docling-core..."
+            echo "Fetching latest release from docling-project/docling..."
             TAG=$(curl -s -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/docling-project/docling-core/releases/latest | jq -r .tag_name)
+              https://api.github.com/repos/docling-project/docling/releases/latest | jq -r .tag_name)
           fi
 
           if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
@@ -47,22 +47,26 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
 
-          # Current version configured in docling-ts/docling-core/package.json
-          CURRENT_VERSION=$(jq -r '.version // empty' docling-core/package.json)
-          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          # Current Python docling version documented in PYTHON_CLIENT_PARITY.md (e.g., "Docling Python 2.115.0")
+          PARITY_FILE="docling-client/PYTHON_CLIENT_PARITY.md"
+          if [ -f "$PARITY_FILE" ]; then
+            CURRENT_DOCLING_VERSION=$(grep -oE 'Docling Python [0-9]+\.[0-9]+\.[0-9]+' "$PARITY_FILE" | head -n1 | awk '{print $3}')
+          fi
+          CURRENT_DOCLING_VERSION=${CURRENT_DOCLING_VERSION:-"0.0.0"}
+          echo "current_version=$CURRENT_DOCLING_VERSION" >> $GITHUB_OUTPUT
 
-          echo "Target version: $CLEAN_VERSION (tag: $TAG)"
-          echo "Current version in docling-core package.json: $CURRENT_VERSION"
+          echo "Target docling version: $CLEAN_VERSION (tag: $TAG)"
+          echo "Current synced docling version: $CURRENT_DOCLING_VERSION"
 
           if [ -n "${{ github.event.inputs.target_version }}" ]; then
             echo "should_update=true" >> $GITHUB_OUTPUT
             echo "Manual target_version provided ($TAG). Forcing update."
           else
-            # Extract major and minor numbers for comparison (e.g., 2.18.0 -> 2 and 18)
+            # Extract major and minor numbers for comparison (e.g., 2.115.0 -> 2 and 115)
             TARGET_MAJOR=$(echo "$CLEAN_VERSION" | cut -d. -f1)
             TARGET_MINOR=$(echo "$CLEAN_VERSION" | cut -d. -f2)
-            CURRENT_MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
-            CURRENT_MINOR=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+            CURRENT_MAJOR=$(echo "$CURRENT_DOCLING_VERSION" | cut -d. -f1)
+            CURRENT_MINOR=$(echo "$CURRENT_DOCLING_VERSION" | cut -d. -f2)
 
             # Default empty values to 0
             TARGET_MAJOR=${TARGET_MAJOR:-0}
@@ -72,10 +76,10 @@ jobs:
 
             if [ "$TARGET_MAJOR" -gt "$CURRENT_MAJOR" ] || { [ "$TARGET_MAJOR" -eq "$CURRENT_MAJOR" ] && [ "$TARGET_MINOR" -gt "$CURRENT_MINOR" ]; }; then
               echo "should_update=true" >> $GITHUB_OUTPUT
-              echo "Newer major/minor docling-core found ($CLEAN_VERSION > $CURRENT_VERSION). Triggering sync."
+              echo "Newer major/minor docling found ($CLEAN_VERSION > $CURRENT_DOCLING_VERSION). Triggering sync."
             else
               echo "should_update=false" >> $GITHUB_OUTPUT
-              echo "docling-core major.minor ($TARGET_MAJOR.$TARGET_MINOR) is not greater than current ($CURRENT_MAJOR.$CURRENT_MINOR). Skipping sync."
+              echo "docling major.minor ($TARGET_MAJOR.$TARGET_MINOR) is not greater than current ($CURRENT_MAJOR.$CURRENT_MINOR). Skipping sync."
             fi
           fi
 
@@ -86,7 +90,7 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
-          BRANCH_NAME="sync/docling-core-${VERSION}"
+          BRANCH_NAME="sync/docling-client-${VERSION}"
           # A manual dispatch always forces a sync; otherwise skip if a PR is already open
           if [ -n "${{ github.event.inputs.target_version }}" ]; then
             echo "should_sync=true" >> $GITHUB_OUTPUT
@@ -100,13 +104,13 @@ jobs:
             fi
           fi
 
-      - name: Checkout upstream docling-core repository
+      - name: Checkout upstream docling repository
         if: steps.pr_check.outputs.should_sync == 'true'
         uses: actions/checkout@v4
         with:
-          repository: docling-project/docling-core
+          repository: docling-project/docling
           ref: ${{ steps.version_check.outputs.tag }}
-          path: upstream-docling-core
+          path: upstream-docling
 
       - name: Set up Node.js
         if: steps.pr_check.outputs.should_sync == 'true'
@@ -114,48 +118,49 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: docling-core/package-lock.json
+          cache-dependency-path: docling-client/package-lock.json
 
       - name: Install Bob Shell
         if: steps.pr_check.outputs.should_sync == 'true'
         run: curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm
 
-      - name: Install docling-core dependencies
+      - name: Install docling-client dependencies
         if: steps.pr_check.outputs.should_sync == 'true'
-        run: cd docling-core && npm ci
+        run: cd docling-client && npm ci
 
-      - name: Run Bob CLI to update TypeScript models and tests
+      - name: Run Bob CLI to update TypeScript client, types, parity docs, and tests
         if: steps.pr_check.outputs.should_sync == 'true'
         env:
           BOB_API_KEY: ${{ secrets.BOB_API_KEY }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
+          UPSTREAM_SHA=$(cd upstream-docling && git rev-parse --short HEAD)
           bob run --accept-license --mode agent --trust --max-turns 1000 \
-            "You are updating the TypeScript package in the 'docling-core/' subdirectory to match the Python implementation in 'upstream-docling-core/docling_core/'.
-            Target release version: $TAG (upgrading from the current version in docling-core/package.json).
+            "You are updating the TypeScript package in the 'docling-client/' subdirectory to match the Python service client implementation in 'upstream-docling/docling/service_client/' and relevant service datamodels in 'upstream-docling/docling/datamodel/service/'.
+            Target docling release version: $TAG (commit $UPSTREAM_SHA).
 
             Please perform the following tasks:
-            1. Inspect the Python codebase in upstream-docling-core/docling_core/ (especially docling_core/types/ and document hierarchy/traversal logic).
-            2. Update docling-core/src/types/models.ts to reflect all updated/new models, fields, and types.
-            3. Update docling-core/src/types/typing.ts to add or adjust type predicates and discriminators (e.g. isDoclingDocItem, isDoclingAnnotation, isDocling).
-            4. Inspect and update remaining code under docling-core/src/ (e.g. docling-core/src/index.ts, iterateDocumentItems, resolveDocumentItem, etc.) for any corresponding changes or new features from the Python repository.
-            5. Update docling-core/tests/ to add tests for any new or modified types and functions.
-            6. Run 'cd docling-core && npm run check' to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found.
-            7. Write a file named 'pr-body.md' in the current working directory summarising every change you made. For each changed or added TypeScript construct (type, interface, function, constant), include a bullet point that names the TS symbol, describes what changed, and contains a Markdown link directly to the Python source that motivated the change using the URL pattern: https://github.com/docling-project/docling-core/blob/$TAG/<relative-path-inside-upstream-docling-core>#L<line> (e.g. https://github.com/docling-project/docling-core/blob/$TAG/docling_core/types/doc/document.py#L42). Use the actual file path and line number from 'upstream-docling-core/' that contains the relevant Python class, field, or function. Group bullets under headings matching the TS file that was changed (e.g. '### models.ts', '### typing.ts', '### index.ts').
+            1. Inspect the Python service client codebase in 'upstream-docling/docling/service_client/' and service models in 'upstream-docling/docling/datamodel/service/'.
+            2. Update docling-client/src/types.ts to reflect all updated/new models, options, enums, parameters, and types.
+            3. Update docling-client/src/ (client.ts, transport.ts, watchers.ts, scheduler.ts, sources.ts, artifacts.ts, errors.ts, index.ts) for any corresponding changes, new client options, methods, or behavior from the Python service client.
+            4. Update docling-client/PYTHON_CLIENT_PARITY.md to reference Docling Python $VERSION at commit $UPSTREAM_SHA, updating parity tables and documented behavior where applicable.
+            5. Update docling-client/test/ (client.test.ts, transport.test.ts, watchers.test.ts, artifacts.test.ts, type-parity.ts) to add or update tests for any new or modified features and types.
+            6. Run 'cd docling-client && npm run check' to verify formatting, linting, type-checking, tests, build, publint, and attw pass without errors. Fix any issues found.
+            7. Write a file named 'pr-body.md' in the current working directory summarising every change you made. For each changed or added TypeScript construct (type, interface, class, method, function, constant), include a bullet point that names the TS symbol, describes what changed, and contains a Markdown link directly to the Python source that motivated the change using the URL pattern: https://github.com/docling-project/docling/blob/$TAG/<relative-path-inside-upstream-docling>#L<line> (e.g. https://github.com/docling-project/docling/blob/$TAG/docling/service_client/client.py#L42). Use the actual file path and line number from 'upstream-docling/' that contains the relevant Python class, field, or function. Group bullets under headings matching the TS file that was changed (e.g. '### types.ts', '### client.ts', '### PYTHON_CLIENT_PARITY.md').
             8. Write a file named 'pr-comments.json' in the current working directory. It must be a valid JSON array where each element describes one inline review comment to post on the PR diff. Only include entries for lines you actually added or modified (i.e. lines that will appear on the RIGHT side of the diff). Each element must have exactly these fields:
-               - \"path\": the file path relative to the repo root (e.g. \"docling-core/src/types/models.ts\")
+               - \"path\": the file path relative to the repo root (e.g. \"docling-client/src/types.ts\")
                - \"line\": the line number in the new version of that file where the change appears (integer, 1-based)
                - \"body\": a short Markdown comment (1-3 sentences) that explains why the change was made and links to the Python source with the URL pattern above.
-               Use the actual line numbers from the files you just wrote/modified. Example element: {\"path\": \"docling-core/src/types/models.ts\", \"line\": 87, \"body\": \"Added \\\"heatmap\\\" to PictureClassificationLabel to match the Python enum. [Source](https://github.com/docling-project/docling-core/blob/$TAG/docling_core/types/doc/document.py#L87)\"}
+               Use the actual line numbers from the files you just wrote/modified. Example element: {\"path\": \"docling-client/src/types.ts\", \"line\": 87, \"body\": \"Added new conversion option to match Python ConvertDocumentsOptions. [Source](https://github.com/docling-project/docling/blob/$TAG/docling/datamodel/service/options.py#L87)\"}
 
             Rules:
             - Do not modify package.json or package-lock.json.
-            - Limit the number of searches that you do and focus on the (entire) files that contain the model and traversal code."
+            - Limit the number of searches that you do and focus on the files that contain the service client and service datamodels."
 
       - name: Remove upstream checkout before commit
         if: steps.pr_check.outputs.should_sync == 'true'
-        run: rm -rf upstream-docling-core
+        run: rm -rf upstream-docling
 
       - name: Commit and push changes
         id: commit
@@ -165,20 +170,20 @@ jobs:
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
-          BRANCH_NAME="sync/docling-core-${VERSION}"
+          BRANCH_NAME="sync/docling-client-${VERSION}"
 
           git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
           git config user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
 
           git checkout -B "$BRANCH_NAME"
-          git add docling-core/
+          git add docling-client/
 
           if git diff --cached --quiet; then
             echo "No changes detected after running Bob CLI."
             exit 0
           fi
 
-          git commit -m "feat(docling-core): sync types with docling-core ${TAG}"
+          git commit -m "feat(docling-client): sync client with docling ${TAG}"
           git push -u origin "$BRANCH_NAME" --force
 
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
@@ -194,7 +199,7 @@ jobs:
           BRANCH_NAME="${{ steps.commit.outputs.branch_name }}"
 
           HEADER=$(cat <<EOF
-          ## Automated Upstream Sync: docling-core [${TAG}](https://github.com/docling-project/docling-core/releases/tag/${TAG})
+          ## Automated Upstream Sync: docling [${TAG}](https://github.com/docling-project/docling/releases/tag/${TAG})
 
           This pull request was generated automatically using **IBM Bob CLI** in GitHub Actions.
 
@@ -208,10 +213,10 @@ jobs:
             PR_BODY=$(cat <<EOF
           ${HEADER}
           ### Actions Taken:
-          - Analyzed Python schemas and logic in upstream release \`${TAG}\`.
-          - Updated TypeScript interfaces in \`docling-core/src/types/models.ts\`.
-          - Updated type predicates in \`docling-core/src/types/typing.ts\`.
-          - Updated traversal & utility logic in \`docling-core/src/index.ts\`.
+          - Analyzed Python service client and datamodels in upstream release \`${TAG}\`.
+          - Updated TypeScript interfaces and types in \`docling-client/src/types.ts\`.
+          - Updated client implementation in \`docling-client/src/\`.
+          - Updated \`docling-client/PYTHON_CLIENT_PARITY.md\`.
           - Updated and verified test suite (\`npm run check\`).
           EOF
             )
@@ -219,13 +224,13 @@ jobs:
 
           EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number')
           if [ -n "$EXISTING_PR" ]; then
-            gh pr edit "$EXISTING_PR" --title "feat(docling-core): update types for docling-core ${TAG}" --body "$PR_BODY"
+            gh pr edit "$EXISTING_PR" --title "feat(docling-client): sync client with docling ${TAG}" --body "$PR_BODY"
             echo "pr_number=$EXISTING_PR" >> $GITHUB_OUTPUT
           else
             PR_URL=$(gh pr create \
               --base main \
               --head "$BRANCH_NAME" \
-              --title "feat(docling-core): update types for docling-core ${TAG}" \
+              --title "feat(docling-client): sync client with docling ${TAG}" \
               --body "$PR_BODY")
             echo "pr_number=$(echo "$PR_URL" | grep -oE '[0-9]+$')" >> $GITHUB_OUTPUT
           fi
