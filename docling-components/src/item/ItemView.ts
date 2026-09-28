@@ -1,7 +1,10 @@
 import {
   DocItem,
   isDocling,
+  isDoclingDocItem,
   PageItem,
+  PictureDescriptionData,
+  PictureItem,
   ProvenanceItem,
 } from '@docling/docling-core';
 import { customElement } from 'lit/decorators.js';
@@ -54,9 +57,31 @@ export abstract class ItemView extends DoclingItemElement<DocItem> {
         );
     }
 
-    // Annotation elements.
-    const annotations = ((item as Record<string, unknown>).annotations ??
-      []) as Annotation[];
+    // Annotation elements (only PictureItem carries annotations).
+    const annotations: Annotation[] = [];
+    if (isDoclingDocItem.PictureItem(item)) {
+      const pic = item as PictureItem;
+      const meta = pic.meta;
+
+      if (meta?.description?.text) {
+        const desc: PictureDescriptionData = {
+          kind: 'description',
+          text: meta.description.text,
+          provenance: meta.description.created_by ?? '',
+        };
+        annotations.push(desc);
+      }
+      if (meta?.classification?.predictions?.length) {
+        annotations.push({
+          kind: 'classification',
+          provenance: 'meta',
+          predicted_classes: meta.classification.predictions.map(p => ({
+            class_name: p.class_name,
+            confidence: p.confidence ?? 1,
+          })),
+        });
+      }
+    }
     for (const ann of annotations) {
       const annElements: DoclingAnnotationElement[] = [];
 

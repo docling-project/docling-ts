@@ -3,4 +3,3 @@ node_modules/
 playwright-report/
 test-results/
 tests/snapshots/
-tests/snapshots-ci/

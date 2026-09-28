@@ -18,15 +18,70 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: docling-components
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.CI_APP_ID }}
+          private-key: ${{ secrets.CI_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          # Check out the actual branch head so we're not in detached HEAD state.
+          # github.head_ref is set on pull_request events; github.ref_name on push.
+          ref: ${{ github.head_ref || github.ref_name }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: docling-components/package-lock.json
+
       - run: npm ci
+
+      # Install only the Chromium browser used by Playwright (no system deps
+      # needed for the headless shell on ubuntu-latest).
+      - run: npx playwright install chromium
+
+      # Generate any missing linux baselines in tests/snapshots-ci/ and
+      # commit them back to the branch. On the very first push of a new test
+      # (or after intentional component changes) this writes the ground-truth;
+      # on all subsequent runs the directory is already populated so nothing
+      # is committed and the check step does strict comparison.
+      - name: Generate missing visual baselines
+        run: |
+          npm run build
+          npx playwright test --project=local tests/e2e/visual.test.ts --update-snapshots
+        continue-on-error: true
+
+      - name: Commit new baselines (if any)
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docling-components/tests/snapshots-ci/
+          git diff --cached --quiet || git commit -s -m "test: update visual baselines [skip ci]"
+          git push origin HEAD
+
+      # format, lint, typecheck, build, publint, attw, vitest unit tests,
+      # and Playwright e2e + visual regression (including CDN project) —
+      # The CDN tests intercept unpkg requests and serve the local dist build,
+      # so no published release is required.
       - run: npm run check
+
+      # Upload the Playwright HTML report and any diff screenshots as
+      # artifacts so failures can be inspected without re-running locally.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            docling-components/playwright-report/
+            docling-components/test-results/
+          retention-days: 14

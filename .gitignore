@@ -9,3 +9,7 @@ dist/
 .env
 
 *.log
+
+# Playwright transient output (snapshots/ is intentionally tracked)
+docling-components/test-results/
+docling-components/playwright-report/

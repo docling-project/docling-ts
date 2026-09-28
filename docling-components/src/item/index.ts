@@ -1,6 +1,8 @@
 import { BoundingBox, PageItem } from '@docling/docling-core';
 
 export { customDoclingItemElement } from './registry';
+export * from './ItemCode';
+export * from './ItemKeyValue';
 export * from './ItemProvenance';
 export * from './ItemElement';
 export * from './ItemTable';

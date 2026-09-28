@@ -3,13 +3,17 @@
   "exclude": ["**/*.test.ts"],
   "compilerOptions": {
     "target": "es2022",
-    "module": "es2015",
-    "moduleResolution": "node",
+    "module": "ESNext",
     "lib": ["es2022", "dom"],
     "declaration": true,
-    "declarationMap": true,
     "strict": true,
+    "ignoreDeprecations": "6.0",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "outDir": "dist",
+    "rootDir": "src"
   }
 }
