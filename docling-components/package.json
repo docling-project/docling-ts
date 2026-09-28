@@ -1,6 +1,6 @@
 {
   "name": "@docling/docling-components",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Web components for displaying Docling output.",
   "type": "module",
   "main": "dist/index.cjs",
