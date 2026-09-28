@@ -2285,13 +2285,11 @@ function validateKnownConnector(
     return;
   }
   if (value.kind === 's3') {
-    requireStringFields(
-      fields,
-      ['endpoint', 'access_key', 'secret_key', 'bucket', 'key_prefix'],
-      role,
-      true
-    );
+    requireStringFields(fields, ['endpoint', 'bucket', 'key_prefix'], role, true);
     validateOptionalBoolean(fields.verify_ssl, `${role} verify_ssl`);
+    validateOptionalString(fields.region, `${role} region`);
+    validateOptionalString(fields.access_key, `${role} access_key`);
+    validateOptionalString(fields.secret_key, `${role} secret_key`);
     validatePositiveMaxElements(fields.max_num_elements, role);
     return;
   }

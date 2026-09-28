@@ -244,6 +244,8 @@ export interface ConvertDocumentsOptions {
   layout_custom_config?: Record<string, unknown> | string | null;
   picture_classification_preset?: string | null;
   picture_classification_custom_config?: Record<string, unknown> | string | null;
+  /** Use compact table format without column padding in markdown output. */
+  md_compact_tables?: boolean;
   abort_on_error?: boolean;
   document_timeout?: number | null;
 }
@@ -282,8 +284,10 @@ export interface PutTarget {
 export interface S3Coordinates {
   endpoint: string;
   verify_ssl?: boolean;
-  access_key: string;
-  secret_key: string;
+  /** AWS region of the S3 bucket, e.g. 'us-east-2'. Required for correctly signed presigned URLs against real AWS S3 buckets. */
+  region?: string | null;
+  access_key?: string | null;
+  secret_key?: string | null;
   bucket: string;
   key_prefix?: string;
   max_num_elements?: number | null;

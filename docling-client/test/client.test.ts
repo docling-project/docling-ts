@@ -1640,3 +1640,83 @@ async function collectAsync<T>(values: AsyncIterable<T>): Promise<T[]> {
   }
   return results;
 }
+
+describe('v2.130.0 new fields', () => {
+  it('accepts md_compact_tables boolean option and sends it in the request body', async () => {
+    const transport = new ScriptedTransport(task('compact-1', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      { md_compact_tables: true },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.md_compact_tables).toBe(true);
+  });
+
+  it('rejects md_compact_tables with a non-boolean value', async () => {
+    const client = clientWith(new ScriptedTransport());
+    await expect(
+      client.submitUrl(
+        'https://files.example.test/manual.pdf',
+        { md_compact_tables: 'yes' as never },
+        { target: { kind: 'inbody' } }
+      )
+    ).rejects.toBeInstanceOf(DoclingProtocolError);
+  });
+
+  it('accepts s3 source with optional region field', async () => {
+    const transport = new ScriptedTransport(task('s3-region', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitBatch({
+      sources: [
+        {
+          kind: 's3',
+          endpoint: 's3.us-east-2.amazonaws.com',
+          region: 'us-east-2',
+          bucket: 'input',
+        },
+      ],
+      target: { kind: 'presigned_url' },
+    });
+
+    const body = transport.requests[0]?.body as {
+      sources: Array<Record<string, unknown>>;
+    };
+    expect(body.sources[0]).toMatchObject({
+      kind: 's3',
+      region: 'us-east-2',
+      endpoint: 's3.us-east-2.amazonaws.com',
+      bucket: 'input',
+    });
+  });
+
+  it('accepts s3 source and target with null access_key and secret_key (ambient credentials)', async () => {
+    const transport = new ScriptedTransport(task('s3-ambient', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitBatch({
+      sources: [
+        {
+          kind: 's3',
+          endpoint: 's3.example.test',
+          access_key: null,
+          secret_key: null,
+          bucket: 'input',
+        },
+      ],
+      target: { kind: 'presigned_url' },
+    });
+
+    const body = transport.requests[0]?.body as {
+      sources: Array<Record<string, unknown>>;
+    };
+    expect(body.sources[0]?.['access_key']).toBeNull();
+    expect(body.sources[0]?.['secret_key']).toBeNull();
+  });
+});

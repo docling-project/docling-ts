@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.115.0
-at commit `f4380498`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.130.0
+at commit `92fc74c`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -74,7 +74,7 @@ because async is its native execution model.
 | Base64 file                          | Yes                       | No    | JSON `FileSource`.                                                         |
 | Local path                           | Yes, Node                 | No    | Read lazily when normalized, then multipart or base64 depending on target. |
 | `Blob` / `ArrayBuffer` / typed array | Yes                       | No    | TypeScript extension for Node/browser integrations.                        |
-| S3                                   | No                        | Yes   | Endpoint, SSL flag, keys, bucket, prefix, enumeration limit.               |
+| S3                                   | No                        | Yes   | Endpoint, SSL flag, optional region, optional keys, bucket, prefix, limit. |
 | Azure Blob                           | No                        | Yes   | Account, container, connection string, prefix, enumeration limit.          |
 | Google Cloud Storage                 | No                        | Yes   | Bucket, prefix, project/ADC, optional service-account object.              |
 | Google Drive                         | No                        | Yes   | Path, token/refresh token, credentials path/object.                        |
@@ -126,7 +126,8 @@ The explicit TypeScript option surface covers every field in Python
   `vlm_pipeline_model_api`
 - VLM, picture-description, code/formula, table-structure, layout, and
   picture-classification preset/custom-config pairs
-- `document_timeout`, `abort_on_error`, and Markdown page-break placeholder
+- `document_timeout`, `abort_on_error`, Markdown page-break placeholder,
+  and `md_compact_tables`
 
 Known enums, page ranges, primitive shapes, and nested option object boundaries
 are checked locally. Legacy VLM/picture-description model objects and the
