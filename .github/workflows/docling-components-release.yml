@@ -34,12 +34,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: npm
           cache-dependency-path: docling-components/package-lock.json
 
       - run: npm ci
+      - run: npx playwright install chromium
       - run: npm run check
 
       - name: Bump version and tag
