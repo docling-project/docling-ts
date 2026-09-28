@@ -791,6 +791,7 @@ const BOOLEAN_OPTIONS = [
   'do_chart_extraction',
   'do_picture_description',
   'abort_on_error',
+  'md_compact_tables',
 ] as const;
 const NUMBER_OPTIONS = [
   'document_timeout',

@@ -58,6 +58,17 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     },
   };
 
+  const compactTablesOptions: ConvertDocumentsOptions = {
+    md_compact_tables: true,
+  };
+
+  const s3WithRegion = {
+    kind: 's3' as const,
+    endpoint: 's3.us-east-2.amazonaws.com',
+    region: 'us-east-2',
+    bucket: 'input',
+  };
+
   // @ts-expect-error Python's wire contract does not accept arbitrary categories.
   const invalidCategory: FailureCategory = 'made_up';
   // @ts-expect-error Python's wire contract does not accept arbitrary grades.
@@ -82,5 +93,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     invalidScope,
     pictureOptions,
     invalidPictureLabel,
+    compactTablesOptions,
+    s3WithRegion,
   ];
 }
