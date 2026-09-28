@@ -125,6 +125,23 @@ describe('iterateDocumentItems (minimal document)', () => {
     expect(refs).toContain('#/texts/1');
   });
 
+  it('traverses caption children of picture even when traversePictures is false', () => {
+    const doc = loadMinimalDocument();
+    doc.pictures![0].captions = [{ $ref: '#/texts/1' }];
+    doc.pictures![0].children = [{ $ref: '#/texts/1' }, { $ref: '#/texts/0' }];
+    // Remove texts/0, texts/1 and groups/0 (which has child texts/0) from body so they only appear via picture
+    doc.body!.children = doc.body!.children!.filter(
+      c =>
+        c.$ref !== '#/texts/0' &&
+        c.$ref !== '#/texts/1' &&
+        c.$ref !== '#/groups/0'
+    );
+    const items = [...iterateDocumentItems(doc, { traversePictures: false })];
+    const refs = items.map(([item]) => item.self_ref);
+    expect(refs).toContain('#/texts/1');
+    expect(refs).not.toContain('#/texts/0');
+  });
+
   it('yields correct nesting levels', () => {
     // Dedicated inline fixture: body → [texts/0, groups/0 → [texts/1]]
     const doc: DoclingDocument = {

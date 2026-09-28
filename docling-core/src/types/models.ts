@@ -611,7 +611,8 @@ export interface TableCell {
   fillable?: boolean;
 }
 export interface RichTableCell extends TableCell {
-  $ref: string;
+  ref: RefItem;
+  $ref?: string;
 }
 export type AnyTableCell = TableCell | RichTableCell;
 export interface TableData {
@@ -641,6 +642,10 @@ export interface PictureClassificationClass {
   class_name: string;
   confidence: number;
 }
+export type DescriptionAnnotation = PictureDescriptionData;
+export type MiscAnnotation = PictureMiscData;
+export type BaseAnnotation = BasePictureData;
+
 export interface PictureClassificationData extends BasePictureData {
   kind?: 'classification';
   provenance: string;
@@ -832,6 +837,40 @@ export interface PageItem {
   image?: ImageRef | null;
   page_no: number;
 }
+
+export const CURRENT_VERSION = '1.10.0';
+export const DEFAULT_CONTENT_LAYERS: ContentLayer[] = ['body'];
+export const DEFAULT_EXPORT_LABELS: DocItemLabel[] = [
+  'title',
+  'document_index',
+  'section_header',
+  'paragraph',
+  'table',
+  'picture',
+  'formula',
+  'checkbox_unselected',
+  'checkbox_selected',
+  'text',
+  'list_item',
+  'code',
+  'reference',
+  'page_header',
+  'page_footer',
+  'key_value_region',
+  'empty_value',
+  'field_key',
+  'field_value',
+  'field_heading',
+  'field_hint',
+  'marker',
+  'handwritten_text',
+];
+export const DOCUMENT_TOKENS_EXPORT_LABELS: DocItemLabel[] = [
+  ...DEFAULT_EXPORT_LABELS,
+  'footnote',
+  'caption',
+  'form',
+];
 
 // ---------------------------------------------------------------------------
 // DoclingDocument
