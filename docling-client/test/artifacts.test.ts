@@ -251,7 +251,7 @@ describe('presigned artifact materialization', () => {
 describe('ArtifactDownloader fetch binding', () => {
   it('binds globalThis.fetch to globalThis when used as default', async () => {
     const calls: unknown[] = [];
-    const fakeFetch = function (this: unknown, ..._args: unknown[]) {
+    const fakeFetch = function (this: unknown) {
       calls.push(this);
       return Promise.resolve(new Response('data'));
     };
@@ -270,7 +270,7 @@ describe('ArtifactDownloader fetch binding', () => {
   it('does not rebind a user-supplied fetch', async () => {
     const receiver = { isMine: true };
     const calls: unknown[] = [];
-    const customFetch = function (this: unknown, ..._args: unknown[]) {
+    const customFetch = function (this: unknown) {
       calls.push(this);
       return Promise.resolve(new Response('data'));
     };
