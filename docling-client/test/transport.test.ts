@@ -384,8 +384,7 @@ describe('FetchTransport fetch binding', () => {
     };
     const original = globalThis.fetch;
     try {
-      // @ts-expect-error — replacing global for test
-      globalThis.fetch = fakeFetch;
+      globalThis.fetch = fakeFetch as typeof globalThis.fetch;
       const transport = new FetchTransport();
       await transport.request(REQUEST).catch(() => undefined);
       expect(calls[0]).toBe(globalThis);
