@@ -189,6 +189,23 @@ export interface VlmModelApi {
 }
 
 /**
+ * Fine-tuning options for PDF heading-hierarchy inference, applied when
+ * `do_pdf_heading_hierarchy` is enabled.
+ *
+ * Mirrors Python's `HeadingHierarchyOptions`.
+ */
+export interface HeadingHierarchyOptions {
+  /** Use PDF bookmarks/table-of-contents for heading levels. Default: true. */
+  use_bookmarks?: boolean;
+  /** Use outline numbering (e.g. "1.2.3 Title") for heading levels. Default: true. */
+  use_outline_levels?: boolean;
+  /** Use font-style differences for heading levels. Default: true. */
+  use_style?: boolean;
+  /** Maximum inferred heading depth. Default: 10. */
+  max_level?: number;
+}
+
+/**
  * Common Docling Serve conversion controls.
  *
  * The string index preserves forward compatibility with options added by the
@@ -211,6 +228,14 @@ export interface ConvertDocumentsOptions {
   table_mode?: TableMode;
   table_cell_matching?: boolean;
   do_table_structure?: boolean;
+  /**
+   * If enabled, section-header levels are inferred for PDF and image inputs
+   * processed by the standard pipeline. When disabled every heading stays at
+   * level 1 (flat hierarchy). Default: false.
+   */
+  do_pdf_heading_hierarchy?: boolean;
+  /** Fine-tuning of the heading-level inference. Applied when do_pdf_heading_hierarchy is enabled. */
+  pdf_heading_hierarchy_options?: HeadingHierarchyOptions;
   image_export_mode?: ImageExportMode;
   images_scale?: number;
   include_images?: boolean;
@@ -221,6 +246,16 @@ export interface ConvertDocumentsOptions {
   do_picture_classification?: boolean;
   do_picture_description?: boolean;
   do_chart_extraction?: boolean;
+  /**
+   * Preset ID for chart extraction (e.g. "default", "granite_vision_v4", "granite_vision").
+   * Mutually exclusive with chart_extraction_custom_config.
+   */
+  chart_extraction_preset?: string | null;
+  /**
+   * Custom chart extraction configuration. Accepts a ChartExtractionVlmEngineOptions-equivalent
+   * dict. Only available when the admin allows it. Mutually exclusive with chart_extraction_preset.
+   */
+  chart_extraction_custom_config?: Record<string, unknown> | null;
   picture_description_area_threshold?: number;
   /** @deprecated Prefer picture_description_preset or picture_description_custom_config. */
   picture_description_local?: PictureDescriptionLocal | null;
@@ -248,6 +283,19 @@ export interface ConvertDocumentsOptions {
   md_compact_tables?: boolean;
   abort_on_error?: boolean;
   document_timeout?: number | null;
+  /**
+   * Inline chunker configuration. Mutually exclusive with chunking_preset.
+   * Discriminated by a `chunker` field: "hybrid" | "hierarchical".
+   */
+  chunking_options?:
+    | (HybridChunkingOptions & { chunker: 'hybrid' })
+    | (HierarchicalChunkingOptions & { chunker: 'hierarchical' })
+    | null;
+  /**
+   * Preset ID for chunking (e.g. "granite_embedding_278m", "minilm_l6", "hierarchical").
+   * Mutually exclusive with chunking_options.
+   */
+  chunking_preset?: string | null;
 }
 
 export interface HttpSource {

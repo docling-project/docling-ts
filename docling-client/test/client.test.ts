@@ -1720,3 +1720,166 @@ describe('v2.130.0 new fields', () => {
     expect(body.sources[0]?.['secret_key']).toBeNull();
   });
 });
+
+describe('v2.131.0 new fields', () => {
+  it('accepts do_pdf_heading_hierarchy boolean option and sends it in the request body', async () => {
+    const transport = new ScriptedTransport(task('heading-1', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      { do_pdf_heading_hierarchy: true },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.do_pdf_heading_hierarchy).toBe(true);
+  });
+
+  it('accepts pdf_heading_hierarchy_options and forwards them in the request body', async () => {
+    const transport = new ScriptedTransport(task('heading-opts', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      {
+        do_pdf_heading_hierarchy: true,
+        pdf_heading_hierarchy_options: {
+          use_bookmarks: false,
+          max_level: 3,
+        },
+      },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.pdf_heading_hierarchy_options).toEqual({
+      use_bookmarks: false,
+      max_level: 3,
+    });
+  });
+
+  it('rejects do_pdf_heading_hierarchy with a non-boolean value', async () => {
+    const client = clientWith(new ScriptedTransport());
+    await expect(
+      client.submitUrl(
+        'https://files.example.test/manual.pdf',
+        { do_pdf_heading_hierarchy: 'yes' as never },
+        { target: { kind: 'inbody' } }
+      )
+    ).rejects.toBeInstanceOf(DoclingProtocolError);
+  });
+
+  it('accepts chart_extraction_preset string option and sends it in the request body', async () => {
+    const transport = new ScriptedTransport(task('chart-preset', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      { do_chart_extraction: true, chart_extraction_preset: 'granite_vision_v4' },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.chart_extraction_preset).toBe('granite_vision_v4');
+  });
+
+  it('accepts chart_extraction_custom_config object and sends it in the request body', async () => {
+    const transport = new ScriptedTransport(task('chart-custom', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      {
+        do_chart_extraction: true,
+        chart_extraction_custom_config: {
+          model_spec: { name: 'Granite-Vision-4.1-4B' },
+        },
+      },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.chart_extraction_custom_config).toEqual({
+      model_spec: { name: 'Granite-Vision-4.1-4B' },
+    });
+  });
+
+  it('rejects chart_extraction_preset combined with chart_extraction_custom_config', async () => {
+    const client = clientWith(new ScriptedTransport());
+    await expect(
+      client.submitUrl(
+        'https://files.example.test/manual.pdf',
+        {
+          chart_extraction_preset: 'granite_vision',
+          chart_extraction_custom_config: { model_spec: { name: 'X' } },
+        } as never,
+        { target: { kind: 'inbody' } }
+      )
+    ).rejects.toBeInstanceOf(DoclingProtocolError);
+  });
+
+  it('accepts chunking_preset string option and sends it in the request body', async () => {
+    const transport = new ScriptedTransport(task('chunking-preset', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      { chunking_preset: 'granite_embedding_278m' },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.chunking_preset).toBe('granite_embedding_278m');
+  });
+
+  it('rejects chunking_preset combined with chunking_options', async () => {
+    const client = clientWith(new ScriptedTransport());
+    await expect(
+      client.submitUrl(
+        'https://files.example.test/manual.pdf',
+        {
+          chunking_preset: 'granite_embedding_278m',
+          chunking_options: { chunker: 'hybrid', max_tokens: 512 },
+        },
+        { target: { kind: 'inbody' } }
+      )
+    ).rejects.toBeInstanceOf(DoclingProtocolError);
+  });
+
+  it('accepts inline chunking_options with chunker discriminator in the request body', async () => {
+    const transport = new ScriptedTransport(task('chunking-inline', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      {
+        chunking_options: {
+          chunker: 'hybrid',
+          max_tokens: 256,
+          tokenizer: 'sentence-transformers/all-MiniLM-L6-v2',
+        },
+      },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.chunking_options).toEqual({
+      chunker: 'hybrid',
+      max_tokens: 256,
+      tokenizer: 'sentence-transformers/all-MiniLM-L6-v2',
+    });
+  });
+});

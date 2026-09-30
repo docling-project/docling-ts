@@ -8,6 +8,7 @@ import {
   type ConversionResult,
   type ConvertDocumentsOptions,
   type FailureCategory,
+  type HeadingHierarchyOptions,
   type InBodyTarget,
   type PictureClassificationLabel,
   type PresignedUrlConvertResponse,
@@ -69,6 +70,43 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     bucket: 'input',
   };
 
+  // New v2.131.0 options: PDF heading hierarchy
+  const headingHierarchyOpts: HeadingHierarchyOptions = {
+    use_bookmarks: true,
+    use_outline_levels: false,
+    use_style: true,
+    max_level: 4,
+  };
+  const pdfHeadingOptions: ConvertDocumentsOptions = {
+    do_pdf_heading_hierarchy: true,
+    pdf_heading_hierarchy_options: headingHierarchyOpts,
+  };
+
+  // New v2.131.0 options: chart extraction preset/custom config
+  const chartExtractionPresetOptions: ConvertDocumentsOptions = {
+    do_chart_extraction: true,
+    chart_extraction_preset: 'granite_vision_v4',
+  };
+  const chartExtractionCustomOptions: ConvertDocumentsOptions = {
+    do_chart_extraction: true,
+    chart_extraction_custom_config: {
+      model_spec: { name: 'Granite-Vision-4.1-4B' },
+      chart2csv: true,
+    },
+  };
+
+  // New v2.131.0 options: inline chunking in convert options
+  const chunkingPresetOptions: ConvertDocumentsOptions = {
+    chunking_preset: 'granite_embedding_278m',
+  };
+  const chunkingInlineOptions: ConvertDocumentsOptions = {
+    chunking_options: {
+      chunker: 'hybrid',
+      max_tokens: 512,
+      tokenizer: 'sentence-transformers/all-MiniLM-L6-v2',
+    },
+  };
+
   // @ts-expect-error Python's wire contract does not accept arbitrary categories.
   const invalidCategory: FailureCategory = 'made_up';
   // @ts-expect-error Python's wire contract does not accept arbitrary grades.
@@ -95,5 +133,11 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     invalidPictureLabel,
     compactTablesOptions,
     s3WithRegion,
+    headingHierarchyOpts,
+    pdfHeadingOptions,
+    chartExtractionPresetOptions,
+    chartExtractionCustomOptions,
+    chunkingPresetOptions,
+    chunkingInlineOptions,
   ];
 }

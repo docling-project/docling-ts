@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.130.0
-at commit `92fc74c`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.131.0
+at commit `cb14c87`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -118,14 +118,20 @@ The explicit TypeScript option surface covers every field in Python
   `ocr_custom_config`
 - `pdf_backend`
 - `table_mode`, `table_cell_matching`, `do_table_structure`
+- `do_pdf_heading_hierarchy`, `pdf_heading_hierarchy_options`
+  (`HeadingHierarchyOptions` with `use_bookmarks`, `use_outline_levels`,
+  `use_style`, `max_level`)
 - `do_code_enrichment`, `do_formula_enrichment`
 - `do_picture_classification`, `do_picture_description`,
   `do_chart_extraction`, `picture_description_area_threshold`
+- `chart_extraction_preset`, `chart_extraction_custom_config`
 - the deprecated `picture_description_local`, `picture_description_api`,
   `vlm_pipeline_model`, `vlm_pipeline_model_local`, and
   `vlm_pipeline_model_api`
-- VLM, picture-description, code/formula, table-structure, layout, and
-  picture-classification preset/custom-config pairs
+- VLM, picture-description, code/formula, chart-extraction, table-structure,
+  layout, and picture-classification preset/custom-config pairs
+- `chunking_options` (inline `HybridChunkingOptions | HierarchicalChunkingOptions`)
+  and `chunking_preset` for inline chunking within a convert job
 - `document_timeout`, `abort_on_error`, Markdown page-break placeholder,
   and `md_compact_tables`
 

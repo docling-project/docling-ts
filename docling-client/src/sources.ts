@@ -425,6 +425,11 @@ function validateOptionExclusivity(options: ConvertDocumentsOptions): void {
   }
   for (const [name, preset, custom] of [
     ['code_formula', options.code_formula_preset, options.code_formula_custom_config],
+    [
+      'chart_extraction',
+      options.chart_extraction_preset,
+      options.chart_extraction_custom_config,
+    ],
     ['layout', options.layout_preset, options.layout_custom_config],
     [
       'picture_classification',
@@ -446,6 +451,16 @@ function validateOptionExclusivity(options: ConvertDocumentsOptions): void {
   ) {
     throw new DoclingProtocolError(
       'ocr_preset and ocr_custom_config are mutually exclusive'
+    );
+  }
+  if (
+    options.chunking_preset !== undefined &&
+    options.chunking_preset !== null &&
+    options.chunking_options !== undefined &&
+    options.chunking_options !== null
+  ) {
+    throw new DoclingProtocolError(
+      'chunking_preset and chunking_options are mutually exclusive'
     );
   }
 }
@@ -783,6 +798,7 @@ const BOOLEAN_OPTIONS = [
   'force_ocr',
   'table_cell_matching',
   'do_table_structure',
+  'do_pdf_heading_hierarchy',
   'include_images',
   'include_page_images',
   'do_code_enrichment',
@@ -805,15 +821,18 @@ const STRING_OPTIONS = [
   'vlm_pipeline_preset',
   'picture_description_preset',
   'code_formula_preset',
+  'chart_extraction_preset',
   'table_structure_preset',
   'layout_preset',
   'picture_classification_preset',
+  'chunking_preset',
 ] as const;
 const RECORD_OPTIONS = [
   'ocr_custom_config',
   'vlm_pipeline_custom_config',
   'picture_description_custom_config',
   'code_formula_custom_config',
+  'chart_extraction_custom_config',
   'table_structure_custom_config',
   'layout_custom_config',
   'picture_classification_custom_config',
