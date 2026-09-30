@@ -248,6 +248,41 @@ describe('presigned artifact materialization', () => {
   });
 });
 
+describe('ArtifactDownloader fetch binding', () => {
+  it('binds globalThis.fetch to globalThis when used as default', async () => {
+    const calls: unknown[] = [];
+    const fakeFetch = function (this: unknown, ..._args: unknown[]) {
+      calls.push(this);
+      return Promise.resolve(new Response('data'));
+    };
+    const original = globalThis.fetch;
+    try {
+      // @ts-expect-error — replacing global for test
+      globalThis.fetch = fakeFetch;
+      const downloader = new ArtifactDownloader({ allowPrivateUrls: true });
+      await downloader.download('https://example.test/a').catch(() => undefined);
+      expect(calls[0]).toBe(globalThis);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
+  it('does not rebind a user-supplied fetch', async () => {
+    const receiver = { isMine: true };
+    const calls: unknown[] = [];
+    const customFetch = function (this: unknown, ..._args: unknown[]) {
+      calls.push(this);
+      return Promise.resolve(new Response('data'));
+    };
+    const downloader = new ArtifactDownloader({
+      allowPrivateUrls: true,
+      fetch: customFetch.bind(receiver),
+    });
+    await downloader.download('https://example.test/a').catch(() => undefined);
+    expect(calls[0]).toBe(receiver);
+  });
+});
+
 describe('artifact download security', () => {
   it('rejects private and mixed DNS answers and accepts all-public answers', async () => {
     const fetchImplementation = vi.fn(async () => new Response('artifact'));

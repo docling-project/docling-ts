@@ -37,7 +37,7 @@ export class ArtifactDownloader {
         'No fetch implementation is available for artifact downloads'
       );
     }
-    this.#fetch = options.fetch ?? globalThis.fetch;
+    this.#fetch = options.fetch ?? globalThis.fetch?.bind(globalThis);
     this.#resolver = options.resolver ?? resolveAllAddresses;
     this.#allowPrivateUrls = options.allowPrivateUrls ?? false;
     this.#timeoutMs = options.timeoutMs ?? 60_000;
