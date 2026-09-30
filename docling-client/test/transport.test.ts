@@ -375,6 +375,37 @@ describe('FetchTransport response handling', () => {
   });
 });
 
+describe('FetchTransport fetch binding', () => {
+  it('binds globalThis.fetch to globalThis when used as default', async () => {
+    const calls: unknown[] = [];
+    const fakeFetch = function (this: unknown) {
+      calls.push(this);
+      return Promise.resolve(new Response('{}', { status: 200 }));
+    };
+    const original = globalThis.fetch;
+    try {
+      globalThis.fetch = fakeFetch as typeof globalThis.fetch;
+      const transport = new FetchTransport();
+      await transport.request(REQUEST).catch(() => undefined);
+      expect(calls[0]).toBe(globalThis);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
+  it('does not rebind a user-supplied fetch', async () => {
+    const receiver = { isMine: true };
+    const calls: unknown[] = [];
+    const customFetch = function (this: unknown) {
+      calls.push(this);
+      return Promise.resolve(new Response('{}', { status: 200 }));
+    };
+    const transport = new FetchTransport({ fetch: customFetch.bind(receiver) });
+    await transport.request(REQUEST).catch(() => undefined);
+    expect(calls[0]).toBe(receiver);
+  });
+});
+
 function jsonResponse(
   body: unknown,
   status: number,

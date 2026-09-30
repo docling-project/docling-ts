@@ -51,18 +51,19 @@ export class FetchTransport implements DoclingTransport {
   readonly #backoffBaseMs: number;
   readonly #sleep: (milliseconds: number, signal?: AbortSignal) => Promise<void>;
 
-  constructor(
-    optionsOrFetch: FetchTransportOptions | FetchLike | undefined = globalThis.fetch
-  ) {
+  constructor(optionsOrFetch?: FetchTransportOptions | FetchLike) {
     const options =
       typeof optionsOrFetch === 'function' ? { fetch: optionsOrFetch } : optionsOrFetch;
-    const fetchImplementation = options?.fetch ?? globalThis.fetch;
+    const userFetch = options?.fetch;
+    const fetchImplementation = userFetch ?? globalThis.fetch;
     if (fetchImplementation === undefined) {
       throw new DoclingProtocolError(
         'No fetch implementation is available; provide a DoclingTransport'
       );
     }
-    this.#fetch = fetchImplementation;
+    this.#fetch = userFetch
+      ? fetchImplementation
+      : fetchImplementation.bind(globalThis);
     this.#retries = validateNonNegativeInteger(options?.retries ?? 3, 'retries');
     this.#timeoutMs = validatePositiveNumber(options?.timeoutMs ?? 60_000, 'timeoutMs');
     this.#backoffBaseMs = validatePositiveNumber(
