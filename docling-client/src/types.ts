@@ -201,7 +201,7 @@ export interface HeadingHierarchyOptions {
   use_outline_levels?: boolean;
   /** Use font-style differences for heading levels. Default: true. */
   use_style?: boolean;
-  /** Maximum inferred heading depth. Default: 10. */
+  /** Maximum inferred heading depth. Default: 6. */
   max_level?: number;
 }
 
