@@ -61,7 +61,9 @@ export class FetchTransport implements DoclingTransport {
         'No fetch implementation is available; provide a DoclingTransport'
       );
     }
-    this.#fetch = userFetch ? fetchImplementation : fetchImplementation.bind(globalThis);
+    this.#fetch = userFetch
+      ? fetchImplementation
+      : fetchImplementation.bind(globalThis);
     this.#retries = validateNonNegativeInteger(options?.retries ?? 3, 'retries');
     this.#timeoutMs = validatePositiveNumber(options?.timeoutMs ?? 60_000, 'timeoutMs');
     this.#backoffBaseMs = validatePositiveNumber(
