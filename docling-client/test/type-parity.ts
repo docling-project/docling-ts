@@ -70,7 +70,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     bucket: 'input',
   };
 
-  // New v2.131.0 options: PDF heading hierarchy
+  // PDF heading hierarchy
   const headingHierarchyOpts: HeadingHierarchyOptions = {
     use_bookmarks: true,
     use_outline_levels: false,
@@ -82,7 +82,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     pdf_heading_hierarchy_options: headingHierarchyOpts,
   };
 
-  // New v2.131.0 options: chart extraction preset/custom config
+  // Chart extraction preset/custom config
   const chartExtractionPresetOptions: ConvertDocumentsOptions = {
     do_chart_extraction: true,
     chart_extraction_preset: 'granite_vision_v4',
@@ -95,7 +95,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     },
   };
 
-  // New v2.131.0 options: inline chunking in convert options
+  // Inline chunking in convert options
   const chunkingPresetOptions: ConvertDocumentsOptions = {
     chunking_preset: 'granite_embedding_278m',
   };
@@ -105,6 +105,14 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
       max_tokens: 512,
       tokenizer: 'sentence-transformers/all-MiniLM-L6-v2',
     },
+  };
+
+  // Formats and pipeline options
+  const nativePipelineOptions: ConvertDocumentsOptions = {
+    pipeline: 'native',
+    pdf_backend: '_docling_parse',
+    from_formats: ['rtf', 'mhtml', 'iwork_pages', 'iwork_keynote', 'ebcdic', 'afp'],
+    to_formats: ['latex'],
   };
 
   // @ts-expect-error Python's wire contract does not accept arbitrary categories.
@@ -139,5 +147,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chartExtractionCustomOptions,
     chunkingPresetOptions,
     chunkingInlineOptions,
+    nativePipelineOptions,
   ];
 }
