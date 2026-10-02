@@ -1882,4 +1882,34 @@ describe('v2.131.0 new fields', () => {
       tokenizer: 'sentence-transformers/all-MiniLM-L6-v2',
     });
   });
+
+  it('accepts new input and output formats and pipeline options in request options', async () => {
+    const transport = new ScriptedTransport(task('formats-test', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/document.rtf',
+      {
+        from_formats: ['rtf', 'mhtml', 'iwork_pages', 'iwork_keynote', 'ebcdic', 'afp'],
+        to_formats: ['latex', 'md'],
+        pipeline: 'native',
+        pdf_backend: '_docling_parse',
+      },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.pipeline).toBe('native');
+    expect(body.options.pdf_backend).toBe('_docling_parse');
+    expect(body.options.from_formats).toEqual([
+      'rtf',
+      'mhtml',
+      'iwork_pages',
+      'iwork_keynote',
+      'ebcdic',
+      'afp',
+    ]);
+  });
 });

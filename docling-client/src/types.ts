@@ -16,34 +16,39 @@ export interface DoclingDocument {
 export type InputFormat =
   | 'docx'
   | 'doc'
+  | 'rtf'
   | 'pptx'
+  | 'ppt'
   | 'html'
+  | 'mhtml'
   | 'image'
   | 'pdf'
   | 'asciidoc'
   | 'md'
   | 'csv'
   | 'xlsx'
-  | 'xml_uspto'
-  | 'xml_jats'
-  | 'json_docling'
-  | 'dclx'
-  | 'audio'
-  | 'vtt'
-  | 'xml_xbrl'
-  | 'mets_gbs'
-  | 'latex'
-  | 'ppt'
   | 'xls'
   | 'odt'
   | 'ods'
   | 'odp'
+  | 'xml_uspto'
+  | 'xml_jats'
+  | 'xml_xbrl'
   | 'xml_doclang'
+  | 'dclx'
+  | 'mets_gbs'
+  | 'json_docling'
+  | 'audio'
   | 'video'
+  | 'vtt'
+  | 'latex'
   | 'email'
   | 'epub'
   | 'boxnote'
-  | 'ebcdic';
+  | 'iwork_pages'
+  | 'iwork_keynote'
+  | 'ebcdic'
+  | 'afp';
 
 export type OutputFormat =
   | 'md'
@@ -56,15 +61,17 @@ export type OutputFormat =
   | 'vtt'
   | 'doclang'
   | 'dclx'
-  | 'chunks';
+  | 'chunks'
+  | 'latex';
 
-export type ProcessingPipeline = 'legacy' | 'standard' | 'vlm' | 'asr';
+export type ProcessingPipeline = 'legacy' | 'standard' | 'native' | 'vlm' | 'asr';
 export type TableMode = 'fast' | 'accurate';
 export type ImageExportMode = 'placeholder' | 'embedded' | 'referenced';
 export type PdfBackend =
   | 'pypdfium2'
   | 'docling_parse'
   | 'threaded_docling_parse'
+  | '_docling_parse'
   | 'dlparse_v1'
   | 'dlparse_v2'
   | 'dlparse_v4';
@@ -73,11 +80,14 @@ export type VlmResponseFormat =
   | 'doclang'
   | 'markdown'
   | 'deepseekocr_markdown'
+  | 'unlimited_ocr_markdown'
   | 'html'
   | 'otsl'
   | 'plaintext'
   | 'chandra_html'
-  | 'dots_json';
+  | 'dots_json'
+  | 'nemotron_parse_v2'
+  | 'mineru2';
 export type VlmInferenceFramework = 'mlx' | 'transformers' | 'vllm';
 export type TransformersModelType =
   'automodel' | 'automodel-causallm' | 'automodel-imagetexttotext';
