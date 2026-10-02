@@ -24,15 +24,18 @@ jobs:
       run:
         working-directory: docling-components
     steps:
+      # Dependabot runs have no access to Actions secrets, so skip the app
+      # token there and fall back to the (read-only) default token.
       - uses: actions/create-github-app-token@v1
         id: app-token
+        if: github.actor != 'dependabot[bot]'
         with:
           app-id: ${{ vars.CI_APP_ID }}
           private-key: ${{ secrets.CI_PRIVATE_KEY }}
 
       - uses: actions/checkout@v4
         with:
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.app-token.outputs.token || github.token }}
           # Check out the actual branch head so we're not in detached HEAD state.
           # github.head_ref is set on pull_request events; github.ref_name on push.
           ref: ${{ github.head_ref || github.ref_name }}
@@ -61,6 +64,7 @@ jobs:
         continue-on-error: true
 
       - name: Commit new baselines (if any)
+        if: github.actor != 'dependabot[bot]'
         working-directory: .
         run: |
           git config user.name "github-actions[bot]"
