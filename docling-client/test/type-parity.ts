@@ -7,6 +7,8 @@ import {
   type ConversionItem,
   type ConversionResult,
   type ConvertDocumentsOptions,
+  type ExportDocumentResponse,
+  type ExportResult,
   type FailureCategory,
   type HeadingHierarchyOptions,
   type InBodyTarget,
@@ -107,6 +109,21 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     },
   };
 
+  // v2.133.0: ExportResult.document field (Python DocumentResultItem rename from content)
+  const exportDocPayload: ExportDocumentResponse = {
+    filename: 'manual.pdf',
+    md_content: '# Title',
+  };
+  const exportResult: ExportResult = {
+    kind: 'ExportResult',
+    document: exportDocPayload,
+    status: 'success',
+    errors: [],
+    timings: {},
+  };
+  // @ts-expect-error ExportResult no longer has a `content` field; use `document`.
+  const _exportResultContent: ExportDocumentResponse = exportResult.content;
+
   // Formats and pipeline options
   const nativePipelineOptions: ConvertDocumentsOptions = {
     pipeline: 'native',
@@ -148,5 +165,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkingPresetOptions,
     chunkingInlineOptions,
     nativePipelineOptions,
+    exportResult,
+    _exportResultContent,
   ];
 }

@@ -1668,7 +1668,11 @@ function parseExportResult<TDocument>(
   });
   return {
     kind: 'ExportResult',
-    content: parsed.document,
+    // Python v2.133.0 renamed the field from `content` to `document` on
+    // DocumentResultItem (ExportResult). The wire format still sends `content`
+    // (serialize_by_alias), so we parse from both above. The JS object uses
+    // the canonical Python field name.
+    document: parsed.document,
     status: parsed.status,
     errors: parsed.errors,
     timings: parsed.timings,

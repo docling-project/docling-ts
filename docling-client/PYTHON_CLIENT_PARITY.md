@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.132.0
-at commit `5c349dd`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.133.0
+at commit `b0315ea`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -157,6 +157,30 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Response model changes (v2.133.0)
+
+`DocumentResultItem` (exported as `ExportResult`) renamed its field
+`content` to `document` in Python v2.133.0:
+
+```
+https://github.com/docling-project/docling/blob/v2.133.0/docling/datamodel/service/responses.py#L83
+```
+
+Pydantic continues to serialize the field as `content` on the wire via
+`serialize_by_alias`, so all current service deployments still send `content`
+in the JSON response. The TypeScript client:
+
+- accepts **both** `content` (legacy wire) and `document` (future wire) when
+  parsing `ExportResult` objects returned inside `ChunkDocumentResponse`;
+- exposes the canonical Python name `document` on the TypeScript
+  `ExportResult` interface;
+- retains backwards-compatible parse logic via `value.content ?? value.document`
+  in the internal `parseExportResult` helper.
+
+| Python field (v2.133.0)       | TypeScript field        | Wire key sent by service |
+| ----------------------------- | ----------------------- | ------------------------ |
+| `DocumentResultItem.document` | `ExportResult.document` | `content` (alias)        |
 
 ## Chunking
 
