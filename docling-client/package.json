@@ -1,6 +1,6 @@
 {
   "name": "@docling/docling-client",
-  "version": "2.132.0",
+  "version": "2.133.0",
   "description": "TypeScript client for Docling Serve and Docling for IBM watsonx.",
   "type": "module",
   "main": "dist/index.cjs",
