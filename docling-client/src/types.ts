@@ -611,6 +611,8 @@ export interface ExportDocumentResponse<TDocument = DoclingDocument> {
 
 export interface ExportResult<TDocument = DoclingDocument> {
   kind: 'ExportResult';
+  document: ExportDocumentResponse<TDocument>;
+  /** @deprecated Use `document` instead. */
   content: ExportDocumentResponse<TDocument>;
   status: ConversionStatus;
   errors: ErrorItem[];

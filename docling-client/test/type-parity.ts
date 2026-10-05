@@ -7,6 +7,8 @@ import {
   type ConversionItem,
   type ConversionResult,
   type ConvertDocumentsOptions,
+  type ExportDocumentResponse,
+  type ExportResult,
   type FailureCategory,
   type HeadingHierarchyOptions,
   type InBodyTarget,
@@ -107,6 +109,20 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     },
   };
 
+  const exportDocPayload: ExportDocumentResponse = {
+    filename: 'manual.pdf',
+    md_content: '# Title',
+  };
+  const exportResult: ExportResult = {
+    kind: 'ExportResult',
+    document: exportDocPayload,
+    content: exportDocPayload,
+    status: 'success',
+    errors: [],
+    timings: {},
+  };
+  const _exportResultContent: ExportDocumentResponse = exportResult.content;
+
   // Formats and pipeline options
   const nativePipelineOptions: ConvertDocumentsOptions = {
     pipeline: 'native',
@@ -148,5 +164,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkingPresetOptions,
     chunkingInlineOptions,
     nativePipelineOptions,
+    exportResult,
+    _exportResultContent,
   ];
 }

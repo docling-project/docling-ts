@@ -1668,6 +1668,7 @@ function parseExportResult<TDocument>(
   });
   return {
     kind: 'ExportResult',
+    document: parsed.document,
     content: parsed.document,
     status: parsed.status,
     errors: parsed.errors,

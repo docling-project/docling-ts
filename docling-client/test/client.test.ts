@@ -1913,3 +1913,84 @@ describe('v2.131.0 new fields', () => {
     ]);
   });
 });
+
+describe('v2.133.0 ExportResult.document field rename', () => {
+  it('parses a chunk response where the service sends ExportResult with content field (legacy wire)', async () => {
+    const chunkResult = {
+      processing_time: 1.5,
+      chunks: [
+        {
+          filename: 'manual.pdf',
+          chunk_index: 0,
+          text: '# Intro\nSome text.',
+          doc_items: ['#/texts/0'],
+        },
+      ],
+      documents: [
+        {
+          kind: 'ExportResult',
+          content: {
+            filename: 'manual.pdf',
+            md_content: '# Intro\nSome text.',
+            json_content: { schema_name: 'DoclingDocument', name: 'manual' },
+          },
+          status: 'success',
+          errors: [],
+          timings: {},
+        },
+      ],
+    };
+    const transport = new ScriptedTransport(
+      task('chunk-doc-rename', 'success', 'chunk'),
+      chunkResult
+    );
+    const client = clientWith(transport);
+
+    const result = await (
+      await client.submitChunkUrl('https://files.example.test/manual.pdf', {
+        chunker: 'hybrid',
+      })
+    ).result();
+
+    const firstDoc = result.documents[0];
+    expect(firstDoc).toBeDefined();
+    expect(firstDoc?.document).toEqual(chunkResult.documents[0]?.content);
+    expect(firstDoc?.content).toEqual(chunkResult.documents[0]?.content);
+    expect(firstDoc?.status).toBe('success');
+  });
+
+  it('parses a chunk response where the service sends ExportResult with document field (v2.133.0+ wire)', async () => {
+    const chunkResult = {
+      processing_time: 1.5,
+      chunks: [],
+      documents: [
+        {
+          kind: 'ExportResult',
+          document: {
+            filename: 'report.pdf',
+            md_content: '# Report',
+            json_content: { schema_name: 'DoclingDocument', name: 'report' },
+          },
+          status: 'success',
+          errors: [],
+          timings: {},
+        },
+      ],
+    };
+    const transport = new ScriptedTransport(
+      task('chunk-doc-new-wire', 'success', 'chunk'),
+      chunkResult
+    );
+    const client = clientWith(transport);
+
+    const result = await (
+      await client.submitChunkUrl('https://files.example.test/report.pdf', {
+        chunker: 'hierarchical',
+      })
+    ).result();
+
+    const firstDoc = result.documents[0];
+    expect(firstDoc?.document).toEqual(chunkResult.documents[0]?.document);
+    expect(firstDoc?.status).toBe('success');
+  });
+});
