@@ -174,7 +174,7 @@ in the JSON response. The TypeScript client:
 - accepts **both** `content` (legacy wire) and `document` (future wire) when
   parsing `ExportResult` objects returned inside `ChunkDocumentResponse`;
 - exposes the canonical Python name `document` on the TypeScript
-  `ExportResult` interface;
+  `ExportResult` interface and retains deprecated `content` for compatibility;
 - retains backwards-compatible parse logic via `value.content ?? value.document`
   in the internal `parseExportResult` helper.
 

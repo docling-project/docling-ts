@@ -611,18 +611,9 @@ export interface ExportDocumentResponse<TDocument = DoclingDocument> {
 
 export interface ExportResult<TDocument = DoclingDocument> {
   kind: 'ExportResult';
-  /**
-   * Per-document export payload.
-   *
-   * Python renamed this field from `content` to `document` in v2.133.0
-   * (`DocumentResultItem`). The wire format still serializes it as `content`
-   * via Pydantic `serialize_by_alias`, so the service always sends `content`.
-   * The TypeScript type now uses the canonical Python name; the client runtime
-   * accepts both `document` and `content` when parsing service responses.
-   *
-   * @see https://github.com/docling-project/docling/blob/v2.133.0/docling/datamodel/service/responses.py#L83
-   */
   document: ExportDocumentResponse<TDocument>;
+  /** @deprecated Use `document` instead. */
+  content: ExportDocumentResponse<TDocument>;
   status: ConversionStatus;
   errors: ErrorItem[];
   timings: Record<string, ProfilingItem>;

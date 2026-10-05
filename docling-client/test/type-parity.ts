@@ -109,7 +109,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     },
   };
 
-  // v2.133.0: ExportResult.document field (Python DocumentResultItem rename from content)
   const exportDocPayload: ExportDocumentResponse = {
     filename: 'manual.pdf',
     md_content: '# Title',
@@ -117,11 +116,11 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const exportResult: ExportResult = {
     kind: 'ExportResult',
     document: exportDocPayload,
+    content: exportDocPayload,
     status: 'success',
     errors: [],
     timings: {},
   };
-  // @ts-expect-error ExportResult no longer has a `content` field; use `document`.
   const _exportResultContent: ExportDocumentResponse = exportResult.content;
 
   // Formats and pipeline options

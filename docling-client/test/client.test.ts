@@ -1916,10 +1916,6 @@ describe('v2.131.0 new fields', () => {
 
 describe('v2.133.0 ExportResult.document field rename', () => {
   it('parses a chunk response where the service sends ExportResult with content field (legacy wire)', async () => {
-    // Python v2.133.0 renames ExportResult.content -> ExportResult.document on the
-    // Python model, but the wire format still serializes the field as "content"
-    // (via serialize_by_alias). The client must accept "content" from the service
-    // and expose it as "document" on the TypeScript ExportResult type.
     const chunkResult = {
       processing_time: 1.5,
       chunks: [
@@ -1933,7 +1929,6 @@ describe('v2.133.0 ExportResult.document field rename', () => {
       documents: [
         {
           kind: 'ExportResult',
-          // Wire format sends "content" (legacy alias).
           content: {
             filename: 'manual.pdf',
             md_content: '# Intro\nSome text.',
@@ -1957,23 +1952,20 @@ describe('v2.133.0 ExportResult.document field rename', () => {
       })
     ).result();
 
-    // ExportResult now exposes the canonical Python field name "document".
     const firstDoc = result.documents[0];
     expect(firstDoc).toBeDefined();
     expect(firstDoc?.document).toEqual(chunkResult.documents[0]?.content);
+    expect(firstDoc?.content).toEqual(chunkResult.documents[0]?.content);
     expect(firstDoc?.status).toBe('success');
   });
 
   it('parses a chunk response where the service sends ExportResult with document field (v2.133.0+ wire)', async () => {
-    // Once the service is updated to send "document" on the wire (after alias
-    // removal), the client must still parse it correctly.
     const chunkResult = {
       processing_time: 1.5,
       chunks: [],
       documents: [
         {
           kind: 'ExportResult',
-          // Future wire format sends "document" directly.
           document: {
             filename: 'report.pdf',
             md_content: '# Report',
