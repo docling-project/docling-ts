@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.133.0
-at commit `b0315ea`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.134.0
+at commit `db06ace`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -82,7 +82,7 @@ because async is its native execution model.
 
 TypeScript mirrors Python's extension-to-input-format map, including Office
 templates/macros, images, XML variants, `tar.gz`, audio/video, email, EPUB,
-Box Note, iWork (`.pages`, `.key`), EBCDIC, AFP, RTF, and MHTML. Unknown
+Box Note, iWork (`.pages`, `.key`, `.numbers`), EBCDIC, AFP, RTF, and MHTML. Unknown
 extensions use the same PDF fallback. Local multipart MIME is inferred from the
 filename when known.
 

@@ -105,6 +105,7 @@ const EXTENSION_FORMATS: Readonly<Record<string, InputFormat>> = {
   boxnote: 'boxnote',
   pages: 'iwork_pages',
   key: 'iwork_keynote',
+  numbers: 'iwork_numbers',
   ebc: 'ebcdic',
   ebcdic: 'ebcdic',
   afp: 'afp',
@@ -714,6 +715,7 @@ const INPUT_FORMATS = new Set<InputFormat>([
   'boxnote',
   'iwork_pages',
   'iwork_keynote',
+  'iwork_numbers',
   'ebcdic',
   'afp',
 ]);
