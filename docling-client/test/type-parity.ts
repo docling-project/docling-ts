@@ -1,21 +1,44 @@
 import {
   type AutoSubmitResult,
+  type BaseProgress,
+  type ChunkedDocumentResult,
+  type ClearResponse,
   type ConfidenceScores,
+  type ConvertDocumentErrorResponse,
   type DoclingComponentType,
   DoclingClient,
   type DoclingJob,
+  type DoclingTaskResult,
+  type DocumentCompletedItem,
   type ConversionItem,
   type ConversionResult,
   type ConvertDocumentsOptions,
   type ExportDocumentResponse,
   type ExportResult,
   type FailureCategory,
+  type FailurePhase,
   type HeadingHierarchyOptions,
   type InBodyTarget,
+  type MessageKind,
   type PictureClassificationLabel,
+  type PresignedArtifactResult,
   type PresignedUrlConvertResponse,
+  type ProcessedDocsItem,
   type ProfilingScope,
+  type ProgressCallbackRequest,
+  type ProgressCallbackResponse,
+  type ProgressDocumentCompleted,
+  type ProgressKind,
+  type ProgressSetNumDocs,
+  type ProgressTaskCompleted,
+  type ProgressUpdateProcessed,
   type QualityGrade,
+  type ReadinessResponse,
+  type RemoteTargetResult,
+  TargetName,
+  type UsageLimitExceededResponse,
+  type WebsocketMessage,
+  type ZipArchiveResult,
 } from '../src';
 
 export function compileTimeParity(client: DoclingClient): unknown[] {
@@ -127,9 +150,104 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const nativePipelineOptions: ConvertDocumentsOptions = {
     pipeline: 'native',
     pdf_backend: '_docling_parse',
-    from_formats: ['rtf', 'mhtml', 'iwork_pages', 'iwork_keynote', 'ebcdic', 'afp'],
+    from_formats: [
+      'rtf',
+      'mhtml',
+      'iwork_pages',
+      'iwork_keynote',
+      'iwork_numbers',
+      'ebcdic',
+      'afp',
+    ],
     to_formats: ['latex'],
   };
+
+  // Callback types parity
+  const progressKind: ProgressKind = 'document_completed';
+  const baseProgress: BaseProgress = { kind: progressKind };
+  const setNumDocsProgress: ProgressSetNumDocs = {
+    kind: 'set_num_docs',
+    num_docs: 5,
+  };
+  const processedDocItem: ProcessedDocsItem = {
+    source: 'doc1.pdf',
+    status: 'success',
+    error: null,
+  };
+  const updateProcessedProgress: ProgressUpdateProcessed = {
+    kind: 'update_processed',
+    num_processed: 1,
+    num_succeeded: 1,
+    num_partially_succeeded: 0,
+    num_failed: 0,
+    docs: [processedDocItem],
+  };
+  const docCompletedItem: DocumentCompletedItem = {
+    source: 'sheet.numbers',
+    status: 'success',
+    document_type: 'iwork_numbers',
+    num_pages: 1,
+    num_tables: 2,
+  };
+  const docCompletedProgress: ProgressDocumentCompleted = {
+    kind: 'document_completed',
+    document: docCompletedItem,
+    total_processed: 1,
+    total_docs: 5,
+  };
+  const taskCompletedProgress: ProgressTaskCompleted = {
+    kind: 'task_completed',
+    task_status: 'success',
+  };
+  const callbackRequest: ProgressCallbackRequest = {
+    task_id: 'task-123',
+    progress: docCompletedProgress,
+  };
+  const callbackResponse: ProgressCallbackResponse = {
+    status: 'ack',
+  };
+
+  // FailurePhase parity
+  const failurePhase: FailurePhase = 'admission';
+
+  // Task & Response Models parity
+  const readiness: ReadinessResponse = { status: 'ok' };
+  const clear: ClearResponse = { status: 'ok' };
+  const convertDocError: ConvertDocumentErrorResponse = { status: 'failure' };
+  const usageExceeded: UsageLimitExceededResponse = {
+    error: 'usage_limit_exceeded',
+    message: 'Quota exceeded',
+    details: { currentUsage: 100, limit: 100 },
+  };
+  const messageKind: MessageKind = 'update';
+  const wsMessage: WebsocketMessage = {
+    message: messageKind,
+  };
+  const zipResult: ZipArchiveResult = {
+    kind: 'ZipArchiveResult',
+    content: new Uint8Array(),
+  };
+  const remoteResult: RemoteTargetResult = {
+    kind: 'RemoteTargetResult',
+  };
+  const presignedArtifactResult: PresignedArtifactResult = {
+    kind: 'PresignedArtifactResult',
+    documents: [],
+  };
+  const chunkedDocResult: ChunkedDocumentResult = {
+    kind: 'ChunkedDocumentResponse',
+    chunks: [],
+    documents: [],
+  };
+  const taskResult: DoclingTaskResult = {
+    num_converted: 1,
+    num_succeeded: 1,
+    num_partially_succeeded: 0,
+    num_failed: 0,
+    processing_time: 1.2,
+    result: exportResult,
+  };
+  const targetNameInBody = TargetName.INBODY;
 
   // @ts-expect-error Python's wire contract does not accept arbitrary categories.
   const invalidCategory: FailureCategory = 'made_up';
@@ -166,5 +284,28 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     nativePipelineOptions,
     exportResult,
     _exportResultContent,
+    progressKind,
+    baseProgress,
+    setNumDocsProgress,
+    processedDocItem,
+    updateProcessedProgress,
+    docCompletedItem,
+    docCompletedProgress,
+    taskCompletedProgress,
+    callbackRequest,
+    callbackResponse,
+    failurePhase,
+    readiness,
+    clear,
+    convertDocError,
+    usageExceeded,
+    messageKind,
+    wsMessage,
+    zipResult,
+    remoteResult,
+    presignedArtifactResult,
+    chunkedDocResult,
+    taskResult,
+    targetNameInBody,
   ];
 }

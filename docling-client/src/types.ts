@@ -47,6 +47,7 @@ export type InputFormat =
   | 'boxnote'
   | 'iwork_pages'
   | 'iwork_keynote'
+  | 'iwork_numbers'
   | 'ebcdic'
   | 'afp';
 
@@ -461,6 +462,72 @@ export interface CallbackSpec {
   [key: string]: unknown;
 }
 
+export type ProgressKind =
+  'set_num_docs' | 'update_processed' | 'document_completed' | 'task_completed';
+
+export interface BaseProgress {
+  kind: ProgressKind;
+}
+
+export interface ProgressSetNumDocs extends BaseProgress {
+  kind: 'set_num_docs';
+  num_docs: number;
+}
+
+export interface ProcessedDocsItem {
+  source: string;
+  status: ConversionStatus;
+  error?: string | null;
+}
+
+export interface ProgressUpdateProcessed extends BaseProgress {
+  kind: 'update_processed';
+  num_processed: number;
+  num_succeeded: number;
+  num_partially_succeeded: number;
+  num_failed: number;
+  docs: ProcessedDocsItem[];
+}
+
+export interface DocumentCompletedItem {
+  source: string;
+  status: ConversionStatus;
+  document_type?: InputFormat | null;
+  num_pages?: number | null;
+  num_characters?: number | null;
+  num_tables?: number | null;
+  num_pictures?: number | null;
+  processing_time?: number | null;
+  doc_hash?: string | null;
+  error?: string | null;
+}
+
+export interface ProgressDocumentCompleted extends BaseProgress {
+  kind: 'document_completed';
+  document: DocumentCompletedItem;
+  total_processed: number;
+  total_docs?: number | null;
+}
+
+export interface ProgressTaskCompleted extends BaseProgress {
+  kind: 'task_completed';
+  task_status: 'success' | 'failure';
+  failure?: PublicFailureInfo | null;
+}
+
+export interface ProgressCallbackRequest {
+  task_id: string;
+  progress:
+    | ProgressSetNumDocs
+    | ProgressUpdateProcessed
+    | ProgressDocumentCompleted
+    | ProgressTaskCompleted;
+}
+
+export interface ProgressCallbackResponse {
+  status: 'ack';
+}
+
 export interface ConvertSourcesRequest<TTarget extends SubmitTarget = SubmitTarget> {
   options?: ConvertDocumentsOptions;
   sources: ConversionSource[];
@@ -477,6 +544,11 @@ export interface BatchConvertSourcesRequest<TTarget extends BatchTarget = BatchT
 }
 
 export type ChunkerKind = 'hybrid' | 'hierarchical';
+export type ChunkerType = ChunkerKind;
+
+export interface ChunkingExportOptions {
+  include_converted_doc?: boolean;
+}
 
 export interface BaseChunkingOptions {
   use_markdown_tables?: boolean;
@@ -485,13 +557,75 @@ export interface BaseChunkingOptions {
   include_raw_text?: boolean;
 }
 
+export type BaseChunkerOptions = BaseChunkingOptions;
+
 export interface HybridChunkingOptions extends BaseChunkingOptions {
   max_tokens?: number | null;
   tokenizer?: string;
   merge_peers?: boolean;
 }
 
+export type HybridChunkerOptions = HybridChunkingOptions;
+
 export type HierarchicalChunkingOptions = BaseChunkingOptions;
+export type HierarchicalChunkerOptions = HierarchicalChunkingOptions;
+
+export type ChunkingOptionType =
+  | (HybridChunkingOptions & { chunker: 'hybrid' })
+  | (HierarchicalChunkingOptions & { chunker: 'hierarchical' });
+
+export type FileSourceRequest = FileSource;
+export type AnyHttpSourceRequest = HttpSource;
+export type HttpSourceRequest = HttpSource;
+export type S3SourceRequest = S3Source;
+export type AzureBlobSourceRequest = AzureBlobSource;
+export type GoogleCloudStorageSourceRequest = GoogleCloudStorageSource;
+export type GoogleDriveSourceRequest = GoogleDriveSource;
+
+export const TargetName = {
+  INBODY: 'inbody',
+  PRESIGNED_URL: 'presigned_url',
+  ZIP: 'zip',
+} as const;
+export type TargetName = (typeof TargetName)[keyof typeof TargetName];
+
+export type KnownBatchSourceRequestItem =
+  | AnyHttpSourceRequest
+  | S3SourceRequest
+  | AzureBlobSourceRequest
+  | GoogleCloudStorageSourceRequest
+  | GoogleDriveSourceRequest;
+
+export type GenericSourceRequest = GenericSource;
+export type BatchSourceRequestItem = KnownBatchSourceRequestItem | GenericSourceRequest;
+export type BatchSourceRequestInput = BatchSourceRequestItem | Record<string, unknown>;
+export type SourceRequestItem = FileSourceRequest | HttpSourceRequest;
+export type TargetRequest = SubmitTarget;
+export type KnownBatchTargetRequest =
+  | S3Target
+  | AzureBlobTarget
+  | GoogleCloudStorageTarget
+  | GoogleDriveTarget
+  | PresignedUrlTarget;
+export type GenericTargetRequest = GenericTarget;
+export type BatchTargetRequest = KnownBatchTargetRequest | GenericTargetRequest;
+export type BatchTargetRequestInput = BatchTargetRequest | Record<string, unknown>;
+
+/** @deprecated Alias for ConvertSourcesRequest */
+export type ConvertDocumentsRequest<TTarget extends SubmitTarget = SubmitTarget> =
+  ConvertSourcesRequest<TTarget>;
+
+export interface BaseChunkDocumentsRequest {
+  convert_options?: ConvertDocumentsOptions;
+  sources: SourceRequestItem[];
+  include_converted_doc?: boolean;
+  target?: TargetRequest;
+  callbacks?: CallbackSpec[];
+}
+
+export type GenericChunkDocumentsRequest = ChunkSourcesRequest;
+
+export type Target = SubmitTarget;
 
 interface BaseChunkSourcesRequest {
   convert_options?: ConvertDocumentsOptions;
@@ -534,11 +668,14 @@ export interface TaskProcessingMeta {
   num_failed: number;
 }
 
+export type FailurePhase =
+  'admission' | 'source_enumeration' | 'execution' | 'orchestration';
+
 export interface PublicFailureInfo {
   category: FailureCategory;
   message: string;
   retryable: boolean;
-  phase: 'admission' | 'source_enumeration' | 'execution' | 'orchestration';
+  phase: FailurePhase;
   details: Record<string, string>;
 }
 
@@ -620,6 +757,71 @@ export interface ExportResult<TDocument = DoclingDocument> {
   confidence?: ConfidenceScores | null;
 }
 
+export type DocumentResultItem<TDocument = DoclingDocument> = ExportResult<TDocument>;
+
+export interface ZipArchiveResult {
+  kind: 'ZipArchiveResult';
+  content: Uint8Array | unknown;
+}
+
+export interface RemoteTargetResult {
+  kind: 'RemoteTargetResult';
+}
+
+export interface PresignedArtifactResult {
+  kind: 'PresignedArtifactResult';
+  documents: DocumentArtifactItem[];
+}
+
+export type ConvertedOutcomeCountsMixin = OutcomeCounts;
+
+export type ResultType<TDocument = DoclingDocument> =
+  | ExportResult<TDocument>
+  | ZipArchiveResult
+  | RemoteTargetResult
+  | ChunkedDocumentResult<TDocument>
+  | PresignedArtifactResult;
+
+export interface DoclingTaskResult<TDocument = DoclingDocument> extends OutcomeCounts {
+  result: ResultType<TDocument>;
+  processing_time: number;
+}
+
+/** @deprecated Use DoclingTaskResult instead. */
+export type ConvertDocumentResult<TDocument = DoclingDocument> =
+  DoclingTaskResult<TDocument>;
+
+export interface ReadinessResponse {
+  status: string;
+}
+
+export interface ClearResponse {
+  status: string;
+}
+
+export interface ConvertDocumentErrorResponse {
+  status: ConversionStatus;
+}
+
+export interface UsageLimitExceededDetails {
+  currentUsage: number;
+  limit: number;
+}
+
+export interface UsageLimitExceededResponse {
+  error: 'usage_limit_exceeded';
+  message: string;
+  details: UsageLimitExceededDetails;
+}
+
+export type MessageKind = 'connection' | 'update' | 'error';
+
+export interface WebsocketMessage {
+  message: MessageKind;
+  task?: TaskStatusResponse | null;
+  error?: string | null;
+}
+
 export type ArtifactType =
   | 'json'
   | 'html'
@@ -680,6 +882,13 @@ export interface ChunkedDocumentResultItem {
   doc_items: string[];
   page_numbers?: number[] | null;
   metadata?: Record<string, unknown> | null;
+}
+
+export interface ChunkedDocumentResult<TDocument = DoclingDocument> {
+  kind: 'ChunkedDocumentResponse';
+  chunks: ChunkedDocumentResultItem[];
+  documents: ExportResult<TDocument>[];
+  chunking_info?: Record<string, unknown> | null;
 }
 
 export interface ChunkDocumentResponse<TDocument = DoclingDocument> {

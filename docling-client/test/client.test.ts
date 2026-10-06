@@ -15,6 +15,7 @@ import {
   DoclingServiceError,
   DoclingTaskError,
   DoclingTaskNotFoundError,
+  type ConvertSourcesRequest,
   type DoclingBinaryResponse,
   type DoclingTransport,
   type DoclingTransportRequest,
@@ -1992,5 +1993,33 @@ describe('v2.133.0 ExportResult.document field rename', () => {
     const firstDoc = result.documents[0];
     expect(firstDoc?.document).toEqual(chunkResult.documents[0]?.document);
     expect(firstDoc?.status).toBe('success');
+  });
+});
+
+describe('v2.134.0 new features', () => {
+  it('recognizes iwork_numbers (.numbers) files and passes iwork_numbers in from_formats', async () => {
+    const transport = new ScriptedTransport(
+      task('convert-numbers', 'success', 'convert'),
+      documentResponse('budget.numbers', '# Budget Table')
+    );
+    const client = clientWith(transport);
+
+    const job = await client.submitUrl(
+      'https://files.example.test/budget.numbers',
+      {
+        from_formats: ['iwork_numbers'],
+      },
+      {
+        target: { kind: 'inbody' },
+      }
+    );
+    const result = await job.result();
+
+    const submitReq = transport.requests[0];
+    const parsedBody = submitReq?.body as ConvertSourcesRequest;
+    expect(parsedBody?.options?.from_formats).toEqual(['iwork_numbers']);
+    expect(result.status).toBe('success');
+    expect(result.input.filename).toBe('budget.numbers');
+    expect(result.input.format).toBe('iwork_numbers');
   });
 });
