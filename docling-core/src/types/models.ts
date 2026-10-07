@@ -636,29 +636,31 @@ export interface TableItem extends FloatingItem {
 // ---------------------------------------------------------------------------
 
 export interface BasePictureData {
-  kind?: string;
+  kind: string;
 }
 export interface PictureClassificationClass {
   class_name: string;
   confidence: number;
 }
-export type DescriptionAnnotation = PictureDescriptionData;
-export type MiscAnnotation = PictureMiscData;
+/** @deprecated Use BasePictureData instead. */
 export type BaseAnnotation = BasePictureData;
 
 export interface PictureClassificationData extends BasePictureData {
-  kind?: 'classification';
+  kind: 'classification';
   provenance: string;
   predicted_classes: PictureClassificationClass[];
 }
 
 export interface PictureDescriptionData extends BasePictureData {
-  kind?: 'description';
+  kind: 'description';
   text: string;
   provenance: string;
 }
+/** @deprecated Use PictureDescriptionData instead. */
+export type DescriptionAnnotation = PictureDescriptionData;
+
 export interface PictureMoleculeData extends BasePictureData {
-  kind?: 'molecule_data';
+  kind: 'molecule_data';
   smi: string;
   confidence: number;
   class_name: string;
@@ -667,15 +669,18 @@ export interface PictureMoleculeData extends BasePictureData {
 }
 
 export interface PictureMiscData extends BasePictureData {
-  kind?: 'misc';
+  kind: 'misc';
   content: Record<string, unknown>;
 }
+/** @deprecated Use PictureMiscData instead. */
+export type MiscAnnotation = PictureMiscData;
 
 export interface PictureChartData extends BasePictureData {
+  kind: string;
   title: string;
 }
 export interface PictureTabularChartData extends PictureChartData {
-  kind?: 'tabular_chart_data';
+  kind: 'tabular_chart_data';
   chart_data: TableData;
 }
 export interface ChartLine {
@@ -683,7 +688,7 @@ export interface ChartLine {
   values: [number, number][];
 }
 export interface PictureLineChartData extends PictureChartData {
-  kind?: 'line_chart_data';
+  kind: 'line_chart_data';
   x_axis_label: string;
   y_axis_label: string;
   lines: ChartLine[];
@@ -693,7 +698,7 @@ export interface ChartBar {
   values: number;
 }
 export interface PictureBarChartData extends PictureChartData {
-  kind?: 'bar_chart_data';
+  kind: 'bar_chart_data';
   x_axis_label: string;
   y_axis_label: string;
   bars: ChartBar[];
@@ -703,7 +708,7 @@ export interface ChartStackedBar {
   values: [string, number][];
 }
 export interface PictureStackedBarChartData extends PictureChartData {
-  kind?: 'stacked_bar_chart_data';
+  kind: 'stacked_bar_chart_data';
   x_axis_label: string;
   y_axis_label: string;
   stacked_bars: ChartStackedBar[];
@@ -713,14 +718,14 @@ export interface ChartSlice {
   value: number;
 }
 export interface PicturePieChartData extends PictureChartData {
-  kind?: 'pie_chart_data';
+  kind: 'pie_chart_data';
   slices: ChartSlice[];
 }
 export interface ChartPoint {
   value: [number, number];
 }
 export interface PictureScatterChartData extends PictureChartData {
-  kind?: 'scatter_chart_data';
+  kind: 'scatter_chart_data';
   x_axis_label: string;
   y_axis_label: string;
   points: ChartPoint[];
@@ -784,8 +789,8 @@ export interface GraphLink {
   target_cell_id: number;
 }
 export interface GraphData {
-  cells?: GraphCell[];
-  links?: GraphLink[];
+  cells: GraphCell[];
+  links: GraphLink[];
 }
 export interface KeyValueItem extends FloatingItem {
   label?: 'key_value_region';
