@@ -874,6 +874,7 @@ export const DOCUMENT_TOKENS_EXPORT_LABELS: DocItemLabel[] = [
   ...DEFAULT_EXPORT_LABELS,
   'footnote',
   'caption',
+  'key_value_region',
   'form',
 ];
 
