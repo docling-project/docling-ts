@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.134.0
-at commit `db06ace`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.135.0
+at commit `2b3a00c`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -164,7 +164,7 @@ Python's unbounded integer type.
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.133.0/docling/datamodel/service/responses.py#L83
+https://github.com/docling-project/docling/blob/v2.135.0/docling/datamodel/service/responses.py#L83
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via
@@ -181,6 +181,40 @@ in the JSON response. The TypeScript client:
 | Python field (v2.133.0)       | TypeScript field        | Wire key sent by service |
 | ----------------------------- | ----------------------- | ------------------------ |
 | `DocumentResultItem.document` | `ExportResult.document` | `content` (alias)        |
+
+## v2.135.0 parity notes (commit 2b3a00c)
+
+No new wire-level types, fields, or endpoints were introduced in v2.135.0. The
+release focused on internal service-side improvements. All
+`ConvertDocumentsOptions`, source, target, response, callback, and chunking
+types remain identical to v2.134.0. This package's type surface and runtime
+behaviour are fully aligned with v2.135.0 at commit `2b3a00c`.
+
+The complete Python `ConvertDocumentsOptions` field set covered in this
+package includes:
+
+- `from_formats`, `to_formats`, `pipeline`, `page_range`
+- `image_export_mode`, `include_images`, `include_page_images`, `images_scale`
+- `do_ocr`, `force_ocr`, `ocr_engine` (deprecated), `ocr_preset`, `ocr_lang`,
+  `ocr_custom_config`
+- `pdf_backend`, `table_mode`, `table_cell_matching`, `do_table_structure`
+- `do_pdf_heading_hierarchy`, `pdf_heading_hierarchy_options`
+- `md_page_break_placeholder`, `md_compact_tables`
+- `do_code_enrichment`, `do_formula_enrichment`
+- `do_picture_classification`, `do_picture_description`,
+  `do_chart_extraction`, `picture_description_area_threshold`
+- `chart_extraction_preset`, `chart_extraction_custom_config`
+- `picture_description_local` (deprecated), `picture_description_api` (deprecated)
+- `vlm_pipeline_model` (deprecated), `vlm_pipeline_model_local` (deprecated),
+  `vlm_pipeline_model_api` (deprecated)
+- `vlm_pipeline_preset`, `vlm_pipeline_custom_config`
+- `picture_description_preset`, `picture_description_custom_config`
+- `code_formula_preset`, `code_formula_custom_config`
+- `table_structure_preset`, `table_structure_custom_config`
+- `layout_preset`, `layout_custom_config`
+- `picture_classification_preset`, `picture_classification_custom_config`
+- `chunking_options`, `chunking_preset`
+- `document_timeout`, `abort_on_error`
 
 ## Chunking
 
