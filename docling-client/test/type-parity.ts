@@ -19,7 +19,9 @@ import {
   type FailurePhase,
   type HeadingHierarchyOptions,
   type InBodyTarget,
+  type InputFormat,
   type MessageKind,
+  type OutputFormat,
   type PictureClassificationLabel,
   type PresignedArtifactResult,
   type PresignedUrlConvertResponse,
@@ -249,6 +251,73 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   };
   const targetNameInBody = TargetName.INBODY;
 
+  // v2.135.0 parity: verify all ConvertDocumentsOptions fields from
+  // https://github.com/docling-project/docling/blob/v2.135.0/docling/datamodel/service/options.py
+  const fullOptionsV2135: ConvertDocumentsOptions = {
+    // from_formats / to_formats
+    from_formats: ['pdf', 'docx'] satisfies InputFormat[],
+    to_formats: ['md', 'json'] satisfies OutputFormat[],
+    // pipeline / page_range
+    pipeline: 'standard',
+    page_range: [1, 10],
+    // OCR
+    do_ocr: true,
+    force_ocr: false,
+    ocr_preset: 'auto',
+    ocr_lang: ['en', 'de'],
+    ocr_custom_config: { kind: 'easyocr', lang: ['en'] },
+    // PDF backend / table
+    pdf_backend: 'threaded_docling_parse',
+    table_mode: 'accurate',
+    table_cell_matching: true,
+    do_table_structure: true,
+    table_structure_preset: 'tableformer_v1_accurate',
+    table_structure_custom_config: { kind: 'docling_tableformer', mode: 'fast' },
+    // Heading hierarchy
+    do_pdf_heading_hierarchy: false,
+    pdf_heading_hierarchy_options: { use_bookmarks: true, max_level: 4 },
+    // Layout
+    layout_preset: 'default',
+    layout_custom_config: { kind: 'docling_layout_default' },
+    // Image export
+    image_export_mode: 'placeholder',
+    images_scale: 2.0,
+    include_images: true,
+    include_page_images: false,
+    // Markdown
+    md_page_break_placeholder: '<!-- page-break -->',
+    md_compact_tables: false,
+    // Enrichments
+    do_code_enrichment: false,
+    do_formula_enrichment: false,
+    code_formula_preset: 'default',
+    code_formula_custom_config: { kind: 'default_formula' },
+    // Picture classification
+    do_picture_classification: false,
+    picture_classification_preset: 'default',
+    picture_classification_custom_config: { kind: 'document_picture_classifier' },
+    // Picture description
+    do_picture_description: false,
+    picture_description_area_threshold: 0.01,
+    picture_description_preset: 'smolvlm',
+    picture_description_custom_config: { model_spec: { name: 'SmolVLM' } },
+    // Chart extraction
+    do_chart_extraction: false,
+    chart_extraction_preset: 'granite_vision_v4',
+    chart_extraction_custom_config: {
+      model_spec: { name: 'Granite-Vision-4.1-4B' },
+      chart2csv: true,
+    },
+    // VLM pipeline (new preset/custom)
+    vlm_pipeline_preset: 'granite_docling',
+    vlm_pipeline_custom_config: { model_spec: { name: 'GraniteDocling' } },
+    // Chunking
+    chunking_preset: 'granite_embedding_278m',
+    // Limits / behaviour
+    document_timeout: 60,
+    abort_on_error: false,
+  };
+
   // @ts-expect-error Python's wire contract does not accept arbitrary categories.
   const invalidCategory: FailureCategory = 'made_up';
   // @ts-expect-error Python's wire contract does not accept arbitrary grades.
@@ -307,5 +376,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkedDocResult,
     taskResult,
     targetNameInBody,
+    fullOptionsV2135,
   ];
 }

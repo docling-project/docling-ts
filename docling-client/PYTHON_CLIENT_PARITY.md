@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.134.0
-at commit `db06ace`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.135.0
+at commit `2b3a00c`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -164,7 +164,7 @@ Python's unbounded integer type.
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.133.0/docling/datamodel/service/responses.py#L83
+https://github.com/docling-project/docling/blob/v2.135.0/docling/datamodel/service/responses.py#L83
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via
