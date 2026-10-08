@@ -55,9 +55,10 @@ describe('Constants', () => {
     expect(DEFAULT_EXPORT_LABELS.length).toBe(23);
   });
 
-  it('exports DOCUMENT_TOKENS_EXPORT_LABELS containing footnote, caption, form', () => {
+  it('exports DOCUMENT_TOKENS_EXPORT_LABELS containing footnote, caption, key_value_region, form', () => {
     expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('footnote');
     expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('caption');
+    expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('key_value_region');
     expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('form');
   });
 });
