@@ -251,9 +251,9 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   };
   const targetNameInBody = TargetName.INBODY;
 
-  // v2.135.0 parity: verify all ConvertDocumentsOptions fields from
-  // https://github.com/docling-project/docling/blob/v2.135.0/docling/datamodel/service/options.py
-  const fullOptionsV2135: ConvertDocumentsOptions = {
+  // v2.137.0 parity: verify all ConvertDocumentsOptions fields from
+  // https://github.com/docling-project/docling/blob/v2.137.0/docling/datamodel/service/options.py
+  const fullOptionsV2137: ConvertDocumentsOptions = {
     // from_formats / to_formats
     from_formats: ['pdf', 'docx'] satisfies InputFormat[],
     to_formats: ['md', 'json'] satisfies OutputFormat[],
@@ -376,6 +376,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkedDocResult,
     taskResult,
     targetNameInBody,
-    fullOptionsV2135,
+    fullOptionsV2137,
   ];
 }
