@@ -206,14 +206,28 @@ export interface VlmModelApi {
  * Mirrors Python's `HeadingHierarchyOptions`.
  */
 export interface HeadingHierarchyOptions {
+  /** Enable inference of section-header levels for the PDF/image pipeline. Default: false. */
+  enabled?: boolean;
   /** Use PDF bookmarks/table-of-contents for heading levels. Default: true. */
   use_bookmarks?: boolean;
-  /** Use outline numbering (e.g. "1.2.3 Title") for heading levels. Default: true. */
+  /**
+   * Use legal/outline numbering (e.g. PART I -> 1. -> 1.1 -> (a) -> (i)) as the primary signal. Default: true.
+   */
+  use_numbering?: boolean;
+  /** @deprecated Alias for `use_numbering`. */
   use_outline_levels?: boolean;
   /** Use font-style differences for heading levels. Default: true. */
   use_style?: boolean;
+  /** Refine style fallback with font weight, slant, and all-caps detection. Default: true. */
+  use_font_style?: boolean;
+  /** Relative difference below which two heading font sizes are treated as one level. Default: 0.05. */
+  style_size_tolerance?: number;
+  /** Optional override of numbering-scheme precedence (highest level first). Default: null. */
+  numbering_schemes?: string[] | null;
   /** Maximum inferred heading depth. Default: 6. */
   max_level?: number;
+  /** Minimum normalized title-similarity (0..1) for bookmark matches. Default: 0.8. */
+  bookmark_match_threshold?: number;
 }
 
 /**
@@ -266,7 +280,7 @@ export interface ConvertDocumentsOptions {
    * Custom chart extraction configuration. Accepts a ChartExtractionVlmEngineOptions-equivalent
    * dict. Only available when the admin allows it. Mutually exclusive with chart_extraction_preset.
    */
-  chart_extraction_custom_config?: Record<string, unknown> | null;
+  chart_extraction_custom_config?: Record<string, unknown> | string | null;
   picture_description_area_threshold?: number;
   /** @deprecated Prefer picture_description_preset or picture_description_custom_config. */
   picture_description_local?: PictureDescriptionLocal | null;

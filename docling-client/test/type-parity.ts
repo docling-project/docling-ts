@@ -99,10 +99,16 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
 
   // PDF heading hierarchy
   const headingHierarchyOpts: HeadingHierarchyOptions = {
+    enabled: true,
     use_bookmarks: true,
+    use_numbering: true,
     use_outline_levels: false,
     use_style: true,
+    use_font_style: true,
+    style_size_tolerance: 0.05,
+    numbering_schemes: ['arabic', 'roman_u'],
     max_level: 4,
+    bookmark_match_threshold: 0.8,
   };
   const pdfHeadingOptions: ConvertDocumentsOptions = {
     do_pdf_heading_hierarchy: true,
@@ -251,9 +257,9 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   };
   const targetNameInBody = TargetName.INBODY;
 
-  // v2.137.0 parity: verify all ConvertDocumentsOptions fields from
-  // https://github.com/docling-project/docling/blob/v2.137.0/docling/datamodel/service/options.py
-  const fullOptionsV2137: ConvertDocumentsOptions = {
+  // v2.138.0 parity: verify all ConvertDocumentsOptions fields from
+  // https://github.com/docling-project/docling/blob/v2.138.0/docling/datamodel/service/options.py
+  const fullOptionsV2138: ConvertDocumentsOptions = {
     // from_formats / to_formats
     from_formats: ['pdf', 'docx'] satisfies InputFormat[],
     to_formats: ['md', 'json'] satisfies OutputFormat[],
@@ -275,7 +281,17 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     table_structure_custom_config: { kind: 'docling_tableformer', mode: 'fast' },
     // Heading hierarchy
     do_pdf_heading_hierarchy: false,
-    pdf_heading_hierarchy_options: { use_bookmarks: true, max_level: 4 },
+    pdf_heading_hierarchy_options: {
+      enabled: false,
+      use_bookmarks: true,
+      use_numbering: true,
+      use_style: true,
+      use_font_style: true,
+      style_size_tolerance: 0.05,
+      numbering_schemes: null,
+      max_level: 4,
+      bookmark_match_threshold: 0.8,
+    },
     // Layout
     layout_preset: 'default',
     layout_custom_config: { kind: 'docling_layout_default' },
@@ -376,6 +392,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkedDocResult,
     taskResult,
     targetNameInBody,
-    fullOptionsV2137,
+    fullOptionsV2138,
   ];
 }

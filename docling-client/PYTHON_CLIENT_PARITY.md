@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.137.0
-at commit `d0f5546`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.138.0
+at commit `a76ae4b`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -120,8 +120,9 @@ The explicit TypeScript option surface covers every field in Python
 - `pdf_backend`
 - `table_mode`, `table_cell_matching`, `do_table_structure`
 - `do_pdf_heading_hierarchy`, `pdf_heading_hierarchy_options`
-  (`HeadingHierarchyOptions` with `use_bookmarks`, `use_outline_levels`,
-  `use_style`, `max_level`)
+  (`HeadingHierarchyOptions` with `enabled`, `use_bookmarks`, `use_numbering`,
+  `use_outline_levels`, `use_style`, `use_font_style`, `style_size_tolerance`,
+  `numbering_schemes`, `max_level`, `bookmark_match_threshold`)
 - `do_code_enrichment`, `do_formula_enrichment`
 - `do_picture_classification`, `do_picture_description`,
   `do_chart_extraction`, `picture_description_area_threshold`
@@ -164,7 +165,7 @@ Python's unbounded integer type.
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.137.0/docling/datamodel/service/responses.py#L83
+https://github.com/docling-project/docling/blob/v2.138.0/docling/datamodel/service/responses.py#L84
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via
