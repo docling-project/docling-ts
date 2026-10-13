@@ -1748,8 +1748,14 @@ describe('v2.131.0 new fields', () => {
       {
         do_pdf_heading_hierarchy: true,
         pdf_heading_hierarchy_options: {
+          enabled: true,
           use_bookmarks: false,
+          use_numbering: true,
+          use_font_style: true,
+          style_size_tolerance: 0.1,
+          numbering_schemes: ['arabic'],
           max_level: 3,
+          bookmark_match_threshold: 0.75,
         },
       },
       { target: { kind: 'inbody' } }
@@ -1759,8 +1765,14 @@ describe('v2.131.0 new fields', () => {
       options: Record<string, unknown>;
     };
     expect(body.options.pdf_heading_hierarchy_options).toEqual({
+      enabled: true,
       use_bookmarks: false,
+      use_numbering: true,
+      use_font_style: true,
+      style_size_tolerance: 0.1,
+      numbering_schemes: ['arabic'],
       max_level: 3,
+      bookmark_match_threshold: 0.75,
     });
   });
 
@@ -1802,6 +1814,29 @@ describe('v2.131.0 new fields', () => {
         chart_extraction_custom_config: {
           model_spec: { name: 'Granite-Vision-4.1-4B' },
         },
+      },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.chart_extraction_custom_config).toEqual({
+      model_spec: { name: 'Granite-Vision-4.1-4B' },
+    });
+  });
+
+  it('decodes chart_extraction_custom_config JSON string option into an object', async () => {
+    const transport = new ScriptedTransport(task('chart-custom-json', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      {
+        do_chart_extraction: true,
+        chart_extraction_custom_config: JSON.stringify({
+          model_spec: { name: 'Granite-Vision-4.1-4B' },
+        }),
       },
       { target: { kind: 'inbody' } }
     );

@@ -878,6 +878,7 @@ const JSON_STRING_CONFIG_OPTIONS = [
   'table_structure_custom_config',
   'layout_custom_config',
   'picture_classification_custom_config',
+  'chart_extraction_custom_config',
 ] as const;
 
 function validateStringEnum<T extends string>(
