@@ -1987,6 +1987,17 @@ function parseConfidence(
       throw schemaMismatch(`${path}.${field} is unsupported`);
     }
   }
+  if (value.pages !== undefined && value.pages !== null) {
+    if (!isRecord(value.pages)) {
+      throw schemaMismatch(`${path}.pages must be an object or null`);
+    }
+    for (const [pageKey, pageValue] of Object.entries(value.pages)) {
+      if (!Number.isSafeInteger(Number(pageKey))) {
+        throw schemaMismatch(`${path}.pages key must be an integer`);
+      }
+      parseConfidence(pageValue, `${path}.pages[${pageKey}]`);
+    }
+  }
   return value as ConfidenceScores;
 }
 

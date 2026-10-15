@@ -74,6 +74,15 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     mean_grade: 'good',
     low_grade: 'fair',
   } satisfies ConfidenceScores;
+  const confidenceWithPages = {
+    parse_score: 0.9,
+    mean_grade: 'good',
+    low_grade: 'fair',
+    pages: {
+      1: { parse_score: 0.85, mean_grade: 'fair' as const, low_grade: 'fair' as const },
+      2: { parse_score: 0.95, mean_grade: 'good' as const, low_grade: 'good' as const },
+    },
+  } satisfies ConfidenceScores;
   const category: FailureCategory = 'backend_failure';
   const component: DoclingComponentType = 'document_backend';
   const scope: ProfilingScope = 'document';
@@ -257,9 +266,9 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   };
   const targetNameInBody = TargetName.INBODY;
 
-  // v2.138.0 parity: verify all ConvertDocumentsOptions fields from
-  // https://github.com/docling-project/docling/blob/v2.138.0/docling/datamodel/service/options.py
-  const fullOptionsV2138: ConvertDocumentsOptions = {
+  // v2.139.0 parity: verify all ConvertDocumentsOptions fields from
+  // https://github.com/docling-project/docling/blob/v2.139.0/docling/datamodel/service/options.py
+  const fullOptionsV2139: ConvertDocumentsOptions = {
     // from_formats / to_formats
     from_formats: ['pdf', 'docx'] satisfies InputFormat[],
     to_formats: ['md', 'json'] satisfies OutputFormat[],
@@ -349,6 +358,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     presignedCheck,
     autoFanout,
     confidence,
+    confidenceWithPages,
     category,
     component,
     scope,
@@ -392,6 +402,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkedDocResult,
     taskResult,
     targetNameInBody,
-    fullOptionsV2138,
+    fullOptionsV2139,
   ];
 }

@@ -731,6 +731,8 @@ export interface ConfidenceScores {
   low_score?: number | null;
   mean_grade?: QualityGrade;
   low_grade?: QualityGrade;
+  /** Per-page confidence breakdown keyed by 1-based page number. */
+  pages?: Record<number, ConfidenceScores> | null;
 }
 
 export interface ErrorItem {
