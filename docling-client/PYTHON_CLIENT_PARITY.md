@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.138.0
-at commit `a76ae4b`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.139.0
+at commit `6b77e54`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -159,13 +159,30 @@ High-level limits match Python:
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
 
+## Response model changes (v2.139.0)
+
+`ConfidenceScores` gained a recursive `pages` field in Python v2.139.0:
+
+```
+https://github.com/docling-project/docling/blob/v2.139.0/docling/datamodel/service/responses.py#L45
+```
+
+When present, it maps 1-based page numbers to per-page `ConfidenceScores`
+objects. The TypeScript `ConfidenceScores` interface now includes the
+`pages` field (`Record<number, ConfidenceScores> | null | undefined`) and the
+`parseConfidence` validator recursively validates each page entry.
+
+| Python field (v2.139.0)  | TypeScript field         | Wire key |
+| ------------------------ | ------------------------ | -------- |
+| `ConfidenceScores.pages` | `ConfidenceScores.pages` | `pages`  |
+
 ## Response model changes (v2.133.0)
 
 `DocumentResultItem` (exported as `ExportResult`) renamed its field
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.138.0/docling/datamodel/service/responses.py#L84
+https://github.com/docling-project/docling/blob/v2.139.0/docling/datamodel/service/responses.py#L84
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via

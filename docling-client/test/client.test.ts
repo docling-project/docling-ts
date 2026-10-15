@@ -1307,6 +1307,30 @@ describe('task and result lifecycle', () => {
       },
     });
 
+    const confidenceWithPages = clientWith(
+      new ScriptedTransport({
+        ...documentResponse('manual.pdf'),
+        confidence: {
+          parse_score: 0.9,
+          mean_grade: 'good',
+          low_grade: 'fair',
+          pages: {
+            1: { parse_score: 0.85, mean_grade: 'fair', low_grade: 'fair' },
+            2: { parse_score: 0.95, mean_grade: 'good', low_grade: 'good' },
+          },
+        },
+      })
+    );
+    await expect(confidenceWithPages.getResult('with-pages')).resolves.toMatchObject({
+      confidence: {
+        parse_score: 0.9,
+        pages: {
+          1: { parse_score: 0.85 },
+          2: { parse_score: 0.95 },
+        },
+      },
+    });
+
     const invalidConfidence = clientWith(
       new ScriptedTransport({
         ...documentResponse('manual.pdf'),
