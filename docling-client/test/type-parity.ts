@@ -13,6 +13,7 @@ import {
   DoclingClient,
   type DoclingComponentType,
   type DoclingJob,
+  DoclingTaskCancelledError,
   type DoclingTaskResult,
   type DocumentCompletedItem,
   type ExportDocumentResponse,
@@ -45,6 +46,7 @@ import {
   StatusWatcherKind,
   type TableFormerMode,
   TargetName as TargetNameConst,
+  type TaskStatus,
   type UsageLimitExceededResponse,
   type VlmModelType,
   type WebsocketMessage,
@@ -224,6 +226,12 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     kind: 'task_completed',
     task_status: 'success',
   };
+  const cancelledTaskCompletedProgress: ProgressTaskCompleted = {
+    kind: 'task_completed',
+    task_status: 'cancelled',
+  };
+  const cancelledStatus: TaskStatus = 'cancelled';
+  const cancelledTaskError = new DoclingTaskCancelledError('task-123');
   const callbackRequest: ProgressCallbackRequest = {
     task_id: 'task-123',
     progress: docCompletedProgress,
@@ -407,6 +415,9 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     docCompletedItem,
     docCompletedProgress,
     taskCompletedProgress,
+    cancelledTaskCompletedProgress,
+    cancelledStatus,
+    cancelledTaskError,
     callbackRequest,
     callbackResponse,
     failurePhase,

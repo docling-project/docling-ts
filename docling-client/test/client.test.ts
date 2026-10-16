@@ -13,6 +13,7 @@ import {
   DoclingResultExpiredError,
   DoclingResultNotReadyError,
   DoclingServiceError,
+  DoclingTaskCancelledError,
   DoclingTaskError,
   DoclingTaskNotFoundError,
   type ConvertSourcesRequest,
@@ -1398,6 +1399,133 @@ describe('task and result lifecycle', () => {
     await client.close();
     expect(closeCalls).toBe(1);
     await expect(client.health()).rejects.toBeInstanceOf(DoclingProtocolError);
+  });
+});
+
+describe('queued task cancellation', () => {
+  it('yields a cancelled status then stops and returns it from wait', async () => {
+    let calls = 0;
+    const transport = new FunctionTransport(() => {
+      calls += 1;
+      return calls === 1
+        ? task('cancel-watch', 'started')
+        : task('cancel-watch', 'cancelled');
+    });
+    const client = clientWith(transport, {
+      pollServerWaitSeconds: 0,
+      pollClientIntervalMs: 0,
+    });
+
+    const seen: string[] = [];
+    for await (const status of client.watch('cancel-watch')) {
+      seen.push(status.task_status);
+    }
+    expect(seen).toEqual(['started', 'cancelled']);
+
+    await expect(client.waitForCompletion('cancel-watch')).resolves.toMatchObject({
+      task_status: 'cancelled',
+    });
+  });
+
+  it('resolves a job wait with the cancelled terminal status', async () => {
+    let calls = 0;
+    const transport = new FunctionTransport(() => {
+      calls += 1;
+      return calls === 1
+        ? task('cancel-wait', 'pending')
+        : task('cancel-wait', 'cancelled');
+    });
+    const client = clientWith(transport, {
+      pollServerWaitSeconds: 0,
+      pollClientIntervalMs: 0,
+    });
+    const job = await client.submitUrl(
+      'https://example.test/manual.pdf',
+      {},
+      { target: { kind: 'inbody' } }
+    );
+
+    await expect(job.wait()).resolves.toMatchObject({ task_status: 'cancelled' });
+    expect(job.done).toBe(true);
+    await expect(job.result()).rejects.toBeInstanceOf(DoclingTaskCancelledError);
+  });
+
+  it('fails result retrieval for a known cancelled task without a request', async () => {
+    const transport = new ScriptedTransport();
+    const client = clientWith(transport);
+    const lastStatus = task('cancel-result', 'cancelled');
+
+    await expect(
+      client.getResult('cancel-result', { lastStatus })
+    ).rejects.toBeInstanceOf(DoclingTaskCancelledError);
+    await expect(
+      client.getRawResult('cancel-result', { lastStatus })
+    ).rejects.toBeInstanceOf(DoclingTaskCancelledError);
+    await expect(
+      client.getBinaryResult('cancel-result', { lastStatus })
+    ).rejects.toBeInstanceOf(DoclingTaskCancelledError);
+
+    const job = client.job('cancel-result', lastStatus);
+    expect(job.done).toBe(true);
+    await expect(job.result()).rejects.toBeInstanceOf(DoclingTaskCancelledError);
+    expect(transport.requests).toHaveLength(0);
+  });
+
+  it('maps a structured 409 TASK_CANCELLED result without fabricating task metadata', async () => {
+    const transport = new ScriptedTransport(
+      new DoclingHttpError({
+        method: 'GET',
+        url: 'https://docling.example.test/v1/result/chunk-task',
+        status: 409,
+        body: {
+          detail: {
+            code: 'TASK_CANCELLED',
+            message: 'Task was cancelled while queued.',
+          },
+        },
+      })
+    );
+    const client = clientWith(transport);
+
+    const error = await client.getResult('chunk-task').catch(value => value);
+    expect(error).toBeInstanceOf(DoclingTaskCancelledError);
+    expect(error).toMatchObject({ taskId: 'chunk-task' });
+    expect(error).not.toBeInstanceOf(DoclingTaskError);
+  });
+
+  it('keeps unrelated 409 responses as service errors', async () => {
+    const conflict = () =>
+      new DoclingHttpError({
+        method: 'GET',
+        url: 'https://docling.example.test/v1/result/task',
+        status: 409,
+        body: {
+          detail: { code: 'TASK_ALREADY_STARTED', message: 'Task already started.' },
+        },
+      });
+    const stringDetail = new DoclingHttpError({
+      method: 'GET',
+      url: 'https://docling.example.test/v1/result/task',
+      status: 409,
+      body: { detail: 'conflict' },
+    });
+    const client = clientWith(new ScriptedTransport(conflict(), stringDetail));
+
+    await expect(client.getResult('task')).rejects.toBeInstanceOf(DoclingHttpError);
+    await expect(client.getResult('task')).rejects.toBeInstanceOf(DoclingHttpError);
+  });
+
+  it('still rejects an unknown task status', async () => {
+    const transport = new ScriptedTransport({
+      task_id: 'unknown',
+      task_type: 'convert',
+      task_status: 'cancelled_extra',
+    });
+    const client = clientWith(transport);
+
+    await expect(client.poll('unknown')).rejects.toBeInstanceOf(
+      DoclingResponseSchemaMismatchError
+    );
   });
 });
 
