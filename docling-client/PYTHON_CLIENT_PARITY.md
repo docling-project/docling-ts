@@ -247,22 +247,23 @@ value does not select a Serve chunk task; callers use the chunk routes.
 
 ## Jobs, watchers, and scheduling
 
-| Behavior                  | Python                                             | TypeScript                                                                                                       |
-| ------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Initial task data         | task id, submitted time, status, position          | Same                                                                                                             |
-| `status` property         | status string                                      | Full cached `TaskStatusResponse`                                                                                 |
-| Queue position            | Yes                                                | Yes                                                                                                              |
-| Done state                | success/failure                                    | Same                                                                                                             |
-| Poll default              | `wait=0`                                           | Same                                                                                                             |
-| Default watch             | WebSocket                                          | Same                                                                                                             |
-| WebSocket auth            | query plus header                                  | Query plus header in Node; browser WebSocket APIs prohibit custom headers, so browsers use the query credential. |
-| Serve handshake           | sends `"next"` after nonterminal update            | Same                                                                                                             |
-| Transport reconnects      | Three with exponential delays                      | Same                                                                                                             |
-| Protocol/server error     | no transport reconnect                             | Same                                                                                                             |
-| Poll fallback             | configurable                                       | Same                                                                                                             |
-| Poll cadence              | minimum client interval when server returns early  | Same                                                                                                             |
-| Terminal cached `watch()` | contacts watcher and yields current service status | Same                                                                                                             |
-| Cancellation              | coroutine/task cancellation                        | `AbortSignal`                                                                                                    |
+| Behavior                  | Python                                                            | TypeScript                                                                                                       |
+| ------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Initial task data         | task id, submitted time, status, position                         | Same                                                                                                             |
+| `status` property         | status string                                                     | Full cached `TaskStatusResponse`                                                                                 |
+| Queue position            | Yes                                                               | Yes                                                                                                              |
+| Done state                | success/failure/cancelled                                         | Same                                                                                                             |
+| Poll default              | `wait=0`                                                          | Same                                                                                                             |
+| Default watch             | WebSocket                                                         | Same                                                                                                             |
+| WebSocket auth            | query plus header                                                 | Query plus header in Node; browser WebSocket APIs prohibit custom headers, so browsers use the query credential. |
+| Serve handshake           | sends `"next"` after nonterminal update                           | Same                                                                                                             |
+| Transport reconnects      | Three with exponential delays                                     | Same                                                                                                             |
+| Protocol/server error     | no transport reconnect                                            | Same                                                                                                             |
+| Poll fallback             | configurable                                                      | Same                                                                                                             |
+| Poll cadence              | minimum client interval when server returns early                 | Same                                                                                                             |
+| Terminal cached `watch()` | contacts watcher and yields current service status                | Same                                                                                                             |
+| Queued task cancellation  | terminal `cancelled` status; `TaskCancelledError` on result fetch | Same terminal `cancelled` status; `DoclingTaskCancelledError` on result fetch                                    |
+| Cancellation              | coroutine/task cancellation                                       | `AbortSignal`                                                                                                    |
 
 WebSockets and pending event waits are closed on success, error, timeout,
 cancellation, callback failure, and early iterator return. A server error
@@ -320,6 +321,7 @@ headers, binary handling, retries, quotas, timeout, and error mapping.
 | `ResponseSchemaMismatchError`            | `DoclingResponseSchemaMismatchError` |
 | `UsageLimitExceededError`                | `DoclingUsageLimitExceededError`     |
 | `TaskExecutionError`                     | `DoclingTaskError`                   |
+| `TaskCancelledError`                     | `DoclingTaskCancelledError`          |
 | `TaskTimeoutError`                       | `DoclingTimeoutError`                |
 | `TaskNotFoundError`                      | `DoclingTaskNotFoundError`           |
 | `ResultNotReadyError`                    | `DoclingResultNotReadyError`         |
@@ -335,6 +337,8 @@ service message, current usage, and limit.
 Result lookup implements all Python branches:
 
 - `"Task not found."` becomes task-not-found;
+- a cached `cancelled` task status fails without fetching the result;
+- a `TASK_CANCELLED` structured 409 detail becomes the dedicated cancellation error;
 - missing result plus cached failure becomes authoritative task failure;
 - missing result plus cached success becomes expired;
 - missing result before a terminal state becomes not-ready;
