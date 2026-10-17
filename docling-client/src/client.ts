@@ -1424,6 +1424,13 @@ export class DoclingJob<TResult> {
   }
 }
 
+export {
+  DoclingClient as DoclingServiceClient,
+  DoclingClient as AsyncDoclingServiceClient,
+  DoclingJob as ConversionJob,
+  DoclingJob as AsyncConversionJob,
+};
+
 function parseTaskStatus(value: unknown): TaskStatusResponse {
   if (!isRecord(value)) {
     throw schemaMismatch('Docling returned a non-object task status');
