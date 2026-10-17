@@ -1,24 +1,36 @@
 import {
+  type ArtifactDownloadError,
+  type AsyncConversionJob,
+  type AsyncDoclingServiceClient,
   type AutoSubmitResult,
   type BaseProgress,
+  type BatchConversionError,
+  ChunkerKind,
+  ChunkerType,
   type ChunkedDocumentResult,
   type ClearResponse,
   type ConfidenceScores,
+  type ConversionError,
+  type ConversionItem,
+  type ConversionJob,
+  type ConversionResult,
   type ConvertDocumentErrorResponse,
-  type DoclingComponentType,
+  type ConvertDocumentsOptions,
   DoclingClient,
+  type DoclingComponentType,
   type DoclingJob,
+  type DoclingServiceClient,
+  type DoclingServiceClientError,
   type DoclingTaskResult,
   type DocumentCompletedItem,
-  type ConversionItem,
-  type ConversionResult,
-  type ConvertDocumentsOptions,
   type ExportDocumentResponse,
   type ExportResult,
   type FailureCategory,
   type FailurePhase,
   type HeadingHierarchyOptions,
+  type ImageRefMode,
   type InBodyTarget,
+  type InferenceFramework,
   type InputFormat,
   type MessageKind,
   type OutputFormat,
@@ -37,8 +49,21 @@ import {
   type QualityGrade,
   type ReadinessResponse,
   type RemoteTargetResult,
-  TargetName,
+  type ResponseFormat,
+  type ResponseSchemaMismatchError,
+  type ResultExpiredError,
+  type ResultNotReadyError,
+  type ServiceError,
+  type ServiceUnavailableError,
+  StatusWatcherKind,
+  type TableFormerMode,
+  TargetName as TargetNameConst,
+  type TaskExecutionError,
+  type TaskNotFoundError,
+  type TaskTimeoutError,
+  type UsageLimitExceededError,
   type UsageLimitExceededResponse,
+  type VlmModelType,
   type WebsocketMessage,
   type ZipArchiveResult,
 } from '../src';
@@ -264,11 +289,51 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     processing_time: 1.2,
     result: exportResult,
   };
-  const targetNameInBody = TargetName.INBODY;
+  const targetNameInBody = TargetNameConst.INBODY;
 
-  // v2.139.0 parity: verify all ConvertDocumentsOptions fields from
-  // https://github.com/docling-project/docling/blob/v2.139.0/docling/datamodel/service/options.py
-  const fullOptionsV2139: ConvertDocumentsOptions = {
+  // v2.140.0 parity: alias type tests
+  const tableFormerModeVal: TableFormerMode = 'accurate';
+  const imageRefModeVal: ImageRefMode = 'placeholder';
+  const responseFormatVal: ResponseFormat = 'doctags';
+  const inferenceFrameworkVal: InferenceFramework = 'transformers';
+  const vlmModelTypeVal: VlmModelType = 'granite_docling';
+  const statusWatcherKindVal: StatusWatcherKind = StatusWatcherKind.WEBSOCKET;
+  const chunkerKindVal: ChunkerKind = ChunkerKind.HYBRID;
+  const chunkerTypeVal: ChunkerType = ChunkerType.HIERARCHICAL;
+
+  // Client/Job type alias checks
+  const serviceClientCheck: DoclingServiceClient = client;
+  const asyncServiceClientCheck: AsyncDoclingServiceClient = client;
+  const convJobCheck: ConversionJob<AutoSubmitResult> =
+    null as unknown as ConversionJob<AutoSubmitResult>;
+  const asyncConvJobCheck: AsyncConversionJob<AutoSubmitResult> =
+    null as unknown as AsyncConversionJob<AutoSubmitResult>;
+
+  // Exception type alias checks
+  const clientErrCheck: DoclingServiceClientError =
+    null as unknown as DoclingServiceClientError;
+  const svcErrCheck: ServiceError = null as unknown as ServiceError;
+  const svcUvalCheck: ServiceUnavailableError =
+    null as unknown as ServiceUnavailableError;
+  const respSchemaCheck: ResponseSchemaMismatchError =
+    null as unknown as ResponseSchemaMismatchError;
+  const usageLimitCheck: UsageLimitExceededError =
+    null as unknown as UsageLimitExceededError;
+  const taskTimeoutCheck: TaskTimeoutError = null as unknown as TaskTimeoutError;
+  const taskNotFoundCheck: TaskNotFoundError = null as unknown as TaskNotFoundError;
+  const resultNotReadyCheck: ResultNotReadyError =
+    null as unknown as ResultNotReadyError;
+  const resultExpiredCheck: ResultExpiredError = null as unknown as ResultExpiredError;
+  const taskExecCheck: TaskExecutionError = null as unknown as TaskExecutionError;
+  const artDownloadCheck: ArtifactDownloadError =
+    null as unknown as ArtifactDownloadError;
+  const convErrCheck: ConversionError = null as unknown as ConversionError;
+  const batchConvErrCheck: BatchConversionError =
+    null as unknown as BatchConversionError;
+
+  // v2.140.0 parity: verify all ConvertDocumentsOptions fields from
+  // https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/options.py
+  const fullOptionsV2140: ConvertDocumentsOptions = {
     // from_formats / to_formats
     from_formats: ['pdf', 'docx'] satisfies InputFormat[],
     to_formats: ['md', 'json'] satisfies OutputFormat[],
@@ -402,6 +467,31 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkedDocResult,
     taskResult,
     targetNameInBody,
-    fullOptionsV2139,
+    tableFormerModeVal,
+    imageRefModeVal,
+    responseFormatVal,
+    inferenceFrameworkVal,
+    vlmModelTypeVal,
+    statusWatcherKindVal,
+    chunkerKindVal,
+    chunkerTypeVal,
+    serviceClientCheck,
+    asyncServiceClientCheck,
+    convJobCheck,
+    asyncConvJobCheck,
+    clientErrCheck,
+    svcErrCheck,
+    svcUvalCheck,
+    respSchemaCheck,
+    usageLimitCheck,
+    taskTimeoutCheck,
+    taskNotFoundCheck,
+    resultNotReadyCheck,
+    resultExpiredCheck,
+    taskExecCheck,
+    artDownloadCheck,
+    convErrCheck,
+    batchConvErrCheck,
+    fullOptionsV2140,
   ];
 }

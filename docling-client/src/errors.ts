@@ -156,3 +156,19 @@ export class DoclingBatchConversionError extends DoclingError {
     this.failures = failures;
   }
 }
+
+export {
+  DoclingError as DoclingServiceClientError,
+  DoclingServiceError as ServiceError,
+  DoclingServiceUnavailableError as ServiceUnavailableError,
+  DoclingResponseSchemaMismatchError as ResponseSchemaMismatchError,
+  DoclingUsageLimitExceededError as UsageLimitExceededError,
+  DoclingTimeoutError as TaskTimeoutError,
+  DoclingTaskNotFoundError as TaskNotFoundError,
+  DoclingResultNotReadyError as ResultNotReadyError,
+  DoclingResultExpiredError as ResultExpiredError,
+  DoclingTaskError as TaskExecutionError,
+  DoclingArtifactDownloadError as ArtifactDownloadError,
+  DoclingConversionError as ConversionError,
+  DoclingBatchConversionError as BatchConversionError,
+};
