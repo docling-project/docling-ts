@@ -1,6 +1,6 @@
 # Docling TS
 
-TypeScript/JavaScript client for [docling-serve](https://github.com/docling-project/docling-server) and interfaces for working with the JSON output format of [Docling](https://docling.ai).
+TypeScript/JavaScript client for [docling-serve](https://github.com/docling-project/docling-serve) and interfaces for working with the JSON output format of [Docling](https://docling.ai).
 
 ## Docling Core
 
