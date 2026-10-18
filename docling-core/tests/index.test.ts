@@ -222,6 +222,53 @@ describe('iterateDocumentItems (minimal document)', () => {
     expect(selfRefs).not.toContain('#/texts/1');
     expect(selfRefs).not.toContain('#/tables/0');
   });
+
+  describe('content layers', () => {
+    function layeredDocument(): DoclingDocument {
+      const doc = loadMinimalDocument();
+      doc.texts![0].content_layer = 'furniture';
+      doc.texts![1].content_layer = 'notes';
+      return doc;
+    }
+
+    it('skips items outside the default body layer', () => {
+      const refs = [...iterateDocumentItems(layeredDocument())].map(
+        ([item]) => item.self_ref
+      );
+      expect(refs).not.toContain('#/texts/0');
+      expect(refs).not.toContain('#/texts/1');
+      expect(refs).toContain('#/tables/0');
+    });
+
+    it('treats items without content_layer as body', () => {
+      const doc = loadMinimalDocument();
+      delete doc.texts![0].content_layer;
+      const refs = [...iterateDocumentItems(doc)].map(
+        ([item]) => item.self_ref
+      );
+      expect(refs).toContain('#/texts/0');
+    });
+
+    it('yields items of the requested includedContentLayers', () => {
+      const refs = [
+        ...iterateDocumentItems(layeredDocument(), {
+          includedContentLayers: ['body', 'furniture', 'notes'],
+        }),
+      ].map(([item]) => item.self_ref);
+      expect(refs).toContain('#/texts/0');
+      expect(refs).toContain('#/texts/1');
+      expect(refs).toContain('#/tables/0');
+    });
+
+    it('only yields the requested layers', () => {
+      const refs = [
+        ...iterateDocumentItems(layeredDocument(), {
+          includedContentLayers: ['notes'],
+        }),
+      ].map(([item]) => item.self_ref);
+      expect(refs).toEqual(['#/texts/1']);
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------

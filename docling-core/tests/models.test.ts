@@ -47,12 +47,22 @@ describe('Constants', () => {
     expect(DEFAULT_CONTENT_LAYERS).toEqual(['body']);
   });
 
-  it('exports DEFAULT_EXPORT_LABELS with 23 labels', () => {
+  it('exports DEFAULT_EXPORT_LABELS with 25 labels', () => {
     expect(DEFAULT_EXPORT_LABELS).toContain('title');
     expect(DEFAULT_EXPORT_LABELS).toContain('marker');
     expect(DEFAULT_EXPORT_LABELS).toContain('field_key');
     expect(DEFAULT_EXPORT_LABELS).toContain('handwritten_text');
-    expect(DEFAULT_EXPORT_LABELS.length).toBe(23);
+    expect(DEFAULT_EXPORT_LABELS.length).toBe(25);
+  });
+
+  it('exports field_region and field_item in DEFAULT_EXPORT_LABELS', () => {
+    expect(DEFAULT_EXPORT_LABELS).toContain('field_region');
+    expect(DEFAULT_EXPORT_LABELS).toContain('field_item');
+  });
+
+  it('inherits field_region and field_item in DOCUMENT_TOKENS_EXPORT_LABELS', () => {
+    expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('field_region');
+    expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('field_item');
   });
 
   it('exports DOCUMENT_TOKENS_EXPORT_LABELS containing footnote, caption, key_value_region, form', () => {

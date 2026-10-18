@@ -1,10 +1,13 @@
-import { isDocling } from './types';
-import { DoclingDocument, NodeItem, RefItem } from './types';
+import { DEFAULT_CONTENT_LAYERS, isDocling } from './types';
+import { ContentLayer, DoclingDocument, NodeItem, RefItem } from './types';
 
 export * from './types';
 
 /**
  * Generates the parsed items of a document by traversing through its hierarchy in reading order.
+ *
+ * Only items in the `includedContentLayers` are yielded (default: `DEFAULT_CONTENT_LAYERS`,
+ * i.e. `body`). Items without an explicit `content_layer` are considered to be in the `body` layer.
  */
 export function* iterateDocumentItems(
   doc?: DoclingDocument,
@@ -13,8 +16,13 @@ export function* iterateDocumentItems(
     withGroups?: boolean;
     traversePictures?: boolean;
     pageNo?: number;
+    includedContentLayers?: ContentLayer[];
   } = {}
 ): Generator<[NodeItem, number]> {
+  const includedLayers = new Set<ContentLayer>(
+    options.includedContentLayers ?? DEFAULT_CONTENT_LAYERS
+  );
+
   if (doc) {
     yield* traverse(options.root ?? doc.body!);
   }
@@ -23,8 +31,11 @@ export function* iterateDocumentItems(
     item: NodeItem,
     level: number = 0
   ): Generator<[NodeItem, number]> {
-    // Yield non-group items, and group items if withGroups.
-    if (!isDocling.GroupItem(item) || options.withGroups) {
+    // Yield non-group items, and group items if withGroups, within the included content layers.
+    if (
+      (!isDocling.GroupItem(item) || options.withGroups) &&
+      includedLayers.has(item.content_layer ?? 'body')
+    ) {
       if (isDocling.DocItem(item)) {
         if (
           options.pageNo === undefined ||
