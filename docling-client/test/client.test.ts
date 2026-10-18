@@ -1493,6 +1493,41 @@ describe('queued task cancellation', () => {
     expect(error).not.toBeInstanceOf(DoclingTaskError);
   });
 
+  it('maps structured 409 TASK_CANCELLED for raw and binary results without a status request', async () => {
+    const conflict = (taskId: string) =>
+      new DoclingHttpError({
+        method: 'GET',
+        url: `https://docling.example.test/v1/result/${taskId}`,
+        status: 409,
+        body: {
+          detail: {
+            code: 'TASK_CANCELLED',
+            message: 'Task was cancelled while queued.',
+          },
+        },
+      });
+    const transport = new ScriptedTransport(
+      conflict('raw-task'),
+      conflict('binary-task')
+    );
+    const client = clientWith(transport);
+
+    const rawError = await client.getRawResult('raw-task').catch(value => value);
+    expect(rawError).toBeInstanceOf(DoclingTaskCancelledError);
+    expect(rawError).toMatchObject({ taskId: 'raw-task' });
+
+    const binaryError = await client
+      .getBinaryResult('binary-task')
+      .catch(value => value);
+    expect(binaryError).toBeInstanceOf(DoclingTaskCancelledError);
+    expect(binaryError).toMatchObject({ taskId: 'binary-task' });
+
+    expect(transport.requests.map(request => request.url)).toEqual([
+      'https://docling.example.test/v1/result/raw-task',
+      'https://docling.example.test/v1/result/binary-task',
+    ]);
+  });
+
   it('keeps unrelated 409 responses as service errors', async () => {
     const conflict = () =>
       new DoclingHttpError({
@@ -1509,10 +1544,16 @@ describe('queued task cancellation', () => {
       status: 409,
       body: { detail: 'conflict' },
     });
-    const client = clientWith(new ScriptedTransport(conflict(), stringDetail));
+    const client = clientWith(
+      new ScriptedTransport(conflict(), stringDetail, conflict(), conflict())
+    );
 
     await expect(client.getResult('task')).rejects.toBeInstanceOf(DoclingHttpError);
     await expect(client.getResult('task')).rejects.toBeInstanceOf(DoclingHttpError);
+    await expect(client.getRawResult('task')).rejects.toBeInstanceOf(DoclingHttpError);
+    await expect(client.getBinaryResult('task')).rejects.toBeInstanceOf(
+      DoclingHttpError
+    );
   });
 
   it('still rejects an unknown task status', async () => {
