@@ -863,6 +863,8 @@ export const DEFAULT_EXPORT_LABELS: DocItemLabel[] = [
   'page_footer',
   'key_value_region',
   'empty_value',
+  'field_region',
+  'field_item',
   'field_key',
   'field_value',
   'field_heading',
