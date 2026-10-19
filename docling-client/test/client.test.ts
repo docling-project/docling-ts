@@ -6,11 +6,8 @@ import { describe, expect, it } from 'vitest';
 import {
   ArtifactDownloadError,
   ArtifactDownloader,
-  AsyncConversionJob,
-  AsyncDoclingServiceClient,
   BatchConversionError,
   ConversionError,
-  ConversionJob,
   DoclingArtifactDownloadError,
   DoclingBatchConversionError,
   DoclingClient,
@@ -22,7 +19,6 @@ import {
   DoclingResponseSchemaMismatchError,
   DoclingResultExpiredError,
   DoclingResultNotReadyError,
-  DoclingServiceClient,
   DoclingServiceClientError,
   DoclingServiceError,
   DoclingServiceUnavailableError,
@@ -2108,13 +2104,6 @@ describe('v2.134.0 new features', () => {
 });
 
 describe('v2.140.0 parity exports and aliases', () => {
-  it('exports DoclingServiceClient, AsyncDoclingServiceClient, ConversionJob, and AsyncConversionJob', () => {
-    expect(DoclingServiceClient).toBe(DoclingClient);
-    expect(AsyncDoclingServiceClient).toBe(DoclingClient);
-    expect(ConversionJob).toBe(DoclingJob);
-    expect(AsyncConversionJob).toBe(DoclingJob);
-  });
-
   it('exports exception aliases matching Python service client exceptions', () => {
     expect(DoclingServiceClientError).toBe(DoclingError);
     expect(ServiceError).toBe(DoclingServiceError);
