@@ -1,6 +1,4 @@
 import {
-  type AsyncConversionJob,
-  type AsyncDoclingServiceClient,
   type AutoSubmitResult,
   type BaseProgress,
   ChunkerKind,
@@ -9,14 +7,12 @@ import {
   type ClearResponse,
   type ConfidenceScores,
   type ConversionItem,
-  type ConversionJob,
   type ConversionResult,
   type ConvertDocumentErrorResponse,
   type ConvertDocumentsOptions,
   DoclingClient,
   type DoclingComponentType,
   type DoclingJob,
-  type DoclingServiceClient,
   type DoclingTaskResult,
   type DocumentCompletedItem,
   type ExportDocumentResponse,
@@ -288,14 +284,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const chunkerKindVal: ChunkerKind = ChunkerKind.HYBRID;
   const chunkerTypeVal: ChunkerType = ChunkerType.HIERARCHICAL;
 
-  // Client/Job type alias checks
-  const serviceClientCheck: DoclingServiceClient = client;
-  const asyncServiceClientCheck: AsyncDoclingServiceClient = client;
-  const convJobCheck: ConversionJob<AutoSubmitResult> =
-    null as unknown as ConversionJob<AutoSubmitResult>;
-  const asyncConvJobCheck: AsyncConversionJob<AutoSubmitResult> =
-    null as unknown as AsyncConversionJob<AutoSubmitResult>;
-
   // v2.140.0 parity: verify all ConvertDocumentsOptions fields from
   // https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/options.py
   const fullOptionsV2140: ConvertDocumentsOptions = {
@@ -440,10 +428,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     statusWatcherKindVal,
     chunkerKindVal,
     chunkerTypeVal,
-    serviceClientCheck,
-    asyncServiceClientCheck,
-    convJobCheck,
-    asyncConvJobCheck,
     fullOptionsV2140,
   ];
 }

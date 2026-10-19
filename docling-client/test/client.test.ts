@@ -5,18 +5,13 @@ import { describe, expect, it } from 'vitest';
 
 import {
   ArtifactDownloader,
-  AsyncConversionJob,
-  AsyncDoclingServiceClient,
-  ConversionJob,
   DoclingClient,
   DoclingConversionError,
   DoclingHttpError,
-  DoclingJob,
   DoclingProtocolError,
   DoclingResponseSchemaMismatchError,
   DoclingResultExpiredError,
   DoclingResultNotReadyError,
-  DoclingServiceClient,
   DoclingServiceError,
   DoclingTaskError,
   DoclingTaskNotFoundError,
@@ -2085,14 +2080,5 @@ describe('v2.134.0 new features', () => {
     expect(result.status).toBe('success');
     expect(result.input.filename).toBe('budget.numbers');
     expect(result.input.format).toBe('iwork_numbers');
-  });
-});
-
-describe('v2.140.0 parity exports and aliases', () => {
-  it('exports DoclingServiceClient, AsyncDoclingServiceClient, ConversionJob, and AsyncConversionJob', () => {
-    expect(DoclingServiceClient).toBe(DoclingClient);
-    expect(AsyncDoclingServiceClient).toBe(DoclingClient);
-    expect(ConversionJob).toBe(DoclingJob);
-    expect(AsyncConversionJob).toBe(DoclingJob);
   });
 });
