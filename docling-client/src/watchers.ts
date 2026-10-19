@@ -6,9 +6,13 @@ import {
   DoclingTaskNotFoundError,
   DoclingTimeoutError,
 } from './errors';
-import type { TaskStatusResponse, WaitForTaskOptions } from './types';
+import {
+  StatusWatcherKind,
+  type TaskStatusResponse,
+  type WaitForTaskOptions,
+} from './types';
 
-export type StatusWatcherKind = 'websocket' | 'polling';
+export { StatusWatcherKind };
 
 export interface WebSocketLike {
   readonly readyState: number;

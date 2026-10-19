@@ -67,7 +67,9 @@ export type OutputFormat =
 
 export type ProcessingPipeline = 'legacy' | 'standard' | 'native' | 'vlm' | 'asr';
 export type TableMode = 'fast' | 'accurate';
+export type TableFormerMode = TableMode;
 export type ImageExportMode = 'placeholder' | 'embedded' | 'referenced';
+export type ImageRefMode = ImageExportMode;
 export type PdfBackend =
   | 'pypdfium2'
   | 'docling_parse'
@@ -89,7 +91,9 @@ export type VlmResponseFormat =
   | 'dots_json'
   | 'nemotron_parse_v2'
   | 'mineru2';
+export type ResponseFormat = VlmResponseFormat;
 export type VlmInferenceFramework = 'mlx' | 'transformers' | 'vllm';
+export type InferenceFramework = VlmInferenceFramework;
 export type TransformersModelType =
   'automodel' | 'automodel-causallm' | 'automodel-imagetexttotext';
 export type LegacyVlmModelType =
@@ -109,6 +113,7 @@ export type LegacyVlmModelType =
   | 'lightonocr'
   | 'lightonocr_vllm'
   | 'deepseekocr_ollama';
+export type VlmModelType = LegacyVlmModelType;
 export type PictureClassificationLabel =
   | 'bar_chart'
   | 'box_plot'
@@ -557,7 +562,13 @@ export interface BatchConvertSourcesRequest<TTarget extends BatchTarget = BatchT
   callbacks?: CallbackSpec[];
 }
 
-export type ChunkerKind = 'hybrid' | 'hierarchical';
+export const ChunkerKind = {
+  HYBRID: 'hybrid',
+  HIERARCHICAL: 'hierarchical',
+} as const;
+export type ChunkerKind = (typeof ChunkerKind)[keyof typeof ChunkerKind];
+
+export const ChunkerType = ChunkerKind;
 export type ChunkerType = ChunkerKind;
 
 export interface ChunkingExportOptions {
@@ -979,11 +990,18 @@ export interface HealthCheckResponse {
   status: string;
 }
 
+export const StatusWatcherKind = {
+  WEBSOCKET: 'websocket',
+  POLLING: 'polling',
+} as const;
+export type StatusWatcherKind =
+  (typeof StatusWatcherKind)[keyof typeof StatusWatcherKind];
+
 export interface WaitForTaskOptions {
   timeoutMs?: number;
   pollIntervalMs?: number;
   serverWaitSeconds?: number;
-  statusWatcher?: 'websocket' | 'polling';
+  statusWatcher?: StatusWatcherKind;
   signal?: AbortSignal;
   onStatus?: (status: TaskStatusResponse) => void | Promise<void>;
 }

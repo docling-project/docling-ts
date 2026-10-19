@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.139.0
-at commit `6b77e54`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.140.0
+at commit `0e54294`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -164,11 +164,11 @@ Python's unbounded integer type.
 `ConfidenceScores` gained a recursive `pages` field in Python v2.139.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.139.0/docling/datamodel/service/responses.py#L45
+https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/responses.py#L45
 ```
 
 When present, it maps 1-based page numbers to per-page `ConfidenceScores`
-objects. The TypeScript `ConfidenceScores` interface now includes the
+objects. The TypeScript `ConfidenceScores` interface includes the
 `pages` field (`Record<number, ConfidenceScores> | null | undefined`) and the
 `parseConfidence` validator recursively validates each page entry.
 
@@ -182,7 +182,7 @@ objects. The TypeScript `ConfidenceScores` interface now includes the
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.139.0/docling/datamodel/service/responses.py#L84
+https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/responses.py#L84
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via
