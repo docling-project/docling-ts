@@ -4,18 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import {
-  ArtifactDownloadError,
   ArtifactDownloader,
   AsyncConversionJob,
   AsyncDoclingServiceClient,
-  BatchConversionError,
-  ConversionError,
   ConversionJob,
-  DoclingArtifactDownloadError,
-  DoclingBatchConversionError,
   DoclingClient,
   DoclingConversionError,
-  DoclingError,
   DoclingHttpError,
   DoclingJob,
   DoclingProtocolError,
@@ -23,22 +17,9 @@ import {
   DoclingResultExpiredError,
   DoclingResultNotReadyError,
   DoclingServiceClient,
-  DoclingServiceClientError,
   DoclingServiceError,
-  DoclingServiceUnavailableError,
   DoclingTaskError,
   DoclingTaskNotFoundError,
-  DoclingTimeoutError,
-  DoclingUsageLimitExceededError,
-  ResponseSchemaMismatchError,
-  ResultExpiredError,
-  ResultNotReadyError,
-  ServiceError,
-  ServiceUnavailableError,
-  TaskExecutionError,
-  TaskNotFoundError,
-  TaskTimeoutError,
-  UsageLimitExceededError,
   type ConvertSourcesRequest,
   type DoclingBinaryResponse,
   type DoclingTransport,
@@ -2113,21 +2094,5 @@ describe('v2.140.0 parity exports and aliases', () => {
     expect(AsyncDoclingServiceClient).toBe(DoclingClient);
     expect(ConversionJob).toBe(DoclingJob);
     expect(AsyncConversionJob).toBe(DoclingJob);
-  });
-
-  it('exports exception aliases matching Python service client exceptions', () => {
-    expect(DoclingServiceClientError).toBe(DoclingError);
-    expect(ServiceError).toBe(DoclingServiceError);
-    expect(ServiceUnavailableError).toBe(DoclingServiceUnavailableError);
-    expect(ResponseSchemaMismatchError).toBe(DoclingResponseSchemaMismatchError);
-    expect(UsageLimitExceededError).toBe(DoclingUsageLimitExceededError);
-    expect(TaskTimeoutError).toBe(DoclingTimeoutError);
-    expect(TaskNotFoundError).toBe(DoclingTaskNotFoundError);
-    expect(ResultNotReadyError).toBe(DoclingResultNotReadyError);
-    expect(ResultExpiredError).toBe(DoclingResultExpiredError);
-    expect(TaskExecutionError).toBe(DoclingTaskError);
-    expect(ArtifactDownloadError).toBe(DoclingArtifactDownloadError);
-    expect(ConversionError).toBe(DoclingConversionError);
-    expect(BatchConversionError).toBe(DoclingBatchConversionError);
   });
 });

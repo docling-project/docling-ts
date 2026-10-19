@@ -297,22 +297,22 @@ headers, binary handling, retries, quotas, timeout, and error mapping.
 
 ## Error mapping
 
-| Python error                             | TypeScript                                                                 |
-| ---------------------------------------- | -------------------------------------------------------------------------- |
-| `DoclingServiceClientError`              | `DoclingError` (alias `DoclingServiceClientError`)                         |
-| `ServiceError`                           | `DoclingServiceError` (alias `ServiceError`)                               |
-| generic non-retryable HTTP service error | `DoclingHttpError`                                                         |
-| `ServiceUnavailableError`                | `DoclingServiceUnavailableError` (alias `ServiceUnavailableError`)         |
-| `ResponseSchemaMismatchError`            | `DoclingResponseSchemaMismatchError` (alias `ResponseSchemaMismatchError`) |
-| `UsageLimitExceededError`                | `DoclingUsageLimitExceededError` (alias `UsageLimitExceededError`)         |
-| `TaskExecutionError`                     | `DoclingTaskError` (alias `TaskExecutionError`)                            |
-| `TaskTimeoutError`                       | `DoclingTimeoutError` (alias `TaskTimeoutError`)                           |
-| `TaskNotFoundError`                      | `DoclingTaskNotFoundError` (alias `TaskNotFoundError`)                     |
-| `ResultNotReadyError`                    | `DoclingResultNotReadyError` (alias `ResultNotReadyError`)                 |
-| `ResultExpiredError`                     | `DoclingResultExpiredError` (alias `ResultExpiredError`)                   |
-| `ArtifactDownloadError`                  | `DoclingArtifactDownloadError` (alias `ArtifactDownloadError`)             |
-| `ConversionError`                        | `DoclingConversionError` (alias `ConversionError`)                         |
-| `BatchConversionError`                   | `DoclingBatchConversionError` (alias `BatchConversionError`)               |
+| Python error                             | TypeScript                           |
+| ---------------------------------------- | ------------------------------------ |
+| `DoclingServiceClientError`              | `DoclingError`                       |
+| `ServiceError`                           | `DoclingServiceError`                |
+| generic non-retryable HTTP service error | `DoclingHttpError`                   |
+| `ServiceUnavailableError`                | `DoclingServiceUnavailableError`     |
+| `ResponseSchemaMismatchError`            | `DoclingResponseSchemaMismatchError` |
+| `UsageLimitExceededError`                | `DoclingUsageLimitExceededError`     |
+| `TaskExecutionError`                     | `DoclingTaskError`                   |
+| `TaskTimeoutError`                       | `DoclingTimeoutError`                |
+| `TaskNotFoundError`                      | `DoclingTaskNotFoundError`           |
+| `ResultNotReadyError`                    | `DoclingResultNotReadyError`         |
+| `ResultExpiredError`                     | `DoclingResultExpiredError`          |
+| `ArtifactDownloadError`                  | `DoclingArtifactDownloadError`       |
+| `ConversionError`                        | `DoclingConversionError`             |
+| `BatchConversionError`                   | `DoclingBatchConversionError`        |
 
 All service-originated TypeScript errors share `DoclingServiceError`, including
 HTTP, availability, quota, and schema failures. Quota errors preserve the
