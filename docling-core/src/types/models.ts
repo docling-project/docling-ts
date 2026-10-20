@@ -534,7 +534,6 @@ export interface TextItem extends DocItem {
     | 'field_hint'
     | 'marker'
     | 'handwritten_text'
-    | 'grading_scale'
     // subtype labels (narrowed in subtype interfaces):
     | 'title'
     | 'section_header'
@@ -844,6 +843,44 @@ export interface PageItem {
 }
 
 export const CURRENT_VERSION = '1.10.0';
+/**
+ * Ordered history of DoclingDocument schema versions in docling-core v2.x.
+ *
+ * Each entry records the schema version string, the first library release that
+ * introduced it, and a short description of what changed.
+ */
+export const SCHEMA_VERSION_HISTORY: ReadonlyArray<{
+  schema: string;
+  library_version: string;
+  note: string;
+}> = [
+  {
+    schema: '1.5.0',
+    library_version: 'v2.38.2',
+    note: 'ListGroup, remodelled lists',
+  },
+  {
+    schema: '1.6.0',
+    library_version: 'v2.45.0',
+    note: 'RichTableCell, AnyTableCell union',
+  },
+  { schema: '1.7.0', library_version: 'v2.47.0', note: 'TableCell.fillable' },
+  {
+    schema: '1.8.0',
+    library_version: 'v2.49.0',
+    note: 'BasePrediction, BaseMeta, meta field',
+  },
+  {
+    schema: '1.9.0',
+    library_version: 'v2.57.0',
+    note: 'FineRef, DocItem.comments',
+  },
+  {
+    schema: '1.10.0',
+    library_version: 'v2.69.0',
+    note: 'FieldItem types, 7 new DocItemLabel values',
+  },
+];
 export const DEFAULT_CONTENT_LAYERS: ContentLayer[] = ['body'];
 export const DEFAULT_EXPORT_LABELS: DocItemLabel[] = [
   'title',
@@ -876,7 +913,6 @@ export const DOCUMENT_TOKENS_EXPORT_LABELS: DocItemLabel[] = [
   ...DEFAULT_EXPORT_LABELS,
   'footnote',
   'caption',
-  'key_value_region',
   'form',
 ];
 

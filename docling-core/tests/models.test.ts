@@ -4,6 +4,7 @@ import {
   DEFAULT_CONTENT_LAYERS,
   DEFAULT_EXPORT_LABELS,
   DOCUMENT_TOKENS_EXPORT_LABELS,
+  SCHEMA_VERSION_HISTORY,
   type CodeItem,
   type DoclingDocument,
   type FieldHeadingItem,
@@ -70,6 +71,29 @@ describe('Constants', () => {
     expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('caption');
     expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('key_value_region');
     expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('form');
+  });
+
+  it('DOCUMENT_TOKENS_EXPORT_LABELS has no duplicate entries', () => {
+    const unique = new Set(DOCUMENT_TOKENS_EXPORT_LABELS);
+    expect(unique.size).toBe(DOCUMENT_TOKENS_EXPORT_LABELS.length);
+  });
+
+  it('exports SCHEMA_VERSION_HISTORY as a non-empty array', () => {
+    expect(Array.isArray(SCHEMA_VERSION_HISTORY)).toBe(true);
+    expect(SCHEMA_VERSION_HISTORY.length).toBeGreaterThan(0);
+  });
+
+  it('SCHEMA_VERSION_HISTORY entries have schema, library_version, note fields', () => {
+    for (const entry of SCHEMA_VERSION_HISTORY) {
+      expect(typeof entry.schema).toBe('string');
+      expect(typeof entry.library_version).toBe('string');
+      expect(typeof entry.note).toBe('string');
+    }
+  });
+
+  it('SCHEMA_VERSION_HISTORY last entry matches CURRENT_VERSION', () => {
+    const last = SCHEMA_VERSION_HISTORY[SCHEMA_VERSION_HISTORY.length - 1];
+    expect(last.schema).toBe(CURRENT_VERSION);
   });
 });
 

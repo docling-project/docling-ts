@@ -68,7 +68,6 @@ export const isDoclingDocItem = {
     'field_hint',
     'field_key',
     'footnote',
-    'grading_scale',
     'handwritten_text',
     'marker',
     'page_footer',
