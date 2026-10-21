@@ -284,9 +284,9 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const chunkerKindVal: ChunkerKind = ChunkerKind.HYBRID;
   const chunkerTypeVal: ChunkerType = ChunkerType.HIERARCHICAL;
 
-  // v2.140.0 parity: verify all ConvertDocumentsOptions fields from
-  // https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/options.py
-  const fullOptionsV2140: ConvertDocumentsOptions = {
+  // v2.141.0 parity: verify all ConvertDocumentsOptions fields from
+  // https://github.com/docling-project/docling/blob/v2.141.0/docling/datamodel/service/options.py
+  const fullOptionsV2141: ConvertDocumentsOptions = {
     // from_formats / to_formats
     from_formats: ['pdf', 'docx'] satisfies InputFormat[],
     to_formats: ['md', 'json'] satisfies OutputFormat[],
@@ -359,6 +359,8 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     // Limits / behaviour
     document_timeout: 60,
     abort_on_error: false,
+    // ocr_engine (deprecated in favour of ocr_preset, keep for backwards compat)
+    ocr_engine: 'auto',
   };
 
   // @ts-expect-error Python's wire contract does not accept arbitrary categories.
@@ -428,6 +430,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     statusWatcherKindVal,
     chunkerKindVal,
     chunkerTypeVal,
-    fullOptionsV2140,
+    fullOptionsV2141,
   ];
 }
