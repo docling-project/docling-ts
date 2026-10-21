@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.140.0
-at commit `0e54294`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.141.0
+at commit `4f00195`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -159,12 +159,26 @@ High-level limits match Python:
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
 
+## Internal scheduler refactoring (v2.141.0)
+
+`AsyncDoclingServiceClient.submit_and_retrieve_each()` was refactored in
+Python v2.141.0 to use an internal `_run_bounded()` helper from
+`docling/service_client/_scheduler.py` for bounded concurrency fan-out:
+
+```
+https://github.com/docling-project/docling/blob/v2.141.0/docling/service_client/_scheduler.py#L31
+```
+
+The TypeScript scheduler already implements equivalent bounded-concurrency
+semantics via `boundedOutcomes()` in `scheduler.ts`. No TypeScript API
+changes are needed; this is a pure internal refactoring on the Python side.
+
 ## Response model changes (v2.139.0)
 
 `ConfidenceScores` gained a recursive `pages` field in Python v2.139.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/responses.py#L45
+https://github.com/docling-project/docling/blob/v2.141.0/docling/datamodel/service/responses.py#L45
 ```
 
 When present, it maps 1-based page numbers to per-page `ConfidenceScores`
@@ -182,7 +196,7 @@ objects. The TypeScript `ConfidenceScores` interface includes the
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/responses.py#L84
+https://github.com/docling-project/docling/blob/v2.141.0/docling/datamodel/service/responses.py#L84
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via
