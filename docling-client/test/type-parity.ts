@@ -284,9 +284,9 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const chunkerKindVal: ChunkerKind = ChunkerKind.HYBRID;
   const chunkerTypeVal: ChunkerType = ChunkerType.HIERARCHICAL;
 
-  // v2.141.0 parity: verify all ConvertDocumentsOptions fields from
-  // https://github.com/docling-project/docling/blob/v2.141.0/docling/datamodel/service/options.py
-  const fullOptionsV2141: ConvertDocumentsOptions = {
+  // v2.142.0 parity: verify all ConvertDocumentsOptions fields from
+  // https://github.com/docling-project/docling/blob/v2.142.0/docling/datamodel/service/options.py
+  const fullOptionsV2142: ConvertDocumentsOptions = {
     // from_formats / to_formats
     from_formats: ['pdf', 'docx'] satisfies InputFormat[],
     to_formats: ['md', 'json'] satisfies OutputFormat[],
@@ -430,6 +430,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     statusWatcherKindVal,
     chunkerKindVal,
     chunkerTypeVal,
-    fullOptionsV2141,
+    fullOptionsV2142,
   ];
 }
