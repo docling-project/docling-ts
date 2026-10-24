@@ -4,8 +4,14 @@ import {
   DEFAULT_CONTENT_LAYERS,
   DEFAULT_EXPORT_LABELS,
   DOCUMENT_TOKENS_EXPORT_LABELS,
+  DocumentToken,
+  FIRST_SUPPORTED_MINOR,
   SCHEMA_VERSION_HISTORY,
+  TableToken,
+  type BaseSource,
   type CodeItem,
+  type DescriptionAnnotation,
+  type DocTagsDocument,
   type DoclingDocument,
   type FieldHeadingItem,
   type FieldItem,
@@ -17,6 +23,7 @@ import {
   type KeyValueItem,
   type ListGroup,
   type ListItem,
+  type MiscAnnotation,
   type NodeItem,
   type OrderedList,
   type PictureBarChartData,
@@ -31,9 +38,14 @@ import {
   type PictureStackedBarChartData,
   type PictureTabularChartData,
   type SectionHeaderItem,
+  type SegmentedPage,
+  type SegmentedPdfPage,
   type TableItem,
   type TextItem,
   type TitleItem,
+  type TrackSource,
+  type UnorderedList,
+  type WebVTTFile,
   isDocling,
   isDoclingAnnotation,
   isDoclingDocItem,
@@ -42,6 +54,10 @@ import {
 describe('Constants', () => {
   it('exports CURRENT_VERSION as 1.10.0', () => {
     expect(CURRENT_VERSION).toBe('1.10.0');
+  });
+
+  it('exports FIRST_SUPPORTED_MINOR as 5', () => {
+    expect(FIRST_SUPPORTED_MINOR).toBe(5);
   });
 
   it('exports DEFAULT_CONTENT_LAYERS with body', () => {
@@ -97,6 +113,26 @@ describe('Constants', () => {
   });
 });
 
+describe('Tokens', () => {
+  it('exports TableToken enum values correctly', () => {
+    expect(TableToken.CELL_LABEL_COLUMN_HEADER).toBe('<column_header>');
+    expect(TableToken.CELL_LABEL_ROW_HEADER).toBe('<row_header>');
+    expect(TableToken.CELL_LABEL_SECTION_HEADER).toBe('<shed>');
+    expect(TableToken.CELL_LABEL_DATA).toBe('<data>');
+    expect(TableToken.OTSL_ECEL).toBe('<ecel>');
+    expect(TableToken.OTSL_FCEL).toBe('<fcel>');
+    expect(TableToken.OTSL_NL).toBe('<nl>');
+  });
+
+  it('exports DocumentToken enum values correctly', () => {
+    expect(DocumentToken.DOCUMENT).toBe('doctag');
+    expect(DocumentToken.PARAGRAPH).toBe('paragraph');
+    expect(DocumentToken.TITLE).toBe('title');
+    expect(DocumentToken.TABLE).toBe('table');
+    expect(DocumentToken.PAGE_BREAK).toBe('page_break');
+  });
+});
+
 // ---------------------------------------------------------------------------
 // isDocling — NodeItem / GroupItem / DocItem
 // ---------------------------------------------------------------------------
@@ -128,11 +164,13 @@ describe('isDocling.GroupItem', () => {
     expect(isDocling.GroupItem(group)).toBe(true);
   });
 
-  it('identifies ListGroup, OrderedList, InlineGroup', () => {
+  it('identifies ListGroup, UnorderedList, OrderedList, InlineGroup', () => {
     const lg: ListGroup = { self_ref: '#/groups/0', label: 'list' };
+    const ul: UnorderedList = lg;
     const ol: OrderedList = { self_ref: '#/groups/1', label: 'ordered_list' };
     const ig: InlineGroup = { self_ref: '#/groups/2', label: 'inline' };
     expect(isDocling.ListGroup(lg)).toBe(true);
+    expect(isDocling.UnorderedList(ul)).toBe(true);
     expect(isDocling.ListGroup(ol)).toBe(false);
     expect(isDocling.OrderedList(ol)).toBe(true);
     expect(isDocling.InlineGroup(ig)).toBe(true);
@@ -431,14 +469,16 @@ describe('isDoclingAnnotation', () => {
     expect(isDoclingAnnotation.PictureClassification(misc)).toBe(false);
   });
 
-  it('PictureDescription accepts description, rejects others', () => {
+  it('PictureDescription and DescriptionAnnotation accept description, reject others', () => {
     expect(isDoclingAnnotation.PictureDescription(description)).toBe(true);
+    expect(isDoclingAnnotation.DescriptionAnnotation(description)).toBe(true);
     expect(isDoclingAnnotation.PictureDescription(classification)).toBe(false);
     expect(isDoclingAnnotation.PictureDescription(misc)).toBe(false);
   });
 
-  it('PictureMisc accepts misc, rejects others', () => {
+  it('PictureMisc and MiscAnnotation accept misc, reject others', () => {
     expect(isDoclingAnnotation.PictureMisc(misc)).toBe(true);
+    expect(isDoclingAnnotation.MiscAnnotation(misc)).toBe(true);
     expect(isDoclingAnnotation.PictureMisc(classification)).toBe(false);
     expect(isDoclingAnnotation.PictureMisc(description)).toBe(false);
   });
@@ -483,5 +523,98 @@ describe('isDoclingAnnotation', () => {
     expect(isDoclingAnnotation.PictureTabularChart(tabularChart)).toBe(true);
     expect(isDoclingAnnotation.PictureTabularChart(pie)).toBe(false);
     expect(isDoclingAnnotation.PictureTabularChart(barChart)).toBe(false);
+  });
+});
+
+describe('New Models and Interfaces', () => {
+  it('creates TrackSource and BaseSource objects', () => {
+    const src: TrackSource = {
+      kind: 'track',
+      start_time: 1.0,
+      end_time: 2.5,
+      identifier: 'cue-1',
+      voice: 'Narrator',
+    };
+    const base: BaseSource = src;
+    expect(base.kind).toBe('track');
+    expect(src.start_time).toBe(1.0);
+  });
+
+  it('creates DescriptionAnnotation and MiscAnnotation', () => {
+    const desc: DescriptionAnnotation = {
+      kind: 'description',
+      text: 'image description',
+      provenance: 'model',
+    };
+    const misc: MiscAnnotation = {
+      kind: 'misc',
+      content: { key: 'value' },
+    };
+    expect(desc.kind).toBe('description');
+    expect(misc.kind).toBe('misc');
+  });
+
+  it('creates SegmentedPage and SegmentedPdfPage', () => {
+    const page: SegmentedPage = {
+      dimension: {
+        angle: 0,
+        rect: {
+          r_x0: 0,
+          r_y0: 0,
+          r_x1: 100,
+          r_y1: 0,
+          r_x2: 100,
+          r_y2: 200,
+          r_x3: 0,
+          r_y3: 200,
+        },
+      },
+      char_cells: [],
+      word_cells: [],
+      textline_cells: [],
+    };
+    expect(page.dimension.angle).toBe(0);
+
+    const pdfPage: SegmentedPdfPage = {
+      ...page,
+      dimension: {
+        ...page.dimension,
+        boundary_type: 'crop_box',
+        art_bbox: { l: 0, t: 0, r: 100, b: 200 },
+        bleed_bbox: { l: 0, t: 0, r: 100, b: 200 },
+        crop_bbox: { l: 0, t: 0, r: 100, b: 200 },
+        media_bbox: { l: 0, t: 0, r: 100, b: 200 },
+        trim_bbox: { l: 0, t: 0, r: 100, b: 200 },
+      },
+      shapes: [],
+    };
+    expect(pdfPage.dimension.boundary_type).toBe('crop_box');
+  });
+
+  it('creates WebVTTFile and DocTagsDocument', () => {
+    const vtt: WebVTTFile = {
+      cue_blocks: [
+        {
+          timings: {
+            start: { raw: '00:00:01.000' },
+            end: { raw: '00:00:03.000' },
+          },
+          payload: [
+            {
+              component: {
+                kind: 'text',
+                text: 'Hello world',
+              },
+            },
+          ],
+        },
+      ],
+    };
+    expect(vtt.cue_blocks.length).toBe(1);
+
+    const doctags: DocTagsDocument = {
+      pages: [{ tokens: '<paragraph>Text</paragraph>' }],
+    };
+    expect(doctags.pages?.length).toBe(1);
   });
 });
