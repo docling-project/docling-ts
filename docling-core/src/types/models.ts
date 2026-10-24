@@ -1,5 +1,13 @@
 /* tslint:disable */
 
+// ---------------------------------------------------------------------------
+// Common scalar types
+// ---------------------------------------------------------------------------
+
+export type Uint64 = number;
+export type LevelNumber = number;
+export type CharSpan = [number, number];
+
 export type CoordOrigin = 'TOPLEFT' | 'BOTTOMLEFT';
 export type ContentLayer =
   'body' | 'furniture' | 'background' | 'invisible' | 'notes';
@@ -355,6 +363,7 @@ export type Script = 'baseline' | 'sub' | 'super';
 export type Orientation = 'rot_0' | 'rot_90' | 'rot_180' | 'rot_270';
 export type ImageRefMode = 'placeholder' | 'embedded' | 'referenced';
 export type CaptionPlacement = 'standard' | 'layout';
+export type CollectionType = 'Document' | 'Record';
 
 export interface BoundingBox {
   l: number;
@@ -373,7 +382,7 @@ export interface RefItem {
 export interface ProvenanceItem {
   page_no: number;
   bbox: BoundingBox;
-  charspan: [number, number];
+  charspan: CharSpan;
 }
 export interface Formatting {
   bold?: boolean;
@@ -390,9 +399,26 @@ export interface ImageRef {
 }
 export interface DocumentOrigin {
   mimetype: string;
-  binary_hash: number;
+  binary_hash: Uint64;
   filename: string;
   uri?: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Base annotation models
+// ---------------------------------------------------------------------------
+
+export interface BaseAnnotation {
+  kind: string;
+}
+export interface DescriptionAnnotation extends BaseAnnotation {
+  kind: 'description';
+  text: string;
+  provenance: string;
+}
+export interface MiscAnnotation extends BaseAnnotation {
+  kind: 'misc';
+  content: Record<string, unknown>;
 }
 
 // ---------------------------------------------------------------------------
@@ -414,7 +440,7 @@ export interface EntityMention extends BasePrediction {
   text: string;
   orig?: string | null;
   label?: string | null;
-  charspan?: [number, number] | null;
+  charspan?: CharSpan | null;
 }
 export interface EntitiesMetaField {
   mentions: EntityMention[];
@@ -459,9 +485,12 @@ export interface NodeItem {
   meta?: BaseMeta | null;
 }
 export interface FineRef extends RefItem {
-  range?: [number, number] | null;
+  range?: CharSpan | null;
 }
-export interface TrackSource {
+export interface BaseSource {
+  kind: string;
+}
+export interface TrackSource extends BaseSource {
   kind: 'track';
   start_time: number;
   end_time: number;
@@ -559,7 +588,7 @@ export interface SectionHeaderItem extends TextItem {
   text: string;
   formatting?: Formatting | null;
   hyperlink?: string | null;
-  level?: number;
+  level?: LevelNumber;
 }
 export interface ListItem extends TextItem {
   label?: 'list_item';
@@ -621,7 +650,7 @@ export interface TableData {
   orientation?: Orientation;
   grid: AnyTableCell[][];
 }
-export type TableAnnotationType = PictureDescriptionData | PictureMiscData;
+export type TableAnnotationType = DescriptionAnnotation | MiscAnnotation;
 
 export interface TableItem extends FloatingItem {
   label?: 'document_index' | 'table';
@@ -634,31 +663,22 @@ export interface TableItem extends FloatingItem {
 // Picture items
 // ---------------------------------------------------------------------------
 
-export interface BasePictureData {
-  kind: string;
-}
+export type BasePictureData = BaseAnnotation;
+
 export interface PictureClassificationClass {
   class_name: string;
   confidence: number;
 }
-/** @deprecated Use BasePictureData instead. */
-export type BaseAnnotation = BasePictureData;
 
-export interface PictureClassificationData extends BasePictureData {
+export interface PictureClassificationData extends BaseAnnotation {
   kind: 'classification';
   provenance: string;
   predicted_classes: PictureClassificationClass[];
 }
 
-export interface PictureDescriptionData extends BasePictureData {
-  kind: 'description';
-  text: string;
-  provenance: string;
-}
-/** @deprecated Use PictureDescriptionData instead. */
-export type DescriptionAnnotation = PictureDescriptionData;
+export type PictureDescriptionData = DescriptionAnnotation;
 
-export interface PictureMoleculeData extends BasePictureData {
+export interface PictureMoleculeData extends BaseAnnotation {
   kind: 'molecule_data';
   smi: string;
   confidence: number;
@@ -667,14 +687,9 @@ export interface PictureMoleculeData extends BasePictureData {
   provenance: string;
 }
 
-export interface PictureMiscData extends BasePictureData {
-  kind: 'misc';
-  content: Record<string, unknown>;
-}
-/** @deprecated Use PictureMiscData instead. */
-export type MiscAnnotation = PictureMiscData;
+export type PictureMiscData = MiscAnnotation;
 
-export interface PictureChartData extends BasePictureData {
+export interface PictureChartData extends BaseAnnotation {
   kind: string;
   title: string;
 }
@@ -809,7 +824,7 @@ export interface FieldRegionItem extends DocItem {
 }
 export interface FieldHeadingItem extends TextItem {
   label?: 'field_heading';
-  level?: number;
+  level?: LevelNumber;
 }
 export interface FieldItem extends DocItem {
   label?: 'field_item';
@@ -842,7 +857,324 @@ export interface PageItem {
   page_no: number;
 }
 
+// ---------------------------------------------------------------------------
+// Segmented Page models (from docling_core/types/doc/page.py)
+// ---------------------------------------------------------------------------
+
+export type TextCellUnit = 'char' | 'word' | 'line';
+export type PdfPageBoundaryType =
+  'art_box' | 'bleed_box' | 'crop_box' | 'media_box' | 'trim_box';
+export type TextDirection = 'left_to_right' | 'right_to_left' | 'unspecified';
+
+export interface ColorRGBA {
+  r: number;
+  g: number;
+  b: number;
+  a?: number;
+}
+
+export interface Coord2D {
+  x: number;
+  y: number;
+}
+
+export interface BoundingRectangle {
+  r_x0: number;
+  r_y0: number;
+  r_x1: number;
+  r_y1: number;
+  r_x2: number;
+  r_y2: number;
+  r_x3: number;
+  r_y3: number;
+  coord_origin?: CoordOrigin;
+}
+
+export interface OrderedElement {
+  index?: number;
+}
+
+export interface ColorMixin {
+  rgba?: ColorRGBA;
+}
+
+export interface TextCell extends ColorMixin, OrderedElement {
+  rect: BoundingRectangle;
+  text: string;
+  orig: string;
+  text_direction?: TextDirection;
+  confidence?: number;
+  from_ocr: boolean;
+}
+
+export type PdfCellRenderingMode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | -1;
+
+export interface PdfTextCell extends TextCell {
+  rendering_mode: PdfCellRenderingMode;
+  widget: boolean;
+  font_key: string;
+  font_name: string;
+  from_ocr: false;
+}
+
+export interface PdfWidget extends OrderedElement {
+  rect: BoundingRectangle;
+  widget_text?: string | null;
+  widget_description?: string | null;
+  widget_field_name?: string | null;
+  widget_field_type?: string | null;
+  widget_field_flags?: number;
+  widget_appearance_state?: string | null;
+}
+
+export interface PdfHyperlink extends OrderedElement {
+  rect: BoundingRectangle;
+  uri?: string | null;
+  widget_text?: string | null;
+  widget_description?: string | null;
+}
+
+export interface BitmapResource extends OrderedElement {
+  rect: BoundingRectangle;
+  mode?: ImageRefMode;
+  image?: ImageRef | null;
+  /** @deprecated Use 'image' field instead. */
+  uri?: string | null;
+}
+
+export interface PdfShape extends OrderedElement {
+  parent_id: number;
+  points: Coord2D[];
+  coord_origin?: CoordOrigin;
+  has_graphics_state?: boolean;
+  line_width?: number;
+  miter_limit?: number;
+  line_cap?: number;
+  line_join?: number;
+  dash_phase?: number;
+  dash_array?: number[];
+  flatness?: number;
+  rgb_stroking?: ColorRGBA;
+  rgb_filling?: ColorRGBA;
+  /** @deprecated Use rgb_stroking and rgb_filling instead. */
+  rgba?: ColorRGBA | null;
+  /** @deprecated Use line_width instead. */
+  width?: number | null;
+}
+
+/** @deprecated Use PdfShape instead. */
+export interface PdfLine extends ColorMixin, OrderedElement {
+  parent_id: number;
+  points: Coord2D[];
+  width?: number;
+  coord_origin?: CoordOrigin;
+}
+
+export interface PageGeometry {
+  angle: number;
+  rect: BoundingRectangle;
+}
+
+export interface PdfPageGeometry extends PageGeometry {
+  boundary_type: PdfPageBoundaryType;
+  art_bbox: BoundingBox;
+  bleed_bbox: BoundingBox;
+  crop_bbox: BoundingBox;
+  media_bbox: BoundingBox;
+  trim_bbox: BoundingBox;
+}
+
+export interface SegmentedPage {
+  dimension: PageGeometry;
+  bitmap_resources?: BitmapResource[];
+  char_cells?: (PdfTextCell | TextCell)[];
+  word_cells?: (PdfTextCell | TextCell)[];
+  textline_cells?: (PdfTextCell | TextCell)[];
+  has_chars?: boolean;
+  has_words?: boolean;
+  has_lines?: boolean;
+  image?: ImageRef | null;
+  widgets?: PdfWidget[];
+  hyperlinks?: PdfHyperlink[];
+}
+
+export interface SegmentedPdfPage extends SegmentedPage {
+  dimension: PdfPageGeometry;
+  /** @deprecated Use shapes instead. */
+  lines?: PdfLine[];
+  shapes?: PdfShape[];
+  char_cells?: (PdfTextCell | TextCell)[];
+  word_cells?: (PdfTextCell | TextCell)[];
+  textline_cells?: (PdfTextCell | TextCell)[];
+}
+
+// ---------------------------------------------------------------------------
+// WebVTT models (from docling_core/types/doc/webvtt.py)
+// ---------------------------------------------------------------------------
+
+export type WebVTTLineTerminator = '\r\n' | '\n' | '\r';
+export type WebVTTCueIdentifier = string;
+export type WebVTTStartTagName = 'c' | 'b' | 'i' | 'u' | 'v' | 'lang';
+
+export interface WebVTTTimestamp {
+  raw: string;
+}
+
+export interface WebVTTCueTimings {
+  start: WebVTTTimestamp;
+  end: WebVTTTimestamp;
+}
+
+export interface WebVTTCueTextSpan {
+  kind?: 'text';
+  text: string;
+}
+
+export interface WebVTTCueSpanStartTag {
+  name: WebVTTStartTagName;
+  classes?: string[] | null;
+}
+
+export interface WebVTTCueSpanStartTagAnnotated extends WebVTTCueSpanStartTag {
+  annotation: string;
+}
+
+export interface WebVTTCueLanguageSpanStartTag extends WebVTTCueSpanStartTagAnnotated {
+  name: 'lang';
+}
+
+export interface WebVTTCueInternalText {
+  terminator?: WebVTTLineTerminator | null;
+  components?: WebVTTCueComponentWithTerminator[];
+}
+
+export interface WebVTTCueComponentBase {
+  kind: WebVTTStartTagName;
+  start_tag: WebVTTCueSpanStartTag;
+  internal_text: WebVTTCueInternalText;
+}
+
+export interface WebVTTCueVoiceSpan extends WebVTTCueComponentBase {
+  kind: 'v';
+  start_tag: WebVTTCueSpanStartTagAnnotated;
+}
+
+export interface WebVTTCueClassSpan extends WebVTTCueComponentBase {
+  kind: 'c';
+}
+
+export interface WebVTTCueItalicSpan extends WebVTTCueComponentBase {
+  kind: 'i';
+}
+
+export interface WebVTTCueBoldSpan extends WebVTTCueComponentBase {
+  kind: 'b';
+}
+
+export interface WebVTTCueUnderlineSpan extends WebVTTCueComponentBase {
+  kind: 'u';
+}
+
+export interface WebVTTCueLanguageSpan extends WebVTTCueComponentBase {
+  kind: 'lang';
+  start_tag: WebVTTCueLanguageSpanStartTag;
+}
+
+export type WebVTTCueComponent =
+  | WebVTTCueTextSpan
+  | WebVTTCueClassSpan
+  | WebVTTCueItalicSpan
+  | WebVTTCueBoldSpan
+  | WebVTTCueUnderlineSpan
+  | WebVTTCueVoiceSpan
+  | WebVTTCueLanguageSpan;
+
+export interface WebVTTCueComponentWithTerminator {
+  component: WebVTTCueComponent;
+  terminator?: WebVTTLineTerminator | null;
+}
+
+export interface WebVTTCueBlock {
+  identifier?: WebVTTCueIdentifier | null;
+  timings: WebVTTCueTimings;
+  payload: WebVTTCueComponentWithTerminator[];
+}
+
+export interface WebVTTFile {
+  cue_blocks: WebVTTCueBlock[];
+  title?: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// DocTags models (from docling_core/types/doc/doctags.py)
+// ---------------------------------------------------------------------------
+
+export interface DocTagsPage {
+  tokens: string;
+  image?: ImageRef | null;
+}
+
+export interface DocTagsDocument {
+  pages?: DocTagsPage[];
+}
+
+// ---------------------------------------------------------------------------
+// Document and Table tokens (from docling_core/types/doc/tokens.py)
+// ---------------------------------------------------------------------------
+
+export enum TableToken {
+  CELL_LABEL_COLUMN_HEADER = '<column_header>',
+  CELL_LABEL_ROW_HEADER = '<row_header>',
+  CELL_LABEL_SECTION_HEADER = '<shed>',
+  CELL_LABEL_DATA = '<data>',
+  OTSL_ECEL = '<ecel>',
+  OTSL_FCEL = '<fcel>',
+  OTSL_LCEL = '<lcel>',
+  OTSL_UCEL = '<ucel>',
+  OTSL_XCEL = '<xcel>',
+  OTSL_NL = '<nl>',
+  OTSL_CHED = '<ched>',
+  OTSL_RHED = '<rhed>',
+  OTSL_SROW = '<srow>',
+}
+
+export enum DocumentToken {
+  DOCUMENT = 'doctag',
+  OTSL = 'otsl',
+  CHART = 'chart',
+  ORDERED_LIST = 'ordered_list',
+  UNORDERED_LIST = 'unordered_list',
+  PAGE_BREAK = 'page_break',
+  SMILES = 'smiles',
+  INLINE = 'inline',
+  CAPTION = 'caption',
+  FOOTNOTE = 'footnote',
+  FORMULA = 'formula',
+  LIST_ITEM = 'list_item',
+  PAGE_FOOTER = 'page_footer',
+  PAGE_HEADER = 'page_header',
+  PICTURE = 'picture',
+  TABLE = 'table',
+  TEXT = 'text',
+  TITLE = 'title',
+  DOCUMENT_INDEX = 'document_index',
+  CODE = 'code',
+  CHECKBOX_SELECTED = 'checkbox_selected',
+  CHECKBOX_UNSELECTED = 'checkbox_unselected',
+  FORM = 'form',
+  KEY_VALUE_REGION = 'key_value_region',
+  PARAGRAPH = 'paragraph',
+  REFERENCE = 'reference',
+  HANDWRITTEN_TEXT = 'handwritten_text',
+}
+
+// ---------------------------------------------------------------------------
+// Constants & Version history
+// ---------------------------------------------------------------------------
+
 export const CURRENT_VERSION = '1.10.0';
+export const FIRST_SUPPORTED_MINOR = 5;
+
 /**
  * Ordered history of DoclingDocument schema versions in docling-core v2.x.
  *
@@ -944,5 +1276,5 @@ export interface DoclingDocument {
   form_items?: FormItem[];
   field_regions?: FieldRegionItem[];
   field_items?: FieldItem[];
-  pages?: Record<string, PageItem>;
+  pages?: Record<string | number, PageItem>;
 }
