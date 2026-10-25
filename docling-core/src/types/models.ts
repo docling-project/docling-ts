@@ -907,7 +907,17 @@ export interface TextCell extends ColorMixin, OrderedElement {
   from_ocr: boolean;
 }
 
-export type PdfCellRenderingMode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | -1;
+export enum PdfCellRenderingMode {
+  FILL_TEXT = 0,
+  STROKE_TEXT = 1,
+  FILL_THEN_STROKE = 2,
+  INVISIBLE = 3,
+  FILL_AND_CLIPPING = 4,
+  STROKE_AND_CLIPPING = 5,
+  FILL_THEN_STROKE_AND_CLIPPING = 6,
+  ONLY_CLIPPING = 7,
+  UNKNOWN = -1,
+}
 
 export interface PdfTextCell extends TextCell {
   rendering_mode: PdfCellRenderingMode;
