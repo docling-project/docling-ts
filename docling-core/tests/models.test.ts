@@ -4,8 +4,11 @@ import {
   DEFAULT_CONTENT_LAYERS,
   DEFAULT_EXPORT_LABELS,
   DOCUMENT_TOKENS_EXPORT_LABELS,
+  FIRST_SUPPORTED_MINOR,
   SCHEMA_VERSION_HISTORY,
+  type BaseSource,
   type CodeItem,
+  type DescriptionAnnotation,
   type DoclingDocument,
   type FieldHeadingItem,
   type FieldItem,
@@ -17,6 +20,7 @@ import {
   type KeyValueItem,
   type ListGroup,
   type ListItem,
+  type MiscAnnotation,
   type NodeItem,
   type OrderedList,
   type PictureBarChartData,
@@ -34,6 +38,8 @@ import {
   type TableItem,
   type TextItem,
   type TitleItem,
+  type TrackSource,
+  type UnorderedList,
   isDocling,
   isDoclingAnnotation,
   isDoclingDocItem,
@@ -42,6 +48,10 @@ import {
 describe('Constants', () => {
   it('exports CURRENT_VERSION as 1.10.0', () => {
     expect(CURRENT_VERSION).toBe('1.10.0');
+  });
+
+  it('exports FIRST_SUPPORTED_MINOR as 5', () => {
+    expect(FIRST_SUPPORTED_MINOR).toBe(5);
   });
 
   it('exports DEFAULT_CONTENT_LAYERS with body', () => {
@@ -128,11 +138,13 @@ describe('isDocling.GroupItem', () => {
     expect(isDocling.GroupItem(group)).toBe(true);
   });
 
-  it('identifies ListGroup, OrderedList, InlineGroup', () => {
+  it('identifies ListGroup, UnorderedList, OrderedList, InlineGroup', () => {
     const lg: ListGroup = { self_ref: '#/groups/0', label: 'list' };
+    const ul: UnorderedList = lg;
     const ol: OrderedList = { self_ref: '#/groups/1', label: 'ordered_list' };
     const ig: InlineGroup = { self_ref: '#/groups/2', label: 'inline' };
     expect(isDocling.ListGroup(lg)).toBe(true);
+    expect(isDocling.UnorderedList(ul)).toBe(true);
     expect(isDocling.ListGroup(ol)).toBe(false);
     expect(isDocling.OrderedList(ol)).toBe(true);
     expect(isDocling.InlineGroup(ig)).toBe(true);
@@ -431,14 +443,16 @@ describe('isDoclingAnnotation', () => {
     expect(isDoclingAnnotation.PictureClassification(misc)).toBe(false);
   });
 
-  it('PictureDescription accepts description, rejects others', () => {
+  it('PictureDescription and DescriptionAnnotation accept description, reject others', () => {
     expect(isDoclingAnnotation.PictureDescription(description)).toBe(true);
+    expect(isDoclingAnnotation.DescriptionAnnotation(description)).toBe(true);
     expect(isDoclingAnnotation.PictureDescription(classification)).toBe(false);
     expect(isDoclingAnnotation.PictureDescription(misc)).toBe(false);
   });
 
-  it('PictureMisc accepts misc, rejects others', () => {
+  it('PictureMisc and MiscAnnotation accept misc, reject others', () => {
     expect(isDoclingAnnotation.PictureMisc(misc)).toBe(true);
+    expect(isDoclingAnnotation.MiscAnnotation(misc)).toBe(true);
     expect(isDoclingAnnotation.PictureMisc(classification)).toBe(false);
     expect(isDoclingAnnotation.PictureMisc(description)).toBe(false);
   });
@@ -483,5 +497,34 @@ describe('isDoclingAnnotation', () => {
     expect(isDoclingAnnotation.PictureTabularChart(tabularChart)).toBe(true);
     expect(isDoclingAnnotation.PictureTabularChart(pie)).toBe(false);
     expect(isDoclingAnnotation.PictureTabularChart(barChart)).toBe(false);
+  });
+});
+
+describe('New Models and Interfaces', () => {
+  it('creates TrackSource and BaseSource objects', () => {
+    const src: TrackSource = {
+      kind: 'track',
+      start_time: 1.0,
+      end_time: 2.5,
+      identifier: 'cue-1',
+      voice: 'Narrator',
+    };
+    const base: BaseSource = src;
+    expect(base.kind).toBe('track');
+    expect(src.start_time).toBe(1.0);
+  });
+
+  it('creates DescriptionAnnotation and MiscAnnotation', () => {
+    const desc: DescriptionAnnotation = {
+      kind: 'description',
+      text: 'image description',
+      provenance: 'model',
+    };
+    const misc: MiscAnnotation = {
+      kind: 'misc',
+      content: { key: 'value' },
+    };
+    expect(desc.kind).toBe('description');
+    expect(misc.kind).toBe('misc');
   });
 });

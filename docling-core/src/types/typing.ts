@@ -1,5 +1,6 @@
 import {
   CodeItem,
+  DescriptionAnnotation,
   DocItem,
   DoclingDocument,
   FieldHeadingItem,
@@ -13,6 +14,7 @@ import {
   KeyValueItem,
   ListGroup,
   ListItem,
+  MiscAnnotation,
   NodeItem,
   OrderedList,
   PictureBarChartData,
@@ -30,6 +32,7 @@ import {
   TableItem,
   TextItem,
   TitleItem,
+  UnorderedList,
 } from './models';
 
 /**
@@ -98,6 +101,9 @@ function isPictureAnnotationByKind<D extends PictureAnnotation>(
  * DocItem annotation type discrimination functions.
  */
 export const isDoclingAnnotation = {
+  DescriptionAnnotation:
+    isPictureAnnotationByKind<DescriptionAnnotation>('description'),
+  MiscAnnotation: isPictureAnnotationByKind<MiscAnnotation>('misc'),
   PictureBarChart:
     isPictureAnnotationByKind<PictureBarChartData>('bar_chart_data'),
   PictureClassification:
@@ -142,6 +148,9 @@ export const isDocling = {
     return (
       isDocling.GroupItem(item) && 'label' in item && item.label === 'list'
     );
+  },
+  UnorderedList(item: object): item is UnorderedList {
+    return isDocling.ListGroup(item);
   },
   OrderedList(item: object): item is OrderedList {
     return (
