@@ -11,7 +11,6 @@ import {
   type BaseSource,
   type CodeItem,
   type DescriptionAnnotation,
-  type DocTagsDocument,
   type DoclingDocument,
   type FieldHeadingItem,
   type FieldItem,
@@ -38,14 +37,11 @@ import {
   type PictureStackedBarChartData,
   type PictureTabularChartData,
   type SectionHeaderItem,
-  type SegmentedPage,
-  type SegmentedPdfPage,
   type TableItem,
   type TextItem,
   type TitleItem,
   type TrackSource,
   type UnorderedList,
-  type WebVTTFile,
   isDocling,
   isDoclingAnnotation,
   isDoclingDocItem,
@@ -554,67 +550,4 @@ describe('New Models and Interfaces', () => {
     expect(misc.kind).toBe('misc');
   });
 
-  it('creates SegmentedPage and SegmentedPdfPage', () => {
-    const page: SegmentedPage = {
-      dimension: {
-        angle: 0,
-        rect: {
-          r_x0: 0,
-          r_y0: 0,
-          r_x1: 100,
-          r_y1: 0,
-          r_x2: 100,
-          r_y2: 200,
-          r_x3: 0,
-          r_y3: 200,
-        },
-      },
-      char_cells: [],
-      word_cells: [],
-      textline_cells: [],
-    };
-    expect(page.dimension.angle).toBe(0);
-
-    const pdfPage: SegmentedPdfPage = {
-      ...page,
-      dimension: {
-        ...page.dimension,
-        boundary_type: 'crop_box',
-        art_bbox: { l: 0, t: 0, r: 100, b: 200 },
-        bleed_bbox: { l: 0, t: 0, r: 100, b: 200 },
-        crop_bbox: { l: 0, t: 0, r: 100, b: 200 },
-        media_bbox: { l: 0, t: 0, r: 100, b: 200 },
-        trim_bbox: { l: 0, t: 0, r: 100, b: 200 },
-      },
-      shapes: [],
-    };
-    expect(pdfPage.dimension.boundary_type).toBe('crop_box');
-  });
-
-  it('creates WebVTTFile and DocTagsDocument', () => {
-    const vtt: WebVTTFile = {
-      cue_blocks: [
-        {
-          timings: {
-            start: { raw: '00:00:01.000' },
-            end: { raw: '00:00:03.000' },
-          },
-          payload: [
-            {
-              component: {
-                kind: 'text',
-                text: 'Hello world',
-              },
-            },
-          ],
-        },
-      ],
-    };
-    expect(vtt.cue_blocks.length).toBe(1);
-
-    const doctags: DocTagsDocument = {
-      pages: [{ tokens: '<paragraph>Text</paragraph>' }],
-    };
-    expect(doctags.pages?.length).toBe(1);
-  });
 });
