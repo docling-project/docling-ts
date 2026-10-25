@@ -527,5 +527,4 @@ describe('New Models and Interfaces', () => {
     expect(desc.kind).toBe('description');
     expect(misc.kind).toBe('misc');
   });
-
 });
