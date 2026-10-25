@@ -858,56 +858,6 @@ export interface PageItem {
 }
 
 // ---------------------------------------------------------------------------
-// Document and Table tokens (from docling_core/types/doc/tokens.py)
-// ---------------------------------------------------------------------------
-
-export enum TableToken {
-  CELL_LABEL_COLUMN_HEADER = '<column_header>',
-  CELL_LABEL_ROW_HEADER = '<row_header>',
-  CELL_LABEL_SECTION_HEADER = '<shed>',
-  CELL_LABEL_DATA = '<data>',
-  OTSL_ECEL = '<ecel>',
-  OTSL_FCEL = '<fcel>',
-  OTSL_LCEL = '<lcel>',
-  OTSL_UCEL = '<ucel>',
-  OTSL_XCEL = '<xcel>',
-  OTSL_NL = '<nl>',
-  OTSL_CHED = '<ched>',
-  OTSL_RHED = '<rhed>',
-  OTSL_SROW = '<srow>',
-}
-
-export enum DocumentToken {
-  DOCUMENT = 'doctag',
-  OTSL = 'otsl',
-  CHART = 'chart',
-  ORDERED_LIST = 'ordered_list',
-  UNORDERED_LIST = 'unordered_list',
-  PAGE_BREAK = 'page_break',
-  SMILES = 'smiles',
-  INLINE = 'inline',
-  CAPTION = 'caption',
-  FOOTNOTE = 'footnote',
-  FORMULA = 'formula',
-  LIST_ITEM = 'list_item',
-  PAGE_FOOTER = 'page_footer',
-  PAGE_HEADER = 'page_header',
-  PICTURE = 'picture',
-  TABLE = 'table',
-  TEXT = 'text',
-  TITLE = 'title',
-  DOCUMENT_INDEX = 'document_index',
-  CODE = 'code',
-  CHECKBOX_SELECTED = 'checkbox_selected',
-  CHECKBOX_UNSELECTED = 'checkbox_unselected',
-  FORM = 'form',
-  KEY_VALUE_REGION = 'key_value_region',
-  PARAGRAPH = 'paragraph',
-  REFERENCE = 'reference',
-  HANDWRITTEN_TEXT = 'handwritten_text',
-}
-
-// ---------------------------------------------------------------------------
 // Constants & Version history
 // ---------------------------------------------------------------------------
 

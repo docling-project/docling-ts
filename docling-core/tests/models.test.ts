@@ -4,10 +4,8 @@ import {
   DEFAULT_CONTENT_LAYERS,
   DEFAULT_EXPORT_LABELS,
   DOCUMENT_TOKENS_EXPORT_LABELS,
-  DocumentToken,
   FIRST_SUPPORTED_MINOR,
   SCHEMA_VERSION_HISTORY,
-  TableToken,
   type BaseSource,
   type CodeItem,
   type DescriptionAnnotation,
@@ -106,26 +104,6 @@ describe('Constants', () => {
   it('SCHEMA_VERSION_HISTORY last entry matches CURRENT_VERSION', () => {
     const last = SCHEMA_VERSION_HISTORY[SCHEMA_VERSION_HISTORY.length - 1];
     expect(last.schema).toBe(CURRENT_VERSION);
-  });
-});
-
-describe('Tokens', () => {
-  it('exports TableToken enum values correctly', () => {
-    expect(TableToken.CELL_LABEL_COLUMN_HEADER).toBe('<column_header>');
-    expect(TableToken.CELL_LABEL_ROW_HEADER).toBe('<row_header>');
-    expect(TableToken.CELL_LABEL_SECTION_HEADER).toBe('<shed>');
-    expect(TableToken.CELL_LABEL_DATA).toBe('<data>');
-    expect(TableToken.OTSL_ECEL).toBe('<ecel>');
-    expect(TableToken.OTSL_FCEL).toBe('<fcel>');
-    expect(TableToken.OTSL_NL).toBe('<nl>');
-  });
-
-  it('exports DocumentToken enum values correctly', () => {
-    expect(DocumentToken.DOCUMENT).toBe('doctag');
-    expect(DocumentToken.PARAGRAPH).toBe('paragraph');
-    expect(DocumentToken.TITLE).toBe('title');
-    expect(DocumentToken.TABLE).toBe('table');
-    expect(DocumentToken.PAGE_BREAK).toBe('page_break');
   });
 });
 
