@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.142.0
-at commit `6aaf87e`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.143.0
+at commit `7bc06ef`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -159,12 +159,49 @@ High-level limits match Python:
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
 
+## Service model changes (v2.143.0)
+
+Python v2.143.0 at commit `7bc06ef` added an optional `filename` field to
+`ZipArchiveResult`:
+
+```
+https://github.com/docling-project/docling/blob/v2.143.0/docling/datamodel/service/responses.py#L122
+```
+
+It carries the suggested download name of the ZIP archive (for example derived
+from the source document when the task had a single input) and is `None` when no
+specific name applies. The TypeScript `ZipArchiveResult` interface now has the
+matching optional `filename?: string | null` field.
+
+| Python field (v2.143.0)     | TypeScript field            | Wire key   |
+| --------------------------- | --------------------------- | ---------- |
+| `ZipArchiveResult.filename` | `ZipArchiveResult.filename` | `filename` |
+
+For the ZIP target, the high-level job result remains `RawServiceResult`, whose
+`filename` is read from the `Content-Disposition` response header, matching
+Python's `_filename_from_headers()`:
+
+```
+https://github.com/docling-project/docling/blob/v2.143.0/docling/service_client/client.py#L564
+```
+
+The chart-extraction preset documentation on `chart_extraction_preset` now lists
+the preset IDs documented by Python (`default`, `granite_vision_v4`,
+`granite_vision_v4_mlx`, `granite_vision_v3_3`):
+
+```
+https://github.com/docling-project/docling/blob/v2.143.0/docling/datamodel/service/options.py#L650
+```
+
+Mixed-format ZIP input support and the other v2.143.0 changes are
+document-conversion backend features; they add no service-client operations or
+request/option fields, so the remaining TypeScript surface stays in parity.
+
 ## Version bump (v2.142.0)
 
-Python v2.142.0 at commit `6aaf87e` is a version-only bump over v2.141.0.
+Python v2.142.0 at commit `6aaf87e` was a version-only bump over v2.141.0.
 No new fields, types, or operations were added to the service client or
-service datamodel APIs. All TypeScript types, interfaces, methods, and
-validation logic added in previous releases remain in full parity.
+service datamodel APIs.
 
 ## Internal scheduler refactoring (v2.141.0)
 
@@ -173,7 +210,7 @@ Python v2.141.0 to use an internal `_run_bounded()` helper from
 `docling/service_client/_scheduler.py` for bounded concurrency fan-out:
 
 ```
-https://github.com/docling-project/docling/blob/v2.142.0/docling/service_client/_scheduler.py#L31
+https://github.com/docling-project/docling/blob/v2.143.0/docling/service_client/_scheduler.py#L31
 ```
 
 The TypeScript scheduler already implements equivalent bounded-concurrency
@@ -185,7 +222,7 @@ changes are needed; this is a pure internal refactoring on the Python side.
 `ConfidenceScores` gained a recursive `pages` field in Python v2.139.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.142.0/docling/datamodel/service/responses.py#L45
+https://github.com/docling-project/docling/blob/v2.143.0/docling/datamodel/service/responses.py#L45
 ```
 
 When present, it maps 1-based page numbers to per-page `ConfidenceScores`
@@ -203,7 +240,7 @@ objects. The TypeScript `ConfidenceScores` interface includes the
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.142.0/docling/datamodel/service/responses.py#L84
+https://github.com/docling-project/docling/blob/v2.143.0/docling/datamodel/service/responses.py#L84
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via

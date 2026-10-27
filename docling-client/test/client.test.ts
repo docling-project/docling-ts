@@ -297,6 +297,26 @@ describe('conversion submission and targets', () => {
     expect(remote).toEqual(counts);
   });
 
+  it('leaves the ZIP archive filename null when no Content-Disposition is sent', async () => {
+    const transport = new ScriptedTransport(task('zip', 'success'), {
+      content: new Uint8Array([80, 75]),
+      contentType: 'application/zip',
+      headers: {},
+    } satisfies DoclingBinaryResponse);
+    const client = clientWith(transport);
+
+    const archive = await (
+      await client.submitUrl(
+        'https://example.test/archive.pdf',
+        {},
+        { target: { kind: 'zip' } }
+      )
+    ).result();
+
+    expect([...archive.content]).toEqual([80, 75]);
+    expect(archive.filename).toBeNull();
+  });
+
   it.each([
     {
       kind: 'put',
