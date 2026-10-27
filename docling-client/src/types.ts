@@ -277,7 +277,7 @@ export interface ConvertDocumentsOptions {
   do_picture_description?: boolean;
   do_chart_extraction?: boolean;
   /**
-   * Preset ID for chart extraction (e.g. "default", "granite_vision_v4", "granite_vision").
+   * Preset ID for chart extraction (e.g. "default", "granite_vision_v4", "granite_vision_v4_mlx", "granite_vision_v3_3").
    * Mutually exclusive with chart_extraction_custom_config.
    */
   chart_extraction_preset?: string | null;
@@ -789,6 +789,12 @@ export type DocumentResultItem<TDocument = DoclingDocument> = ExportResult<TDocu
 export interface ZipArchiveResult {
   kind: 'ZipArchiveResult';
   content: Uint8Array | unknown;
+  /**
+   * Suggested download name for the archive, e.g. derived from the source
+   * document when the task had a single input. `null` or absent when no
+   * specific name applies.
+   */
+  filename?: string | null;
 }
 
 export interface RemoteTargetResult {
