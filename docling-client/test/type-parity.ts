@@ -252,6 +252,17 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     kind: 'ZipArchiveResult',
     content: new Uint8Array(),
   };
+  // v2.143.1: ZipArchiveResult.filename is optional
+  const zipResultWithFilename: ZipArchiveResult = {
+    kind: 'ZipArchiveResult',
+    content: new Uint8Array(),
+    filename: 'manual.zip',
+  };
+  const zipResultNoFilename: ZipArchiveResult = {
+    kind: 'ZipArchiveResult',
+    content: new Uint8Array(),
+    filename: null,
+  };
   const remoteResult: RemoteTargetResult = {
     kind: 'RemoteTargetResult',
   };
@@ -417,6 +428,8 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     messageKind,
     wsMessage,
     zipResult,
+    zipResultWithFilename,
+    zipResultNoFilename,
     remoteResult,
     presignedArtifactResult,
     chunkedDocResult,
