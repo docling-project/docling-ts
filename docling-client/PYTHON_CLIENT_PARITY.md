@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.142.0
-at commit `6aaf87e`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.143.1
+at commit `b361d78`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -158,6 +158,23 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Response model changes (v2.143.1)
+
+`ZipArchiveResult` gained an optional `filename` field in Python v2.143.1:
+
+```
+https://github.com/docling-project/docling/blob/v2.143.1/docling/datamodel/service/responses.py#L122
+```
+
+When present, it carries a suggested download name for the ZIP archive derived
+from the source document (e.g. for single-input tasks). It is `None` when no
+specific name applies. The TypeScript `ZipArchiveResult` interface includes
+the `filename` field (`string | null | undefined`).
+
+| Python field (v2.143.1)     | TypeScript field            | Wire key   |
+| --------------------------- | --------------------------- | ---------- |
+| `ZipArchiveResult.filename` | `ZipArchiveResult.filename` | `filename` |
 
 ## Version bump (v2.142.0)
 

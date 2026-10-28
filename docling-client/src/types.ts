@@ -789,6 +789,14 @@ export type DocumentResultItem<TDocument = DoclingDocument> = ExportResult<TDocu
 export interface ZipArchiveResult {
   kind: 'ZipArchiveResult';
   content: Uint8Array | unknown;
+  /**
+   * Suggested download name for the archive, e.g. derived from the source
+   * document when the task had a single input. Null/undefined when no specific
+   * name applies.
+   *
+   * Added in docling v2.143.1.
+   */
+  filename?: string | null;
 }
 
 export interface RemoteTargetResult {
