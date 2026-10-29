@@ -1,4 +1,12 @@
 /* tslint:disable */
+/**
+ * TypeScript models for the Docling document format.
+ *
+ * Aligned with the Python `docling-core` library at release **v2.105.0**.
+ * The current document schema version is {@link CURRENT_VERSION} (`1.10.0`).
+ *
+ * @see https://github.com/docling-project/docling-core/blob/v2.105.0/docling_core/types/doc/document.py
+ */
 
 // ---------------------------------------------------------------------------
 // Common scalar types

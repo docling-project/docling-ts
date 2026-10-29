@@ -6,8 +6,12 @@ export * from './types';
 /**
  * Generates the parsed items of a document by traversing through its hierarchy in reading order.
  *
+ * Mirrors the Python `DoclingDocument.iterate_items()` method from docling-core v2.105.0.
+ *
  * Only items in the `includedContentLayers` are yielded (default: `DEFAULT_CONTENT_LAYERS`,
  * i.e. `body`). Items without an explicit `content_layer` are considered to be in the `body` layer.
+ *
+ * @see https://github.com/docling-project/docling-core/blob/v2.105.0/docling_core/types/doc/document.py#L379
  */
 export function* iterateDocumentItems(
   doc?: DoclingDocument,

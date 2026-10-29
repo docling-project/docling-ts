@@ -6,25 +6,31 @@ import {
   DOCUMENT_TOKENS_EXPORT_LABELS,
   FIRST_SUPPORTED_MINOR,
   SCHEMA_VERSION_HISTORY,
+  type BaseAnnotation,
   type BaseSource,
   type CodeItem,
+  type CollectionType,
   type DescriptionAnnotation,
   type DoclingDocument,
   type FieldHeadingItem,
   type FieldItem,
   type FieldRegionItem,
   type FieldValueItem,
+  type Formatting,
   type FormItem,
   type FormulaItem,
   type InlineGroup,
   type KeyValueItem,
+  type LevelNumber,
   type ListGroup,
   type ListItem,
+  type MetaFieldName,
   type MiscAnnotation,
   type NodeItem,
   type OrderedList,
   type PictureBarChartData,
   type PictureClassificationData,
+  type PictureClassificationLabel,
   type PictureDescriptionData,
   type PictureItem,
   type PictureLineChartData,
@@ -34,6 +40,7 @@ import {
   type PictureScatterChartData,
   type PictureStackedBarChartData,
   type PictureTabularChartData,
+  type Script,
   type SectionHeaderItem,
   type TableItem,
   type TextItem,
@@ -526,5 +533,169 @@ describe('New Models and Interfaces', () => {
     };
     expect(desc.kind).toBe('description');
     expect(misc.kind).toBe('misc');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v2.105.0 alignment — structural type checks
+// ---------------------------------------------------------------------------
+
+describe('v2.105.0 — FieldValueItem and FieldHeadingItem', () => {
+  it('FieldValueItem accepts read_only and fillable kinds', () => {
+    const readOnly: FieldValueItem = {
+      self_ref: '#/texts/0',
+      label: 'field_value',
+      orig: 'Value',
+      text: 'Value',
+      kind: 'read_only',
+    };
+    const fillable: FieldValueItem = {
+      self_ref: '#/texts/1',
+      label: 'field_value',
+      orig: '',
+      text: '',
+      kind: 'fillable',
+    };
+    expect(readOnly.kind).toBe('read_only');
+    expect(fillable.kind).toBe('fillable');
+  });
+
+  it('FieldValueItem kind is optional (omitted means read_only by convention)', () => {
+    const item: FieldValueItem = {
+      self_ref: '#/texts/0',
+      label: 'field_value',
+      orig: '',
+      text: '',
+    };
+    expect(item.kind).toBeUndefined();
+  });
+
+  it('FieldHeadingItem carries a LevelNumber', () => {
+    const heading: FieldHeadingItem = {
+      self_ref: '#/texts/0',
+      label: 'field_heading',
+      orig: 'Heading',
+      text: 'Heading',
+      level: 1 as LevelNumber,
+    };
+    expect(heading.level).toBe(1);
+  });
+});
+
+describe('v2.105.0 — Formatting and Script', () => {
+  it('Formatting accepts all Script values', () => {
+    const scripts: Script[] = ['baseline', 'sub', 'super'];
+    for (const script of scripts) {
+      const fmt: Formatting = { script };
+      expect(fmt.script).toBe(script);
+    }
+  });
+
+  it('Formatting fields are all optional', () => {
+    const empty: Formatting = {};
+    expect(empty.bold).toBeUndefined();
+    expect(empty.italic).toBeUndefined();
+    expect(empty.underline).toBeUndefined();
+    expect(empty.strikethrough).toBeUndefined();
+    expect(empty.script).toBeUndefined();
+  });
+
+  it('Formatting can be fully specified', () => {
+    const full: Formatting = {
+      bold: true,
+      italic: false,
+      underline: true,
+      strikethrough: false,
+      script: 'super',
+    };
+    expect(full.bold).toBe(true);
+    expect(full.script).toBe('super');
+  });
+});
+
+describe('v2.105.0 — MetaFieldName type', () => {
+  it('MetaFieldName covers all standard field names', () => {
+    const names: MetaFieldName[] = [
+      'summary',
+      'language',
+      'entities',
+      'keywords',
+      'topics',
+      'description',
+      'classification',
+      'molecule',
+      'tabular_chart',
+    ];
+    // Verify all 9 standard meta field names are representable
+    expect(names).toHaveLength(9);
+    expect(names).toContain('classification');
+    expect(names).toContain('tabular_chart');
+  });
+});
+
+describe('v2.105.0 — PictureClassificationLabel', () => {
+  it('includes current v2 model labels', () => {
+    const currentLabels: PictureClassificationLabel[] = [
+      'bar_chart',
+      'box_plot',
+      'flow_chart',
+      'line_chart',
+      'pie_chart',
+      'scatter_plot',
+      'table',
+      'other_chart',
+    ];
+    // Just verify they compile as PictureClassificationLabel values
+    expect(currentLabels).toHaveLength(8);
+  });
+
+  it('includes legacy labels for backward compatibility', () => {
+    const legacyLabels: PictureClassificationLabel[] = [
+      'cad_drawing',
+      'electrical_diagram',
+      'map',
+      'heatmap',
+      'chemistry_markush_structure',
+      'chemistry_molecular_structure',
+      'natural_image',
+      'picture_group',
+      'remote_sensing',
+      'scatter_chart',
+      'screenshot',
+      'stacked_bar_chart',
+      'stratigraphic_chart',
+    ];
+    expect(legacyLabels).toHaveLength(13);
+    expect(legacyLabels).toContain('heatmap');
+    expect(legacyLabels).toContain('map');
+  });
+});
+
+describe('v2.105.0 — CollectionType', () => {
+  it('CollectionType accepts Document and Record', () => {
+    const doc: CollectionType = 'Document';
+    const rec: CollectionType = 'Record';
+    expect(doc).toBe('Document');
+    expect(rec).toBe('Record');
+  });
+});
+
+describe('v2.105.0 — BaseAnnotation discriminator', () => {
+  it('BaseAnnotation has a kind string', () => {
+    const ann: BaseAnnotation = { kind: 'custom_annotation' };
+    expect(ann.kind).toBe('custom_annotation');
+  });
+
+  it('DescriptionAnnotation and MiscAnnotation narrow from BaseAnnotation', () => {
+    const anns: BaseAnnotation[] = [
+      {
+        kind: 'description',
+        text: 'a',
+        provenance: 'p',
+      } as DescriptionAnnotation,
+      { kind: 'misc', content: {} } as MiscAnnotation,
+    ];
+    expect(anns[0].kind).toBe('description');
+    expect(anns[1].kind).toBe('misc');
   });
 });
