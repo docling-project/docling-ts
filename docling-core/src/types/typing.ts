@@ -1,3 +1,11 @@
+/**
+ * Type-predicate helpers for discriminating Docling document-item kinds.
+ *
+ * Aligned with the Python `docling-core` library at release **v2.105.0**.
+ *
+ * @see https://github.com/docling-project/docling-core/blob/v2.105.0/docling_core/types/doc/items/node.py
+ * @see https://github.com/docling-project/docling-core/blob/v2.105.0/docling_core/types/doc/items/content.py
+ */
 import {
   CodeItem,
   DescriptionAnnotation,
