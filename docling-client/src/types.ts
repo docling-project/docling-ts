@@ -530,7 +530,7 @@ export interface ProgressDocumentCompleted extends BaseProgress {
 
 export interface ProgressTaskCompleted extends BaseProgress {
   kind: 'task_completed';
-  task_status: 'success' | 'failure';
+  task_status: 'success' | 'failure' | 'cancelled';
   failure?: PublicFailureInfo | null;
 }
 
@@ -682,8 +682,11 @@ export type ChunkSourceOptions =
   | Omit<HierarchicalChunkSourcesRequest, 'sources'>;
 
 export type TaskType = 'convert' | 'chunk';
-export type TaskStatus =
-  'pending' | 'started' | 'success' | 'failure' | 'partial_success' | 'skipped';
+
+/**
+ * Task lifecycle status. Document conversion status stays in `ConversionStatus`.
+ */
+export type TaskStatus = 'pending' | 'started' | 'success' | 'failure' | 'cancelled';
 
 export interface TaskProcessingMeta {
   num_docs: number;
