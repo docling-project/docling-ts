@@ -1570,6 +1570,48 @@ describe('queued task cancellation', () => {
   });
 });
 
+describe('task status contract', () => {
+  it('accepts every task status and rejects document-only statuses', async () => {
+    for (const status of ['pending', 'started', 'success', 'failure', 'cancelled']) {
+      const transport = new ScriptedTransport({
+        task_id: 'status',
+        task_type: 'convert',
+        task_status: status,
+      });
+      const client = clientWith(transport);
+
+      await expect(client.poll('status')).resolves.toMatchObject({
+        task_status: status,
+      });
+    }
+
+    for (const status of ['partial_success', 'skipped']) {
+      const transport = new ScriptedTransport({
+        task_id: 'status',
+        task_type: 'convert',
+        task_status: status,
+      });
+      const client = clientWith(transport);
+
+      await expect(client.poll('status')).rejects.toBeInstanceOf(
+        DoclingResponseSchemaMismatchError
+      );
+    }
+  });
+
+  it('keeps document conversion statuses out of the task status contract', async () => {
+    const transport = new ScriptedTransport({
+      ...documentResponse('manual.pdf'),
+      status: 'partial_success',
+    });
+    const client = clientWith(transport);
+
+    await expect(client.getResult('status')).resolves.toMatchObject({
+      status: 'partial_success',
+    });
+  });
+});
+
 describe('parity edge cases', () => {
   it('preserves external target configuration for binary inputs via unified JSON', async () => {
     const transport = new ScriptedTransport(task('binary-s3', 'pending'));

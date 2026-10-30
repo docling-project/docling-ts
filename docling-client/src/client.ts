@@ -1452,15 +1452,9 @@ function parseTaskStatus(value: unknown): TaskStatusResponse {
     throw schemaMismatch('Docling task status is missing task_type');
   }
   if (
-    ![
-      'pending',
-      'started',
-      'success',
-      'failure',
-      'partial_success',
-      'skipped',
-      'cancelled',
-    ].includes(String(value.task_status))
+    !['pending', 'started', 'success', 'failure', 'cancelled'].includes(
+      String(value.task_status)
+    )
   ) {
     throw schemaMismatch(
       `Docling returned unknown task_status: ${String(value.task_status)}`

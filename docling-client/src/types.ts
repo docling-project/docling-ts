@@ -682,14 +682,11 @@ export type ChunkSourceOptions =
   | Omit<HierarchicalChunkSourcesRequest, 'sources'>;
 
 export type TaskType = 'convert' | 'chunk';
-export type TaskStatus =
-  | 'pending'
-  | 'started'
-  | 'success'
-  | 'failure'
-  | 'partial_success'
-  | 'skipped'
-  | 'cancelled';
+
+/**
+ * Task lifecycle status. Document conversion status stays in `ConversionStatus`.
+ */
+export type TaskStatus = 'pending' | 'started' | 'success' | 'failure' | 'cancelled';
 
 export interface TaskProcessingMeta {
   num_docs: number;

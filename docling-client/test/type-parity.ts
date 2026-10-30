@@ -231,6 +231,10 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     task_status: 'cancelled',
   };
   const cancelledStatus: TaskStatus = 'cancelled';
+  // @ts-expect-error Task status excludes document-only conversion statuses.
+  const partialSuccessTaskStatus: TaskStatus = 'partial_success';
+  // @ts-expect-error Task status excludes document-only conversion statuses.
+  const skippedTaskStatus: TaskStatus = 'skipped';
   const cancelledTaskError = new DoclingTaskCancelledError('task-123');
   const callbackRequest: ProgressCallbackRequest = {
     task_id: 'task-123',
@@ -417,6 +421,8 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     taskCompletedProgress,
     cancelledTaskCompletedProgress,
     cancelledStatus,
+    partialSuccessTaskStatus,
+    skippedTaskStatus,
     cancelledTaskError,
     callbackRequest,
     callbackResponse,
