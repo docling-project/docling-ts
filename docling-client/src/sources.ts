@@ -493,6 +493,15 @@ export function applyPageLimits(
   }
   if (effectiveRange !== undefined) {
     validatePageRange(effectiveRange);
+    // Python only writes the range back when it differs from the merged
+    // options, so the all-pages default is never sent in the request.
+    if (
+      options.page_range === undefined &&
+      effectiveRange[0] === 1 &&
+      effectiveRange[1] === Number.MAX_SAFE_INTEGER
+    ) {
+      return clone(options);
+    }
     return { ...clone(options), page_range: [...effectiveRange] };
   }
   return clone(options);
