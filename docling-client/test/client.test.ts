@@ -15,12 +15,14 @@ import {
   DoclingServiceError,
   DoclingTaskError,
   DoclingTaskNotFoundError,
+  applyPageLimits,
   type ConvertSourcesRequest,
   type DoclingBinaryResponse,
   type DoclingTransport,
   type DoclingTransportRequest,
   type SubmitTarget,
   type TaskStatusResponse,
+  type ZipArchiveResult,
 } from '../src';
 
 class ScriptedTransport implements DoclingTransport {
@@ -2080,5 +2082,74 @@ describe('v2.134.0 new features', () => {
     expect(result.status).toBe('success');
     expect(result.input.filename).toBe('budget.numbers');
     expect(result.input.format).toBe('iwork_numbers');
+  });
+});
+
+describe('v2.145.0 service client changes', () => {
+  it('does not send the default page range in request options', async () => {
+    const transport = new ScriptedTransport(
+      new DoclingHttpError({
+        method: 'POST',
+        url: 'https://docling.example.test/v1/convert/source/async',
+        status: 400,
+        body: { detail: 'artifact storage to be configured' },
+      }),
+      task('convert-default-range', 'success'),
+      documentResponse('manual.pdf')
+    );
+    const client = clientWith(transport);
+
+    await client.convert('https://example.test/manual.pdf');
+
+    for (const request of transport.requests.slice(0, 2)) {
+      const body = request.body as { options: Record<string, unknown> };
+      expect(body.options).not.toHaveProperty('page_range');
+    }
+  });
+
+  it('sends an explicit page range and caps open-ended ranges with maxNumPages', async () => {
+    const transport = new ScriptedTransport(
+      new DoclingHttpError({
+        method: 'POST',
+        url: 'https://docling.example.test/v1/convert/source/async',
+        status: 400,
+        body: { detail: 'artifact storage to be configured' },
+      }),
+      task('convert-range', 'success'),
+      documentResponse('manual.pdf')
+    );
+    const client = clientWith(transport);
+
+    await client.convert('https://example.test/manual.pdf', { maxNumPages: 5 });
+
+    const body = transport.requests[1]?.body as { options: Record<string, unknown> };
+    expect(body.options.page_range).toEqual([1, 5]);
+  });
+
+  it('omits an all-pages range from applyPageLimits output', () => {
+    expect(applyPageLimits({}, [1, Number.MAX_SAFE_INTEGER])).not.toHaveProperty(
+      'page_range'
+    );
+    expect(applyPageLimits({}, [2, 4]).page_range).toEqual([2, 4]);
+  });
+
+  it('decodes an optional filename on ZipArchiveResult task results', async () => {
+    const transport = new ScriptedTransport(task('zip-named', 'success'), {
+      result: {
+        kind: 'ZipArchiveResult',
+        content: 'UEsFBg==',
+        filename: 'manual.zip',
+      },
+      num_converted: 1,
+      num_succeeded: 1,
+      num_failed: 0,
+      processing_time: 0.5,
+    });
+    const client = clientWith(transport);
+
+    const job = await client.submitUrl('https://files.example.test/manual.pdf');
+    const raw = await client.getRawResult<{ result: ZipArchiveResult }>(job.taskId);
+
+    expect(raw.result.filename).toBe('manual.zip');
   });
 });
