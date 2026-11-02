@@ -258,6 +258,10 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     content: new Uint8Array(),
     filename: null,
   };
+  const zipResultWithoutFilename: ZipArchiveResult = {
+    kind: 'ZipArchiveResult',
+    content: new Uint8Array(),
+  };
   const remoteResult: RemoteTargetResult = {
     kind: 'RemoteTargetResult',
   };
@@ -424,6 +428,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     wsMessage,
     zipResult,
     unnamedZipResult,
+    zipResultWithoutFilename,
     remoteResult,
     presignedArtifactResult,
     chunkedDocResult,

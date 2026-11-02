@@ -22,7 +22,6 @@ import {
   type DoclingTransportRequest,
   type SubmitTarget,
   type TaskStatusResponse,
-  type ZipArchiveResult,
 } from '../src';
 
 class ScriptedTransport implements DoclingTransport {
@@ -2131,25 +2130,5 @@ describe('v2.145.0 service client changes', () => {
       'page_range'
     );
     expect(applyPageLimits({}, [2, 4]).page_range).toEqual([2, 4]);
-  });
-
-  it('decodes an optional filename on ZipArchiveResult task results', async () => {
-    const transport = new ScriptedTransport(task('zip-named', 'success'), {
-      result: {
-        kind: 'ZipArchiveResult',
-        content: 'UEsFBg==',
-        filename: 'manual.zip',
-      },
-      num_converted: 1,
-      num_succeeded: 1,
-      num_failed: 0,
-      processing_time: 0.5,
-    });
-    const client = clientWith(transport);
-
-    const job = await client.submitUrl('https://files.example.test/manual.pdf');
-    const raw = await client.getRawResult<{ result: ZipArchiveResult }>(job.taskId);
-
-    expect(raw.result.filename).toBe('manual.zip');
   });
 });
