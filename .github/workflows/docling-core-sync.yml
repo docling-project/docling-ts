@@ -140,10 +140,11 @@ jobs:
             2. Update docling-core/src/types/models.ts to reflect all updated/new models, fields, and types.
             3. Update docling-core/src/types/typing.ts to add or adjust type predicates and discriminators (e.g. isDoclingDocItem, isDoclingAnnotation, isDocling).
             4. Inspect and update remaining code under docling-core/src/ (e.g. docling-core/src/index.ts, iterateDocumentItems, resolveDocumentItem, etc.) for any corresponding changes or new features from the Python repository.
-            5. Update docling-core/tests/ to add tests for any new or modified types and functions.
-            6. Run 'cd docling-core && npm run check' to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found.
-            7. Write a file named 'pr-body.md' in the current working directory summarising every change you made. For each changed or added TypeScript construct (type, interface, function, constant), include a bullet point that names the TS symbol, describes what changed, and contains a Markdown link directly to the Python source that motivated the change using the URL pattern: https://github.com/docling-project/docling-core/blob/$TAG/<relative-path-inside-upstream-docling-core>#L<line> (e.g. https://github.com/docling-project/docling-core/blob/$TAG/docling_core/types/doc/document.py#L42). Use the actual file path and line number from 'upstream-docling-core/' that contains the relevant Python class, field, or function. Group bullets under headings matching the TS file that was changed (e.g. '### models.ts', '### typing.ts', '### index.ts').
-            8. Write a file named 'pr-comments.json' in the current working directory. It must be a valid JSON array where each element describes one inline review comment to post on the PR diff. Only include entries for lines you actually added or modified (i.e. lines that will appear on the RIGHT side of the diff). Each element must have exactly these fields:
+            5. Update the DocLang reader in docling-core/src/doclang/ so it stays a faithful port of the Python DocLang implementation. Compare against upstream-docling-core/docling_core/transforms/deserializer/doclang.py (DocLangDocDeserializer).
+            6. Update docling-core/tests/ to add tests for any new or modified types and functions. For DocLang, maintain and match all DocLang deserializer tests of the Python core (upstream-docling-core/tests/test_deserializer_doclang.py and any other upstream-docling-core/tests/test_*doclang*.py). In 'pr-body.md', list any upstream DocLang tests that you deliberately did not port and why.
+            7. Run 'cd docling-core && npm run check' to verify formatting, linting, type-checking, tests, build, and publint pass without errors. Fix any issues found.
+            8. Write a file named 'pr-body.md' in the current working directory summarising every change you made. For each changed or added TypeScript construct (type, interface, function, constant), include a bullet point that names the TS symbol, describes what changed, and contains a Markdown link directly to the Python source that motivated the change using the URL pattern: https://github.com/docling-project/docling-core/blob/$TAG/<relative-path-inside-upstream-docling-core>#L<line> (e.g. https://github.com/docling-project/docling-core/blob/$TAG/docling_core/types/doc/document.py#L42). Use the actual file path and line number from 'upstream-docling-core/' that contains the relevant Python class, field, or function. Group bullets under headings matching the TS file that was changed (e.g. '### models.ts', '### typing.ts', '### index.ts', '### doclang/reader.ts', '### doclang/vocab.ts').
+            9. Write a file named 'pr-comments.json' in the current working directory. It must be a valid JSON array where each element describes one inline review comment to post on the PR diff. Only include entries for lines you actually added or modified (i.e. lines that will appear on the RIGHT side of the diff). Each element must have exactly these fields:
                - \"path\": the file path relative to the repo root (e.g. \"docling-core/src/types/models.ts\")
                - \"line\": the line number in the new version of that file where the change appears (integer, 1-based)
                - \"body\": a short Markdown comment (1-3 sentences) that explains why the change was made and links to the Python source with the URL pattern above.
@@ -151,7 +152,7 @@ jobs:
 
             Rules:
             - Do not modify package.json or package-lock.json.
-            - Limit the number of searches that you do and focus on the (entire) files that contain the model and traversal code."
+            - Limit the number of searches that you do and focus on the (entire) files that contain the model, traversal and DocLang deserializer code."
 
       - name: Remove upstream checkout before commit
         if: steps.pr_check.outputs.should_sync == 'true'
@@ -212,6 +213,7 @@ jobs:
           - Updated TypeScript interfaces in \`docling-core/src/types/models.ts\`.
           - Updated type predicates in \`docling-core/src/types/typing.ts\`.
           - Updated traversal & utility logic in \`docling-core/src/index.ts\`.
+          - Updated the DocLang reader in \`docling-core/src/doclang/\` to match the upstream DocLang implementation.
           - Updated and verified test suite (\`npm run check\`).
           EOF
             )

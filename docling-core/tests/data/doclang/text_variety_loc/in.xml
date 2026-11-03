@@ -1,0 +1,95 @@
+<doclang>
+  <heading>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    Main title
+  </heading>
+  <heading level="2">
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    Section
+  </heading>
+  <heading level="3">
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    Sub section
+  </heading>
+  <text>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    in chapter
+  </text>
+  <text>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    <bold>bold text</bold>
+  </text>
+  <text>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    <subscript>
+      <underline>
+        <italic>sub script</italic>
+      </underline>
+    </subscript>
+  </text>
+  <formula>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    E = mc^2
+  </formula>
+  <code>
+    <label value="Python"/>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    <caption>
+      <location value="9"/>
+      <location value="6"/>
+      <location value="85"/>
+      <location value="26"/>
+      code caption
+    </caption>
+    <content>def f():
+    return 1
+</content>
+  </code>
+  <footnote>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    a footnote
+  </footnote>
+  <page_header>
+    <layer value="furniture"/>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    head
+  </page_header>
+  <page_footer>
+    <layer value="furniture"/>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    foot
+  </page_footer>
+</doclang>

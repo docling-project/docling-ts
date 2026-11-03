@@ -1,0 +1,278 @@
+{
+  "schema_name": "DoclingDocument",
+  "version": "1.10.0",
+  "name": "Document",
+  "furniture": {
+    "self_ref": "#/furniture",
+    "children": [],
+    "content_layer": "furniture",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "body": {
+    "self_ref": "#/body",
+    "children": [
+      {
+        "$ref": "#/texts/0"
+      },
+      {
+        "$ref": "#/texts/1"
+      },
+      {
+        "$ref": "#/texts/2"
+      },
+      {
+        "$ref": "#/texts/3"
+      },
+      {
+        "$ref": "#/texts/4"
+      },
+      {
+        "$ref": "#/texts/5"
+      },
+      {
+        "$ref": "#/pictures/0"
+      }
+    ],
+    "content_layer": "body",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "groups": [],
+  "texts": [
+    {
+      "self_ref": "#/texts/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "handwritten_text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 9.0,
+            "t": 6.0,
+            "r": 85.0,
+            "b": 26.0,
+            "coord_origin": "TOPLEFT"
+          },
+          "charspan": [
+            0,
+            8
+          ]
+        }
+      ],
+      "orig": "scribble",
+      "text": "scribble"
+    },
+    {
+      "self_ref": "#/texts/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "checkbox_selected",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 9.0,
+            "t": 6.0,
+            "r": 85.0,
+            "b": 26.0,
+            "coord_origin": "TOPLEFT"
+          },
+          "charspan": [
+            0,
+            3
+          ]
+        }
+      ],
+      "orig": "yes",
+      "text": "yes"
+    },
+    {
+      "self_ref": "#/texts/2",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "checkbox_unselected",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 9.0,
+            "t": 6.0,
+            "r": 85.0,
+            "b": 26.0,
+            "coord_origin": "TOPLEFT"
+          },
+          "charspan": [
+            0,
+            2
+          ]
+        }
+      ],
+      "orig": "no",
+      "text": "no"
+    },
+    {
+      "self_ref": "#/texts/3",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "invisible",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 9.0,
+            "t": 6.0,
+            "r": 85.0,
+            "b": 26.0,
+            "coord_origin": "TOPLEFT"
+          },
+          "charspan": [
+            0,
+            9
+          ]
+        }
+      ],
+      "orig": "invisible",
+      "text": "invisible"
+    },
+    {
+      "self_ref": "#/texts/4",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 9.0,
+            "t": 6.0,
+            "r": 85.0,
+            "b": 26.0,
+            "coord_origin": "TOPLEFT"
+          },
+          "charspan": [
+            0,
+            8
+          ]
+        }
+      ],
+      "orig": "page two",
+      "text": "page two"
+    },
+    {
+      "self_ref": "#/texts/5",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "meta": {
+        "summary": {
+          "text": "a summary"
+        }
+      },
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 9.0,
+            "t": 6.0,
+            "r": 85.0,
+            "b": 26.0,
+            "coord_origin": "TOPLEFT"
+          },
+          "charspan": [
+            0,
+            18
+          ]
+        }
+      ],
+      "orig": "a summaryMeta head",
+      "text": "a summaryMeta head",
+      "level": 1
+    }
+  ],
+  "pictures": [
+    {
+      "self_ref": "#/pictures/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "meta": {
+        "summary": {
+          "text": "sum"
+        },
+        "description": {
+          "text": "desc"
+        },
+        "classification": {
+          "predictions": [
+            {
+              "confidence": 1.0,
+              "class_name": "bar_chart"
+            }
+          ]
+        }
+      },
+      "label": "picture",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 9.0,
+            "t": 6.0,
+            "r": 85.0,
+            "b": 26.0,
+            "coord_origin": "TOPLEFT"
+          },
+          "charspan": [
+            0,
+            0
+          ]
+        }
+      ],
+      "captions": [],
+      "references": [],
+      "footnotes": [],
+      "annotations": []
+    }
+  ],
+  "tables": [],
+  "key_value_items": [],
+  "form_items": [],
+  "pages": {
+    "1": {
+      "size": {
+        "width": 512.0,
+        "height": 512.0
+      },
+      "page_no": 1
+    },
+    "2": {
+      "size": {
+        "width": 512.0,
+        "height": 512.0
+      },
+      "page_no": 2
+    }
+  }
+}

@@ -1,0 +1,62 @@
+<doclang>
+  <default_resolution width="1000" height="2000"/>
+  <group name="ch1">
+    <label value="chapter"/>
+    <heading level="2">
+      <location value="1"/><location value="2"/><location value="30"/><location value="40"/>
+      Inside chapter
+    </heading>
+    <text>plain in chapter</text>
+    <group name="bogus"><label value="not_a_label"/><text>nested unspecified</text></group>
+  </group>
+  <group>
+    <code>
+      <label value="Python"/>
+      <location value="1"/><location value="2"/><location value="30"/><location value="40"/>
+      <content>print("hi")
+</content>
+    </code>
+    <text>
+      <location value="1"/><location value="2"/><location value="30"/><location value="40"/>
+      code cap
+    </text>
+    <footnote>code foot</footnote>
+  </group>
+  <group>
+    <picture>
+      <location value="5"/><location value="6"/><location value="70"/><location value="80"/>
+      <label value="logo"/>
+    </picture>
+    <text>pic cap</text>
+    <footnote>pic foot</footnote>
+  </group>
+  <group>
+    <index>
+      <caption>idx cap</caption>
+      <fcel/>Chapter 1<fcel/>3<nl/>
+    </index>
+    <footnote>idx foot</footnote>
+  </group>
+  <group><text>loose</text><text>group</text></group>
+  <ldiv/>
+  <text/>
+  <text><content>   </content></text>
+  <heading level="1">  </heading>
+  <heading>
+    <layer value="furniture"/>Top <br/>Level
+  </heading>
+  <code>
+    <content>   </content>
+  </code>
+  <formula><bold>x</bold></formula>
+  <text><layer value="bogus"/>bad layer</text>
+  <checkbox class="selected"/>
+  <checkbox/>
+  <hint>stray hint</hint>
+  <text><bold><italic>nested</italic></bold></text>
+  <text><bold>a</bold> and <italic>b</italic></text>
+  <text>one<br/>two</text>
+  <text><superscript>up</superscript></text>
+  <text><rtl>right</rtl></text>
+  <text><strikethrough>gone</strikethrough></text>
+</doclang>

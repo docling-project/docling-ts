@@ -1,0 +1,59 @@
+<doclang>
+  <text>
+    <thread thread_id="t1"/>
+    <location value="1"/><location value="2"/><location value="30"/><location value="40"/>
+    First part
+  </text>
+  <heading level="2">
+    <thread thread_id="h1"/>
+    <location value="1"/><location value="50"/><location value="30"/><location value="60"/>
+    Head one
+  </heading>
+  <page_break/>
+  <text>
+    <thread thread_id="t1"/>
+    <location value="3"/><location value="4"/><location value="35"/><location value="45"/>
+    second part
+  </text>
+  <text>
+    <thread thread_id="t1"/>
+    <location value="7"/><location value="8"/><location value="37"/><location value="47"/>
+  </text>
+  <heading level="2">
+    <thread thread_id="h1"/>
+    <location value="9"/><location value="9"/><location value="39"/><location value="49"/>
+    Head two
+  </heading>
+  <field_heading level="3">
+    <thread thread_id="fh"/>FH one
+  </field_heading>
+  <field_heading level="3">
+    <thread thread_id="fh"/>FH two
+  </field_heading>
+  <code>
+    <thread thread_id="c1"/>
+    <label value="C"/>
+    <content>int a;
+</content>
+  </code>
+  <code>
+    <thread thread_id="c1"/>
+    <label value="C"/>
+    <content>int b;
+</content>
+  </code>
+  <list>
+    <thread thread_id="L"/>
+    <ldiv><marker>-</marker></ldiv><text>l1</text>
+  </list>
+  <list>
+    <thread thread_id="L"/>
+    <ldiv><marker>-</marker></ldiv><text>l2</text>
+  </list>
+  <text><thread thread_id="mix"/>
+    <bold>b</bold> tail
+  </text>
+  <text><thread thread_id="mix"/>
+    <bold>b</bold> tail2
+  </text>
+</doclang>

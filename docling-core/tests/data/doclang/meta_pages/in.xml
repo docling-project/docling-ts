@@ -1,0 +1,58 @@
+<doclang>
+  <text>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    <handwriting>scribble</handwriting>
+  </text>
+  <text>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    <checkbox class="selected"/>
+    yes
+  </text>
+  <text>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    <checkbox class="unselected"/>
+    no
+  </text>
+  <text>
+    <layer value="invisible"/>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    invisible
+  </text>
+  <page_break/>
+  <text>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    page two
+  </text>
+  <heading level="2">
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    <summary>a summary</summary>
+    Meta head
+  </heading>
+  <picture>
+    <label value="bar_chart"/>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    <description>desc</description>
+    <summary>sum</summary>
+  </picture>
+</doclang>
