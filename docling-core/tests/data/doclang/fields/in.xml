@@ -1,0 +1,34 @@
+<doclang>
+  <field_region>
+    <location value="1"/><location value="2"/><location value="30"/><location value="40"/>
+    stray text
+    <hint>top hint</hint>
+    <hint><layer value="furniture"/><bold>bold hint</bold></hint>
+    <hint> </hint>
+    <field_item>
+      <layer value="furniture"/>
+      <key><bold>k</bold></key>
+      <value class="fillable">
+        <checkbox class="selected"/>
+        <content> kept lead</content>
+      </value>
+      <value>
+        <checkbox class="selected"/>
+        trimmed
+      </value>
+      <value><checkbox/><bold>b</bold></value>
+      <value>plain<br/>text <italic>i</italic></value>
+      <value><picture><label value="logo"/></picture></value>
+      <value><summary>vs</summary>v</value>
+      <key><custom><acme__x>1</acme__x></custom>kk</key>
+      <value>a<checkbox class="unselected"/></value>
+      <value><checkbox class="selected"/><content>c1</content>extra</value>
+    </field_item>
+    <field_region><field_item><key>nested</key></field_item></field_region>
+    <text><checkbox class="selected"/>box text</text>
+    <text><checkbox class="unselected"/></text>
+    <text><handwriting>hw</handwriting><checkbox class="selected"/></text>
+    <text>mixed <bold>one</bold> two <italic>three</italic></text>
+    <text><bold>x</bold><italic>y</italic></text>
+  </field_region>
+</doclang>

@@ -1,0 +1,83 @@
+<doclang>
+  <list class="ordered">
+    <ldiv><marker>1.</marker></ldiv>
+    <text>plain item</text>
+    <list><ldiv><marker>a</marker></ldiv>virtual nested</list>
+    <picture><label value="logo"/></picture>
+    <ldiv><marker>2.</marker></ldiv>
+    <text><bold>b</bold> and more</text>
+    <ldiv><marker>3.</marker></ldiv>
+    <text>first</text>
+    <text>second</text>
+    <ldiv><marker>4.</marker></ldiv>
+    <heading level="2">h in li</heading>
+    <ldiv><marker>5.</marker></ldiv>
+    leading text <list><ldiv/>inner</list>
+    <ldiv><marker>6.</marker></ldiv>
+    <content>only content</content>
+    <ldiv><marker>7.</marker></ldiv>
+    mixed <bold>bold</bold> text
+    <ldiv><marker>8.</marker></ldiv>
+    <location value="1"/><location value="2"/><location value="3"/><location value="4"/>
+    located <bold>x</bold> y
+    <ldiv><marker>9.</marker></ldiv>
+    
+    <ldiv><marker>10.</marker></ldiv>
+    <text><location value="1"/><location value="2"/><location value="3"/><location value="4"/><location value="5"/><location value="6"/><location value="7"/><location value="8"/>two boxes</text>
+  </list>
+  <table>
+    <location value="1"/><location value="2"/><location value="30"/><location value="40"/>
+    <fcel/><location value="1"/><location value="2"/><location value="3"/><location value="4"/>boxed<fcel/>x<bold>b</bold>y<fcel/><text>rich</text><nl/>
+    <ecel/><lcel/><fcel/>a &amp; b &lt;c&gt;<nl/>
+    <ucel/><xcel/><fcel/><![CDATA[cd<>]]><nl/>
+  </table>
+  <table>
+    <thread thread_id="T"/>
+    <location value="1"/><location value="2"/><location value="30"/><location value="40"/>
+    <ched/>A<ched/>B<nl/><fcel/>1<fcel/>2<nl/>
+  </table>
+  <table>
+    <thread thread_id="T"/>
+    <location value="31"/><location value="2"/><location value="60"/><location value="40"/>
+    <ched/>C<nl/><fcel/>3<nl/>
+  </table>
+  <page_break/>
+  <table>
+    <thread thread_id="T"/>
+    <location value="1"/><location value="2"/><location value="30"/><location value="40"/>
+    <fcel/>x<fcel/>y<fcel/>z<nl/>
+  </table>
+  <table><thread thread_id="U"/><fcel/>u1<nl/></table>
+  <table><thread thread_id="U"/><fcel/>u2<nl/></table>
+  <table>
+    <corn/>c<rhed/>r<nl/><srow/>sr<lcel/><nl/><ecel/><ecel/><nl/>
+  </table>
+  <table/>
+  <picture>
+    <label value="pie_chart"/>
+    <src uri="x.png"/>
+    <tabular><fcel/>Foo<fcel/>Bar<nl/></tabular>
+    <table><fcel/>inner<nl/></table>
+    <text>pic child</text>
+  </picture>
+  <picture>
+    <label value="undefined"/>
+    <custom>
+      <docling__summary>cs</docling__summary>
+      <docling__description>cd</docling__description>
+      <docling__smiles>CCO</docling__smiles>
+      <acme__field>raw  value</acme__field>
+      <acme__>skip</acme__>
+      <nonamespace>skip</nonamespace>
+      <constructor>skip</constructor>
+    </custom>
+    <description>pd</description>
+    <summary>ps</summary>
+  </picture>
+  <text>
+    <description>not on text</description>
+    <summary>text sum</summary>
+    <custom><docling__smiles>CCO</docling__smiles><docling__summary>x</docling__summary></custom>
+    body
+  </text>
+</doclang>

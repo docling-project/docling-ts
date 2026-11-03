@@ -6,6 +6,13 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "doclang": [
+        "./dist/doclang/index.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "import": {
@@ -15,6 +22,16 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
+      }
+    },
+    "./doclang": {
+      "import": {
+        "types": "./dist/doclang/index.d.ts",
+        "default": "./dist/doclang/index.js"
+      },
+      "require": {
+        "types": "./dist/doclang/index.d.cts",
+        "default": "./dist/doclang/index.cjs"
       }
     }
   },
@@ -79,6 +96,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "10.0.1",
+    "@xmldom/xmldom": "^0.9.12",
     "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.7",
@@ -89,5 +107,13 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.0",
     "vitest": "5.0.5"
+  },
+  "peerDependencies": {
+    "@xmldom/xmldom": ">=0.8.0"
+  },
+  "peerDependenciesMeta": {
+    "@xmldom/xmldom": {
+      "optional": true
+    }
   }
 }

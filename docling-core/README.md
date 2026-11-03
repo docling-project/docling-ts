@@ -46,9 +46,39 @@ for (const [item, level] of iterateDocumentItems(conversion)) {
 }
 ```
 
+### Read DocLang
+
+`@docling/docling-core/doclang` turns DocLang XML into a `DoclingDocument`. It is a port of the Python `DocLangDocDeserializer`, and its JSON output matches Python's.
+
+```ts
+import { deserializeDocLang } from '@docling/docling-core/doclang';
+
+const doc = deserializeDocLang(doclangXml); // browser: uses the native DOMParser
+```
+
+In Node, pass a `DOMParser`. `@xmldom/xmldom` is an optional peer dependency, so browser bundles never include it.
+
+```ts
+import { DOMParser } from '@xmldom/xmldom';
+
+const doc = deserializeDocLang(doclangXml, { DOMParser });
+```
+
+### Read DCLX archives
+
+`deserializeDclx` reads a DCLX archive from bytes (`Uint8Array`, `ArrayBuffer`, `Blob` or `File`). Images are embedded in the document as base64 data URIs.
+
+```ts
+import { deserializeDclx } from '@docling/docling-core/doclang';
+
+const doc = await deserializeDclx(await (await fetch(url)).arrayBuffer());
+```
+
+In Node, pass a `DOMParser` like with DocLang.
+
 ### Limitations
 
 This package does not
 
 - Convert documents directly from within a JavaScript runtime. It is not a port of Docling.
-- Support Docling output formats other than JSON, such as Markdown.
+- Support Docling output formats other than JSON and DocLang (read-only), such as Markdown.

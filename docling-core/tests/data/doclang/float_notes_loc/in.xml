@@ -1,0 +1,98 @@
+<doclang>
+  <group>
+    <footnote>
+      <location value="9"/>
+      <location value="6"/>
+      <location value="85"/>
+      <location value="26"/>
+      pic footnote
+    </footnote>
+    <picture>
+      <location value="9"/>
+      <location value="6"/>
+      <location value="85"/>
+      <location value="26"/>
+      <caption>
+        <location value="9"/>
+        <location value="6"/>
+        <location value="85"/>
+        <location value="26"/>
+        pic caption
+      </caption>
+    </picture>
+  </group>
+  <group>
+    <footnote>
+      <location value="9"/>
+      <location value="6"/>
+      <location value="85"/>
+      <location value="26"/>
+      tbl footnote
+    </footnote>
+    <table>
+      <location value="9"/>
+      <location value="6"/>
+      <location value="85"/>
+      <location value="26"/>
+      <caption>
+        <location value="9"/>
+        <location value="6"/>
+        <location value="85"/>
+        <location value="26"/>
+        tbl caption
+      </caption>
+      <ched/>
+      <location value="9"/>
+      <location value="6"/>
+      <location value="85"/>
+      <location value="26"/>
+      H1
+      <lcel/>
+      <ched/>
+      H3
+      <nl/>
+      <rhed/>
+      A
+      <fcel/>
+      B
+      <fcel/>
+      C
+      <nl/>
+      <ucel/>
+      <fcel/>
+      D
+      <srow/>
+      E
+      <nl/>
+    </table>
+  </group>
+  <list class="ordered">
+    <ldiv>
+      <marker>1.</marker>
+    </ldiv>
+    <text>
+      <location value="9"/>
+      <location value="6"/>
+      <location value="85"/>
+      <location value="26"/>
+      first
+    </text>
+    <list>
+      <ldiv>
+        <marker>-</marker>
+      </ldiv>
+      nested one
+    </list>
+    <ldiv>
+      <marker>2.</marker>
+    </ldiv>
+    <location value="9"/>
+    <location value="6"/>
+    <location value="85"/>
+    <location value="26"/>
+    second
+    <ldiv>
+      <marker>3.</marker>
+    </ldiv>
+  </list>
+</doclang>
