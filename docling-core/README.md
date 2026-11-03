@@ -1,6 +1,6 @@
 # Docling Core
 
-TypeScript definitions and functions for using Docling output, which simplifies document processing, parsing diverse formats — including advanced PDF understanding. This package supports integrating [Docling](https://docling.io) output into your Type-/JavaScript app with type definitions and utility functions that reflect the [Docling Core](https://github.com/docling-project/docling-core) Python library.
+TypeScript definitions and functions for using Docling output, which simplifies document processing, parsing diverse formats — including advanced PDF understanding. This package supports integrating [Docling](https://docling.ai) output into your Type-/JavaScript app with type definitions and utility functions that reflect the [Docling Core](https://github.com/docling-project/docling-core) Python library.
 
 ## Getting started
 
@@ -15,7 +15,7 @@ npm i @docling/docling-core
 To convert a document you can:
 
 - Use a separate document conversion service, such as [docling-serve](https://github.com/docling-project/docling-serve).
-- Integrate Docling into your own API, or use the Docling CLI for a quick web service [example](https://github.com/docling-project/docling-ts/tree/main/examples/deno).
+- Integrate Docling into your own API, or use the Docling CLI for a quick web service.
 - Pre-convert documents and host these as static resources, on a COS bucket for example.
 
 Next, fetch the (typed) conversion:

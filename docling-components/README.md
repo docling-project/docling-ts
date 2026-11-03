@@ -1,6 +1,6 @@
 # Docling Components
 
-Web components for displaying Docling output, which simplifies document processing, parsing diverse formats — including advanced PDF understanding. This package requires the JSON output of documents that are converted by [Docling](https://docling.io). Get started with the [interactive examples](https://docling-project.github.io/docling-ts/examples).
+Web components for displaying Docling output, which simplifies document processing, parsing diverse formats — including advanced PDF understanding. This package requires the JSON output of documents that are converted by [Docling](https://docling.ai). Get started with the [interactive examples](https://docling-project.github.io/docling-ts/examples).
 
 ## Install package
 
@@ -26,7 +26,7 @@ Either download the package and serve it as part of the rest of the website, or 
 
     <script
       type="module"
-      src="https://unpkg.com/@docling/docling-components/dist/index.es.js"
+      src="https://unpkg.com/@docling/docling-components/dist/index.js"
     />
   </head>
 
