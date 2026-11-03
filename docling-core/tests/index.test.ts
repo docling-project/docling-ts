@@ -268,6 +268,30 @@ describe('iterateDocumentItems (minimal document)', () => {
       ].map(([item]) => item.self_ref);
       expect(refs).toEqual(['#/texts/1']);
     });
+
+    it('traverses the deprecated furniture tree only when its layer is included', () => {
+      const doc = loadMinimalDocument();
+      doc.furniture = {
+        self_ref: '#/furniture',
+        name: '_root_',
+        content_layer: 'furniture',
+        children: [{ $ref: '#/texts/0' }],
+      };
+      doc.texts![0].content_layer = 'furniture';
+
+      const defaultRefs = [
+        ...iterateDocumentItems(doc, { root: doc.furniture }),
+      ].map(([item]) => item.self_ref);
+      expect(defaultRefs).toEqual([]);
+
+      const furnitureRefs = [
+        ...iterateDocumentItems(doc, {
+          root: doc.furniture,
+          includedContentLayers: ['furniture'],
+        }),
+      ].map(([item]) => item.self_ref);
+      expect(furnitureRefs).toEqual(['#/texts/0']);
+    });
   });
 });
 

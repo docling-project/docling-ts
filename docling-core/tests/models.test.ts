@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  type DocItemLabel,
+  type GroupLabel,
   CURRENT_VERSION,
   DEFAULT_CONTENT_LAYERS,
   DEFAULT_EXPORT_LABELS,
@@ -526,5 +528,30 @@ describe('New Models and Interfaces', () => {
     };
     expect(desc.kind).toBe('description');
     expect(misc.kind).toBe('misc');
+  });
+});
+
+describe('Deprecated schema members (v2.105.0)', () => {
+  it('still accepts the deprecated chart and ordered_list labels', () => {
+    const chart: DocItemLabel = 'chart';
+    const ordered: GroupLabel = 'ordered_list';
+    expect(
+      isDoclingDocItem.PictureItem({ self_ref: '#/pictures/0', label: chart })
+    ).toBe(true);
+    expect(
+      isDocling.OrderedList({ self_ref: '#/groups/0', label: ordered })
+    ).toBe(true);
+  });
+
+  it('allows the deprecated furniture root on DoclingDocument', () => {
+    const doc: DoclingDocument = {
+      name: 'doc',
+      furniture: {
+        self_ref: '#/furniture',
+        name: '_root_',
+        content_layer: 'furniture',
+      },
+    };
+    expect(isDocling.GroupItem(doc.furniture!)).toBe(true);
   });
 });

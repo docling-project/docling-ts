@@ -152,6 +152,7 @@ export const isDocling = {
   UnorderedList(item: object): item is UnorderedList {
     return isDocling.ListGroup(item);
   },
+  /** @deprecated Use ListGroup instead. */
   OrderedList(item: object): item is OrderedList {
     return (
       isDocling.GroupItem(item) &&

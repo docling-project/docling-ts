@@ -75,6 +75,7 @@ export type CodeLanguageLabel =
   | 'YAML';
 export type DocItemLabel =
   | 'caption'
+  /** @deprecated Use `picture` with a `other_chart` classification in `meta` instead. */
   | 'chart'
   | 'footnote'
   | 'formula'
@@ -107,6 +108,7 @@ export type DocItemLabel =
 export type GroupLabel =
   | 'unspecified'
   | 'list'
+  /** @deprecated Use `list` instead. */
   | 'ordered_list'
   | 'chapter'
   | 'section'
@@ -946,6 +948,9 @@ export interface DoclingDocument {
   version?: string;
   name: string;
   origin?: DocumentOrigin | null;
+  /**
+   * @deprecated Use `body` with items in the `furniture` content layer instead.
+   */
   furniture?: GroupItem;
   body?: GroupItem;
   groups?: (ListGroup | InlineGroup | GroupItem)[];
