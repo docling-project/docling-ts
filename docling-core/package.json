@@ -90,9 +90,9 @@
     "url": "git+https://github.com/docling-project/docling-ts.git"
   },
   "bugs": {
-    "url": "https://github.com/DS4SD/docling-project/issues"
+    "url": "https://github.com/docling-project/docling-ts/issues"
   },
-  "homepage": "https://github.com/DS4SD/docling-project/tree/main/docling-core",
+  "homepage": "https://github.com/docling-project/docling-ts/tree/main/docling-core",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "10.0.1",
