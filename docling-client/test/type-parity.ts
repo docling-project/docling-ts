@@ -251,6 +251,16 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const zipResult: ZipArchiveResult = {
     kind: 'ZipArchiveResult',
     content: new Uint8Array(),
+    filename: 'converted_docs.zip',
+  };
+  const unnamedZipResult: ZipArchiveResult = {
+    kind: 'ZipArchiveResult',
+    content: new Uint8Array(),
+    filename: null,
+  };
+  const zipResultWithoutFilename: ZipArchiveResult = {
+    kind: 'ZipArchiveResult',
+    content: new Uint8Array(),
   };
   const remoteResult: RemoteTargetResult = {
     kind: 'RemoteTargetResult',
@@ -284,9 +294,9 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const chunkerKindVal: ChunkerKind = ChunkerKind.HYBRID;
   const chunkerTypeVal: ChunkerType = ChunkerType.HIERARCHICAL;
 
-  // v2.140.0 parity: verify all ConvertDocumentsOptions fields from
-  // https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/options.py
-  const fullOptionsV2140: ConvertDocumentsOptions = {
+  // v2.142.0 parity: verify all ConvertDocumentsOptions fields from
+  // https://github.com/docling-project/docling/blob/v2.142.0/docling/datamodel/service/options.py
+  const fullOptionsV2142: ConvertDocumentsOptions = {
     // from_formats / to_formats
     from_formats: ['pdf', 'docx'] satisfies InputFormat[],
     to_formats: ['md', 'json'] satisfies OutputFormat[],
@@ -359,6 +369,8 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     // Limits / behaviour
     document_timeout: 60,
     abort_on_error: false,
+    // ocr_engine (deprecated in favour of ocr_preset, keep for backwards compat)
+    ocr_engine: 'auto',
   };
 
   // @ts-expect-error Python's wire contract does not accept arbitrary categories.
@@ -415,6 +427,8 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     messageKind,
     wsMessage,
     zipResult,
+    unnamedZipResult,
+    zipResultWithoutFilename,
     remoteResult,
     presignedArtifactResult,
     chunkedDocResult,
@@ -428,6 +442,6 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     statusWatcherKindVal,
     chunkerKindVal,
     chunkerTypeVal,
-    fullOptionsV2140,
+    fullOptionsV2142,
   ];
 }

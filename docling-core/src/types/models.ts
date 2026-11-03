@@ -1,5 +1,13 @@
 /* tslint:disable */
 
+// ---------------------------------------------------------------------------
+// Common scalar types
+// ---------------------------------------------------------------------------
+
+export type Uint64 = number;
+export type LevelNumber = number;
+export type CharSpan = [number, number];
+
 export type CoordOrigin = 'TOPLEFT' | 'BOTTOMLEFT';
 export type ContentLayer =
   'body' | 'furniture' | 'background' | 'invisible' | 'notes';
@@ -355,6 +363,7 @@ export type Script = 'baseline' | 'sub' | 'super';
 export type Orientation = 'rot_0' | 'rot_90' | 'rot_180' | 'rot_270';
 export type ImageRefMode = 'placeholder' | 'embedded' | 'referenced';
 export type CaptionPlacement = 'standard' | 'layout';
+export type CollectionType = 'Document' | 'Record';
 
 export interface BoundingBox {
   l: number;
@@ -373,7 +382,7 @@ export interface RefItem {
 export interface ProvenanceItem {
   page_no: number;
   bbox: BoundingBox;
-  charspan: [number, number];
+  charspan: CharSpan;
 }
 export interface Formatting {
   bold?: boolean;
@@ -390,9 +399,26 @@ export interface ImageRef {
 }
 export interface DocumentOrigin {
   mimetype: string;
-  binary_hash: number;
+  binary_hash: Uint64;
   filename: string;
   uri?: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Base annotation models
+// ---------------------------------------------------------------------------
+
+export interface BaseAnnotation {
+  kind: string;
+}
+export interface DescriptionAnnotation extends BaseAnnotation {
+  kind: 'description';
+  text: string;
+  provenance: string;
+}
+export interface MiscAnnotation extends BaseAnnotation {
+  kind: 'misc';
+  content: Record<string, unknown>;
 }
 
 // ---------------------------------------------------------------------------
@@ -414,7 +440,7 @@ export interface EntityMention extends BasePrediction {
   text: string;
   orig?: string | null;
   label?: string | null;
-  charspan?: [number, number] | null;
+  charspan?: CharSpan | null;
 }
 export interface EntitiesMetaField {
   mentions: EntityMention[];
@@ -459,9 +485,12 @@ export interface NodeItem {
   meta?: BaseMeta | null;
 }
 export interface FineRef extends RefItem {
-  range?: [number, number] | null;
+  range?: CharSpan | null;
 }
-export interface TrackSource {
+export interface BaseSource {
+  kind: string;
+}
+export interface TrackSource extends BaseSource {
   kind: 'track';
   start_time: number;
   end_time: number;
@@ -534,7 +563,6 @@ export interface TextItem extends DocItem {
     | 'field_hint'
     | 'marker'
     | 'handwritten_text'
-    | 'grading_scale'
     // subtype labels (narrowed in subtype interfaces):
     | 'title'
     | 'section_header'
@@ -560,7 +588,7 @@ export interface SectionHeaderItem extends TextItem {
   text: string;
   formatting?: Formatting | null;
   hyperlink?: string | null;
-  level?: number;
+  level?: LevelNumber;
 }
 export interface ListItem extends TextItem {
   label?: 'list_item';
@@ -622,7 +650,7 @@ export interface TableData {
   orientation?: Orientation;
   grid: AnyTableCell[][];
 }
-export type TableAnnotationType = PictureDescriptionData | PictureMiscData;
+export type TableAnnotationType = DescriptionAnnotation | MiscAnnotation;
 
 export interface TableItem extends FloatingItem {
   label?: 'document_index' | 'table';
@@ -635,31 +663,22 @@ export interface TableItem extends FloatingItem {
 // Picture items
 // ---------------------------------------------------------------------------
 
-export interface BasePictureData {
-  kind: string;
-}
+export type BasePictureData = BaseAnnotation;
+
 export interface PictureClassificationClass {
   class_name: string;
   confidence: number;
 }
-/** @deprecated Use BasePictureData instead. */
-export type BaseAnnotation = BasePictureData;
 
-export interface PictureClassificationData extends BasePictureData {
+export interface PictureClassificationData extends BaseAnnotation {
   kind: 'classification';
   provenance: string;
   predicted_classes: PictureClassificationClass[];
 }
 
-export interface PictureDescriptionData extends BasePictureData {
-  kind: 'description';
-  text: string;
-  provenance: string;
-}
-/** @deprecated Use PictureDescriptionData instead. */
-export type DescriptionAnnotation = PictureDescriptionData;
+export type PictureDescriptionData = DescriptionAnnotation;
 
-export interface PictureMoleculeData extends BasePictureData {
+export interface PictureMoleculeData extends BaseAnnotation {
   kind: 'molecule_data';
   smi: string;
   confidence: number;
@@ -668,14 +687,9 @@ export interface PictureMoleculeData extends BasePictureData {
   provenance: string;
 }
 
-export interface PictureMiscData extends BasePictureData {
-  kind: 'misc';
-  content: Record<string, unknown>;
-}
-/** @deprecated Use PictureMiscData instead. */
-export type MiscAnnotation = PictureMiscData;
+export type PictureMiscData = MiscAnnotation;
 
-export interface PictureChartData extends BasePictureData {
+export interface PictureChartData extends BaseAnnotation {
   kind: string;
   title: string;
 }
@@ -810,7 +824,7 @@ export interface FieldRegionItem extends DocItem {
 }
 export interface FieldHeadingItem extends TextItem {
   label?: 'field_heading';
-  level?: number;
+  level?: LevelNumber;
 }
 export interface FieldItem extends DocItem {
   label?: 'field_item';
@@ -843,7 +857,51 @@ export interface PageItem {
   page_no: number;
 }
 
+// ---------------------------------------------------------------------------
+// Constants & Version history
+// ---------------------------------------------------------------------------
+
 export const CURRENT_VERSION = '1.10.0';
+export const FIRST_SUPPORTED_MINOR = 5;
+
+/**
+ * Ordered history of DoclingDocument schema versions in docling-core v2.x.
+ *
+ * Each entry records the schema version string, the first library release that
+ * introduced it, and a short description of what changed.
+ */
+export const SCHEMA_VERSION_HISTORY: ReadonlyArray<{
+  schema: string;
+  library_version: string;
+  note: string;
+}> = [
+  {
+    schema: '1.5.0',
+    library_version: 'v2.38.2',
+    note: 'ListGroup, remodelled lists',
+  },
+  {
+    schema: '1.6.0',
+    library_version: 'v2.45.0',
+    note: 'RichTableCell, AnyTableCell union',
+  },
+  { schema: '1.7.0', library_version: 'v2.47.0', note: 'TableCell.fillable' },
+  {
+    schema: '1.8.0',
+    library_version: 'v2.49.0',
+    note: 'BasePrediction, BaseMeta, meta field',
+  },
+  {
+    schema: '1.9.0',
+    library_version: 'v2.57.0',
+    note: 'FineRef, DocItem.comments',
+  },
+  {
+    schema: '1.10.0',
+    library_version: 'v2.69.0',
+    note: 'FieldItem types, 7 new DocItemLabel values',
+  },
+];
 export const DEFAULT_CONTENT_LAYERS: ContentLayer[] = ['body'];
 export const DEFAULT_EXPORT_LABELS: DocItemLabel[] = [
   'title',
@@ -876,7 +934,6 @@ export const DOCUMENT_TOKENS_EXPORT_LABELS: DocItemLabel[] = [
   ...DEFAULT_EXPORT_LABELS,
   'footnote',
   'caption',
-  'key_value_region',
   'form',
 ];
 
@@ -908,5 +965,5 @@ export interface DoclingDocument {
   form_items?: FormItem[];
   field_regions?: FieldRegionItem[];
   field_items?: FieldItem[];
-  pages?: Record<string, PageItem>;
+  pages?: Record<string | number, PageItem>;
 }

@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.140.0
-at commit `0e54294`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.145.0
+at commit `45d334e`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -159,12 +159,68 @@ High-level limits match Python:
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
 
+## Service client changes (v2.145.0)
+
+Python v2.145.0 at commit `45d334e` includes two service-facing changes since
+v2.142.0. Everything else in the v2.143.0–v2.145.0 range (OCR, VLM, ASR,
+backend fixes, mixed-format ZIP inputs) is server-side or core-library
+behavior with no service-client or service-datamodel surface.
+
+- `ZipArchiveResult` gained an optional `filename` (v2.143.0), a suggested
+  download name for the archive:
+
+  ```
+  https://github.com/docling-project/docling/blob/v2.145.0/docling/datamodel/service/responses.py#L122
+  ```
+
+  The TypeScript `ZipArchiveResult` interface exposes `filename?: string | null`.
+  Raw ZIP downloads already surfaced the `Content-Disposition` name through
+  `RawServiceResult.filename`.
+
+- The service client no longer sends the default page range in request options
+  (v2.145.0). Python's `_resolve_options()` only writes `page_range` back when
+  the effective range differs from the merged options:
+
+  ```
+  https://github.com/docling-project/docling/blob/v2.145.0/docling/service_client/client.py#L454
+  ```
+
+  TypeScript `applyPageLimits()` mirrors this: with no `page_range`, `pageRange`,
+  or `maxNumPages`, no `page_range` is sent, and an unset range is never
+  materialized as the all-pages default.
+
+| Python (v2.145.0)               | TypeScript                  | Wire key     |
+| ------------------------------- | --------------------------- | ------------ |
+| `ZipArchiveResult.filename`     | `ZipArchiveResult.filename` | `filename`   |
+| `_resolve_options()` page range | `applyPageLimits()`         | `page_range` |
+
+## Version bump (v2.142.0)
+
+Python v2.142.0 at commit `6aaf87e` is a version-only bump over v2.141.0.
+No new fields, types, or operations were added to the service client or
+service datamodel APIs. All TypeScript types, interfaces, methods, and
+validation logic added in previous releases remain in full parity.
+
+## Internal scheduler refactoring (v2.141.0)
+
+`AsyncDoclingServiceClient.submit_and_retrieve_each()` was refactored in
+Python v2.141.0 to use an internal `_run_bounded()` helper from
+`docling/service_client/_scheduler.py` for bounded concurrency fan-out:
+
+```
+https://github.com/docling-project/docling/blob/v2.142.0/docling/service_client/_scheduler.py#L31
+```
+
+The TypeScript scheduler already implements equivalent bounded-concurrency
+semantics via `boundedOutcomes()` in `scheduler.ts`. No TypeScript API
+changes are needed; this is a pure internal refactoring on the Python side.
+
 ## Response model changes (v2.139.0)
 
 `ConfidenceScores` gained a recursive `pages` field in Python v2.139.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/responses.py#L45
+https://github.com/docling-project/docling/blob/v2.142.0/docling/datamodel/service/responses.py#L45
 ```
 
 When present, it maps 1-based page numbers to per-page `ConfidenceScores`
@@ -182,7 +238,7 @@ objects. The TypeScript `ConfidenceScores` interface includes the
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.140.0/docling/datamodel/service/responses.py#L84
+https://github.com/docling-project/docling/blob/v2.142.0/docling/datamodel/service/responses.py#L84
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via

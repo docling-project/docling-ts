@@ -1,6 +1,6 @@
 {
   "name": "@docling/docling-core",
-  "version": "2.102.0",
+  "version": "2.104.0",
   "description": "TypeScript definitions and functions for using Docling output.",
   "type": "module",
   "main": "dist/index.cjs",
@@ -97,16 +97,16 @@
     "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "10.0.1",
     "@xmldom/xmldom": "^0.9.12",
-    "eslint": "10.12.0",
+    "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "5.5.6",
+    "eslint-plugin-prettier": "5.5.7",
     "globals": "17.13.0",
     "prettier": "3.9.10",
     "publint": "^0.3.24",
-    "tsup": "8.5.1",
+    "tsup": "9.0.0",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.1",
-    "vitest": "5.0.4"
+    "typescript-eslint": "8.72.0",
+    "vitest": "5.0.5"
   },
   "peerDependencies": {
     "@xmldom/xmldom": ">=0.8.0"
