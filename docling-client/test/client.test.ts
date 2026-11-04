@@ -192,6 +192,58 @@ describe('conversion submission and targets', () => {
       ).options.to_formats
     ).toContain('json');
   });
+  it('keeps the presigned rejection when the in-body fallback fails too', async () => {
+    const transport = new ScriptedTransport(
+      new DoclingHttpError({
+        method: 'POST',
+        url: 'https://docling.example.test/v1/convert/source/async',
+        status: 400,
+        body: { detail: 'artifact storage to be configured' },
+      }),
+      new DoclingHttpError({
+        method: 'POST',
+        url: 'https://docling.example.test/v1/convert/source/async',
+        status: 422,
+        body: { detail: 'invalid OCR configuration' },
+      })
+    );
+    const client = clientWith(transport);
+
+    const error = await client
+      .submitUrl('https://files.example.test/manual.pdf')
+      .catch((caught: unknown) => caught);
+
+    expect(error).toBeInstanceOf(DoclingServiceError);
+    expect((error as DoclingServiceError).status).toBe(422);
+    expect((error as DoclingServiceError).detail).toBe(
+      'invalid OCR configuration The client tried the InBody target because the server ' +
+        'rejected the presigned_url target: artifact storage to be configured'
+    );
+    expect(transport.requests).toHaveLength(2);
+  });
+
+  it('does not rewrite non-validation in-body fallback failures', async () => {
+    const fallbackError = new DoclingHttpError({
+      method: 'POST',
+      url: 'https://docling.example.test/v1/convert/source/async',
+      status: 500,
+      body: { detail: 'boom' },
+    });
+    const transport = new ScriptedTransport(
+      new DoclingHttpError({
+        method: 'POST',
+        url: 'https://docling.example.test/v1/convert/source/async',
+        status: 400,
+        body: { detail: 'artifact storage to be configured' },
+      }),
+      fallbackError
+    );
+    const client = clientWith(transport);
+
+    await expect(
+      client.submitUrl('https://files.example.test/manual.pdf')
+    ).rejects.toBe(fallbackError);
+  });
 
   it('does not hide unrelated presigned-target submission errors', async () => {
     const error = new DoclingHttpError({
@@ -780,6 +832,44 @@ describe('submitBatch target validation and result routing', () => {
     expect(result).toEqual(presigned);
     // presigned result has a `documents` array — counts-only result does not
     expect((result as typeof presigned).documents).toBeDefined();
+  });
+
+  it('accepts a chunks artifact in a presigned batch result', async () => {
+    const presigned = {
+      num_converted: 1,
+      num_succeeded: 1,
+      num_partially_succeeded: 0,
+      num_failed: 0,
+      processing_time: 0.25,
+      documents: [
+        {
+          source_index: 0,
+          source_uri: 'https://example.test/a.pdf',
+          filename: 'a.pdf',
+          status: 'success',
+          artifacts: [
+            {
+              artifact_type: 'chunks',
+              mime_type: 'application/json',
+              uri: 'https://download.example.test/a.chunks.json',
+            },
+          ],
+          errors: [],
+          timings: {},
+        },
+      ],
+    };
+    const transport = new ScriptedTransport(task('batch-chunks', 'success'), presigned);
+    const client = clientWith(transport);
+
+    const result = await (
+      await client.submitBatch({
+        sources: [{ kind: 'http', url: 'https://example.test/a.pdf' }],
+        target: { kind: 'presigned_url' },
+      })
+    ).result();
+
+    expect(result).toEqual(presigned);
   });
 
   // Mirrors: test_submit_batch_returns_counts_result_for_s3_target

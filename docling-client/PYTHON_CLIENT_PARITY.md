@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.145.0
-at commit `45d334e`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.146.0
+at commit `c622bcb`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -158,6 +158,44 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Service client changes (v2.146.0)
+
+Python v2.146.0 at commit `c622bcb` includes two service-facing fixes since
+v2.145.0. The remaining v2.146.0 changes (VLM presets, LightOnOCR-3,
+Nemotron parsing, and backend fixes) are server-side or core-library behavior
+with no service-client or service-datamodel surface.
+
+- `ArtifactRef.artifact_type` now allows `"chunks"`:
+
+  ```
+  https://github.com/docling-project/docling/blob/v2.146.0/docling/datamodel/service/responses.py#L148
+  ```
+
+  The TypeScript `ArtifactType` union includes `'chunks'` and the presigned
+  response validator accepts it. `selectDocumentArtifact()` still materializes
+  only `resource_bundle` or `json` artifacts, so a `chunks` artifact is never
+  mistaken for a document.
+
+- The presigned-first auto-target path no longer hides the presigned rejection
+  when the `InBody` fallback is also refused. When the fallback fails with HTTP
+  400 or 422, Python raises a combined `ServiceError` that keeps the fallback
+  status and appends the presigned detail:
+
+  ```
+  https://github.com/docling-project/docling/blob/v2.146.0/docling/service_client/client.py#L857
+  ```
+
+  TypeScript `combineInBodyFallbackError()` mirrors this and throws a
+  `DoclingServiceError` with the fallback status and the combined `detail`
+  that appends "The client tried the InBody target because the server rejected
+  the presigned_url target: <presigned detail>" to the fallback detail. Other
+  fallback failures propagate unchanged.
+
+| Python (v2.146.0)           | TypeScript                     | Wire key        |
+| --------------------------- | ------------------------------ | --------------- |
+| `ArtifactRef.artifact_type` | `ArtifactType`                 | `artifact_type` |
+| `_inbody_fallback_error()`  | `combineInBodyFallbackError()` | `detail`        |
 
 ## Service client changes (v2.145.0)
 

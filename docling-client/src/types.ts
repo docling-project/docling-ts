@@ -867,7 +867,8 @@ export type ArtifactType =
   | 'doctags'
   | 'doclang'
   | 'dclx'
-  | 'resource_bundle';
+  | 'resource_bundle'
+  | 'chunks';
 
 export interface ArtifactRef {
   artifact_type: ArtifactType;
