@@ -246,6 +246,26 @@ describe('presigned artifact materialization', () => {
 
     expect(selectDocumentArtifact(item).artifact_type).toBe('resource_bundle');
   });
+
+  it('prefers json over a chunks artifact and ignores chunks otherwise', () => {
+    const item = presignedResponse([
+      {
+        artifact_type: 'chunks',
+        mime_type: 'application/json',
+        uri: 'https://example.test/chunks.json',
+      },
+      {
+        artifact_type: 'json',
+        mime_type: 'application/json',
+        uri: 'https://example.test/document.json',
+      },
+    ]).documents[0]!;
+
+    expect(selectDocumentArtifact(item).artifact_type).toBe('json');
+    expect(() =>
+      selectDocumentArtifact({ ...item, artifacts: [item.artifacts[0]!] })
+    ).toThrow("neither a 'json' nor a 'resource_bundle'");
+  });
 });
 
 describe('ArtifactDownloader fetch binding', () => {

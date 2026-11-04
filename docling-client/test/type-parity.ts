@@ -1,4 +1,5 @@
 import {
+  type ArtifactType,
   type AutoSubmitResult,
   type BaseProgress,
   ChunkerKind,
@@ -284,6 +285,9 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   };
   const targetNameInBody = TargetNameConst.INBODY;
 
+  // v2.146.0 parity: ArtifactRef.artifact_type accepts "chunks"
+  const chunksArtifactType: ArtifactType = 'chunks';
+
   // v2.140.0 parity: alias type tests
   const tableFormerModeVal: TableFormerMode = 'accurate';
   const imageRefModeVal: ImageRefMode = 'placeholder';
@@ -434,6 +438,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkedDocResult,
     taskResult,
     targetNameInBody,
+    chunksArtifactType,
     tableFormerModeVal,
     imageRefModeVal,
     responseFormatVal,
