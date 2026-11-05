@@ -11,6 +11,7 @@ import {
   DoclingResultExpiredError,
   DoclingResultNotReadyError,
   DoclingServiceError,
+  DoclingTaskCancelledError,
   DoclingTaskError,
   DoclingTaskNotFoundError,
   DoclingTimeoutError,
@@ -1183,6 +1184,9 @@ export class DoclingClient<TDocument = DoclingDocument> {
     signal?: AbortSignal
   ): Promise<unknown> {
     requireTaskId(taskId);
+    if (lastStatus?.task_status === 'cancelled') {
+      throw new DoclingTaskCancelledError(taskId);
+    }
     try {
       const result = await this.#request<unknown>(
         'GET',
@@ -1199,8 +1203,13 @@ export class DoclingClient<TDocument = DoclingDocument> {
       }
       return result;
     } catch (error) {
-      if (error instanceof DoclingHttpError && error.status === 404) {
-        throw mapResultNotFound(taskId, error, lastStatus);
+      if (error instanceof DoclingHttpError) {
+        if (isTaskCancelledError(error)) {
+          throw new DoclingTaskCancelledError(taskId);
+        }
+        if (error.status === 404) {
+          throw mapResultNotFound(taskId, error, lastStatus);
+        }
       }
       if (error instanceof DoclingProtocolError) {
         throw new DoclingResponseSchemaMismatchError(
@@ -1274,6 +1283,9 @@ export class DoclingClient<TDocument = DoclingDocument> {
     signal?: AbortSignal
   ): Promise<RawServiceResult> {
     requireTaskId(taskId);
+    if (lastStatus?.task_status === 'cancelled') {
+      throw new DoclingTaskCancelledError(taskId);
+    }
     try {
       const response = await this.#request<DoclingBinaryResponse>(
         'GET',
@@ -1305,8 +1317,13 @@ export class DoclingClient<TDocument = DoclingDocument> {
         ),
       };
     } catch (error) {
-      if (error instanceof DoclingHttpError && error.status === 404) {
-        throw mapResultNotFound(taskId, error, lastStatus);
+      if (error instanceof DoclingHttpError) {
+        if (isTaskCancelledError(error)) {
+          throw new DoclingTaskCancelledError(taskId);
+        }
+        if (error.status === 404) {
+          throw mapResultNotFound(taskId, error, lastStatus);
+        }
       }
       throw error;
     }
@@ -1392,7 +1409,7 @@ export class DoclingJob<TResult> {
   }
 
   get done(): boolean {
-    return ['success', 'failure'].includes(this.#status.task_status);
+    return ['success', 'failure', 'cancelled'].includes(this.#status.task_status);
   }
 
   async poll(
@@ -1439,14 +1456,9 @@ function parseTaskStatus(value: unknown): TaskStatusResponse {
     throw schemaMismatch('Docling task status is missing task_type');
   }
   if (
-    ![
-      'pending',
-      'started',
-      'success',
-      'failure',
-      'partial_success',
-      'skipped',
-    ].includes(String(value.task_status))
+    !['pending', 'started', 'success', 'failure', 'cancelled'].includes(
+      String(value.task_status)
+    )
   ) {
     throw schemaMismatch(
       `Docling returned unknown task_status: ${String(value.task_status)}`
@@ -2069,6 +2081,14 @@ function conversionFailureMessage<TDocument>(
   return `Conversion failed for ${result.input.filename} with status ${result.status}${
     errors === '' ? '' : `. Errors: ${errors}`
   }`;
+}
+
+function isTaskCancelledError(error: DoclingHttpError): boolean {
+  if (error.status !== 409 || !isRecord(error.body)) {
+    return false;
+  }
+  const detail = error.body.detail;
+  return isRecord(detail) && detail.code === 'TASK_CANCELLED';
 }
 
 function mapResultNotFound(

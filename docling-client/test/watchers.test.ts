@@ -388,6 +388,97 @@ describe('Docling WebSocket watcher', () => {
     ).rejects.toBe(callbackError);
     expect(callbackSocket?.closed).toBe(true);
   });
+
+  it('treats a cancelled update as terminal without requesting the next frame', async () => {
+    let socket: FakeSocket | undefined;
+    const watcher = watchTask({
+      taskId: 'cancelled',
+      baseUrl: 'https://docling.example.test',
+      watcher: 'websocket',
+      fallbackToPoll: false,
+      connectTimeoutMs: 100,
+      webSocketFactory: () => {
+        socket = new FakeSocket(current => {
+          current.message({ message: 'connection', task: task('started') });
+          current.message({ message: 'update', task: task('cancelled') });
+        });
+        return socket;
+      },
+      poll: async () => task('cancelled'),
+      parseStatus,
+    });
+
+    await expect(collect(watcher)).resolves.toEqual(['started', 'cancelled']);
+    expect(socket?.sent).toEqual([]);
+    expect(socket?.closed).toBe(true);
+  });
+
+  it('stops polling once a cancelled status arrives', async () => {
+    const poll = vi.fn(async () =>
+      task(poll.mock.calls.length === 1 ? 'pending' : 'cancelled')
+    );
+    const watcher = watchTask({
+      taskId: 'poll-cancelled',
+      baseUrl: 'https://docling.example.test',
+      watcher: 'polling',
+      fallbackToPoll: false,
+      connectTimeoutMs: 100,
+      poll,
+      parseStatus,
+      pollIntervalMs: 0,
+      serverWaitSeconds: 0,
+    });
+
+    await expect(collect(watcher)).resolves.toEqual(['pending', 'cancelled']);
+    expect(poll).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops after a poll fallback returns cancelled', async () => {
+    const poll = vi.fn(async () => task('cancelled'));
+    const watcher = watchTask({
+      taskId: 'fallback-cancelled',
+      baseUrl: 'https://docling.example.test',
+      watcher: 'websocket',
+      fallbackToPoll: true,
+      connectTimeoutMs: 100,
+      webSocketFactory: () =>
+        new FakeSocket(current => {
+          current.message({ message: 'error', error: 'Server is busy' });
+        }),
+      poll,
+      parseStatus,
+      sleep: async () => undefined,
+      pollIntervalMs: 0,
+      serverWaitSeconds: 0,
+    });
+
+    await expect(collect(watcher)).resolves.toEqual(['cancelled']);
+    expect(poll).toHaveBeenCalledTimes(1);
+  });
+
+  it('propagates an abort signal instead of a cancellation status', async () => {
+    const controller = new AbortController();
+    const reason = new DOMException('The operation was aborted', 'AbortError');
+    const poll = vi.fn(async () => task('pending'));
+    const watcher = watchTask({
+      taskId: 'aborted',
+      baseUrl: 'https://docling.example.test',
+      watcher: 'polling',
+      fallbackToPoll: false,
+      connectTimeoutMs: 100,
+      poll,
+      parseStatus,
+      signal: controller.signal,
+      pollIntervalMs: 0,
+      serverWaitSeconds: 0,
+      sleep: async () => {
+        controller.abort(reason);
+        throw controller.signal.reason;
+      },
+    });
+
+    await expect(collect(watcher)).rejects.toBe(reason);
+  });
 });
 
 function task(status: TaskStatusResponse['task_status']): TaskStatusResponse {

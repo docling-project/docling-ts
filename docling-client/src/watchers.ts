@@ -379,7 +379,7 @@ function parseEnvelope(
 }
 
 function isTerminal(status: TaskStatusResponse): boolean {
-  return ['success', 'failure'].includes(status.task_status);
+  return ['success', 'failure', 'cancelled'].includes(status.task_status);
 }
 
 function validateWatchTimes(
