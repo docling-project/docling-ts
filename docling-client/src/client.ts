@@ -103,6 +103,10 @@ export interface DoclingClientOptions {
   maxConcurrency?: number;
   artifactDownloader?: ArtifactDownloader;
   artifactDownload?: ArtifactDownloaderOptions;
+  artifactDownloadTimeout?: number;
+  maxArtifactDownloadBytes?: number;
+  artifactUrlAllowlist?: string[];
+  allowPrivateArtifactUrls?: boolean;
 }
 
 export interface SubmitCallOptions {
@@ -214,8 +218,23 @@ export class DoclingClient<TDocument = DoclingDocument> {
     this.#maxConcurrency = validateConcurrency(
       options.maxConcurrency ?? DEFAULT_MAX_CONCURRENCY
     );
+    const downloaderOptions: ArtifactDownloaderOptions = {
+      ...options.artifactDownload,
+    };
+    if (options.artifactDownloadTimeout !== undefined) {
+      downloaderOptions.timeoutMs = options.artifactDownloadTimeout;
+    }
+    if (options.maxArtifactDownloadBytes !== undefined) {
+      downloaderOptions.maxBytes = options.maxArtifactDownloadBytes;
+    }
+    if (options.artifactUrlAllowlist !== undefined) {
+      downloaderOptions.artifactUrlAllowlist = options.artifactUrlAllowlist;
+    }
+    if (options.allowPrivateArtifactUrls !== undefined) {
+      downloaderOptions.allowPrivateUrls = options.allowPrivateArtifactUrls;
+    }
     this.#artifactDownloader =
-      options.artifactDownloader ?? new ArtifactDownloader(options.artifactDownload);
+      options.artifactDownloader ?? new ArtifactDownloader(downloaderOptions);
   }
 
   async health(options: { signal?: AbortSignal } = {}): Promise<HealthCheckResponse> {

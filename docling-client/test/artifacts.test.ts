@@ -349,6 +349,25 @@ describe('artifact download security', () => {
     expect(fetchImplementation.mock.calls[0]?.[1]).not.toHaveProperty('headers');
   });
 
+  it('respects the artifactUrlAllowlist to trust specific private origins', async () => {
+    const fetchImplementation = vi.fn(async () => new Response('trusted-artifact'));
+    const downloader = new ArtifactDownloader({
+      fetch: fetchImplementation,
+      artifactUrlAllowlist: ['http://127.0.0.1:8080'],
+      resolver: async () => ['127.0.0.1'],
+    });
+
+    // Trusted origin passes
+    await expect(downloader.download('http://127.0.0.1:8080/a')).resolves.toEqual(
+      strToU8('trusted-artifact')
+    );
+
+    // Untrusted private origin fails
+    await expect(downloader.download('http://127.0.0.1:9090/a')).rejects.toThrow(
+      'globally routable'
+    );
+  });
+
   it('supports an explicit private-host override and enforces streamed size limits', async () => {
     const allowed = new ArtifactDownloader({
       allowPrivateUrls: true,
