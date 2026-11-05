@@ -97,15 +97,15 @@
     "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "10.0.1",
     "@xmldom/xmldom": "^0.9.12",
-    "eslint": "10.13.0",
+    "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.7",
-    "globals": "17.13.0",
+    "globals": "17.14.0",
     "prettier": "3.9.10",
     "publint": "^0.3.24",
     "tsup": "9.0.0",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.72.0",
+    "typescript-eslint": "8.72.1",
     "vitest": "5.0.5"
   },
   "peerDependencies": {
