@@ -162,18 +162,32 @@ jobs:
         if: steps.pr_check.outputs.should_sync == 'true'
         run: rm -rf upstream-docling
 
+      # The Bob run can take longer than an hour, and GitHub App installation tokens
+      # expire after 1 hour, so mint a fresh token for pushing and PR operations.
+      - name: Generate fresh GitHub App token
+        id: push-token
+        if: steps.pr_check.outputs.should_sync == 'true'
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Commit and push changes
         id: commit
         if: steps.pr_check.outputs.should_sync == 'true'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.push-token.outputs.token }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
           BRANCH_NAME="sync/docling-client-${VERSION}"
 
-          git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
-          git config user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+          git config user.name "${{ steps.push-token.outputs.app-slug }}[bot]"
+          git config user.email "${{ steps.push-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+
+          # Replace the (expired) credentials persisted by actions/checkout
+          AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          git config --local --replace-all http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
 
           git checkout -B "$BRANCH_NAME"
           git add docling-client/
@@ -192,7 +206,7 @@ jobs:
         id: pr_create
         if: steps.commit.outputs.branch_name != ''
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.push-token.outputs.token }}
           TAG: ${{ steps.version_check.outputs.tag }}
           VERSION: ${{ steps.version_check.outputs.version }}
         run: |
@@ -238,7 +252,7 @@ jobs:
       - name: Post inline review comments on pull request diff
         if: steps.pr_create.outputs.pr_number != ''
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.push-token.outputs.token }}
         run: |
           PR_NUMBER="${{ steps.pr_create.outputs.pr_number }}"
 
