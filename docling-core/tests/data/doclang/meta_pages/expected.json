@@ -1,6 +1,6 @@
 {
   "schema_name": "DoclingDocument",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "name": "Document",
   "furniture": {
     "self_ref": "#/furniture",
@@ -87,12 +87,12 @@
           },
           "charspan": [
             0,
-            3
+            4
           ]
         }
       ],
-      "orig": "yes",
-      "text": "yes"
+      "orig": " yes",
+      "text": " yes"
     },
     {
       "self_ref": "#/texts/2",
@@ -114,12 +114,12 @@
           },
           "charspan": [
             0,
-            2
+            3
           ]
         }
       ],
-      "orig": "no",
-      "text": "no"
+      "orig": " no",
+      "text": " no"
     },
     {
       "self_ref": "#/texts/3",
@@ -200,12 +200,12 @@
           },
           "charspan": [
             0,
-            18
+            9
           ]
         }
       ],
-      "orig": "a summaryMeta head",
-      "text": "a summaryMeta head",
+      "orig": "Meta head",
+      "text": "Meta head",
       "level": 1
     }
   ],

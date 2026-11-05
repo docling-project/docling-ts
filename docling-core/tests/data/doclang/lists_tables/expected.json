@@ -1,6 +1,6 @@
 {
   "schema_name": "DoclingDocument",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "name": "Document",
   "furniture": {
     "self_ref": "#/furniture",
@@ -37,7 +37,7 @@
         "$ref": "#/pictures/2"
       },
       {
-        "$ref": "#/texts/26"
+        "$ref": "#/texts/28"
       }
     ],
     "content_layer": "body",
@@ -179,11 +179,17 @@
       "children": [
         {
           "$ref": "#/texts/23"
+        },
+        {
+          "$ref": "#/texts/24"
+        },
+        {
+          "$ref": "#/texts/25"
         }
       ],
       "content_layer": "body",
       "name": "group",
-      "label": "unspecified"
+      "label": "inline"
     },
     {
       "self_ref": "#/groups/7",
@@ -192,7 +198,7 @@
       },
       "children": [
         {
-          "$ref": "#/texts/24"
+          "$ref": "#/texts/26"
         }
       ],
       "content_layer": "body",
@@ -282,8 +288,8 @@
       "content_layer": "body",
       "label": "text",
       "prov": [],
-      "orig": "and more",
-      "text": "and more"
+      "orig": " and more",
+      "text": " and more"
     },
     {
       "self_ref": "#/texts/5",
@@ -434,8 +440,8 @@
       "content_layer": "body",
       "label": "text",
       "prov": [],
-      "orig": "mixed",
-      "text": "mixed"
+      "orig": "mixed ",
+      "text": "mixed "
     },
     {
       "self_ref": "#/texts/15",
@@ -465,8 +471,8 @@
       "content_layer": "body",
       "label": "text",
       "prov": [],
-      "orig": "text",
-      "text": "text"
+      "orig": " text",
+      "text": " text"
     },
     {
       "self_ref": "#/texts/17",
@@ -510,8 +516,8 @@
       "content_layer": "body",
       "label": "text",
       "prov": [],
-      "orig": "located",
-      "text": "located"
+      "orig": "located ",
+      "text": "located "
     },
     {
       "self_ref": "#/texts/19",
@@ -541,8 +547,8 @@
       "content_layer": "body",
       "label": "text",
       "prov": [],
-      "orig": "y",
-      "text": "y"
+      "orig": " y",
+      "text": " y"
     },
     {
       "self_ref": "#/texts/21",
@@ -596,6 +602,18 @@
       "content_layer": "body",
       "label": "text",
       "prov": [],
+      "orig": "x",
+      "text": "x"
+    },
+    {
+      "self_ref": "#/texts/24",
+      "parent": {
+        "$ref": "#/groups/6"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
       "orig": "b",
       "text": "b",
       "formatting": {
@@ -607,7 +625,19 @@
       }
     },
     {
-      "self_ref": "#/texts/24",
+      "self_ref": "#/texts/25",
+      "parent": {
+        "$ref": "#/groups/6"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": "y",
+      "text": "y"
+    },
+    {
+      "self_ref": "#/texts/26",
       "parent": {
         "$ref": "#/groups/7"
       },
@@ -619,7 +649,7 @@
       "text": "rich"
     },
     {
-      "self_ref": "#/texts/25",
+      "self_ref": "#/texts/27",
       "parent": {
         "$ref": "#/pictures/1"
       },
@@ -631,7 +661,7 @@
       "text": "pic child"
     },
     {
-      "self_ref": "#/texts/26",
+      "self_ref": "#/texts/28",
       "parent": {
         "$ref": "#/body"
       },
@@ -644,8 +674,8 @@
       },
       "label": "text",
       "prov": [],
-      "orig": "not on texttext sumCCOxbody",
-      "text": "not on texttext sumCCOxbody"
+      "orig": "body",
+      "text": "body"
     }
   ],
   "pictures": [
@@ -683,7 +713,7 @@
           "$ref": "#/tables/5"
         },
         {
-          "$ref": "#/texts/25"
+          "$ref": "#/texts/27"
         }
       ],
       "content_layer": "body",
@@ -860,7 +890,7 @@
             "end_row_offset_idx": 1,
             "start_col_offset_idx": 1,
             "end_col_offset_idx": 2,
-            "text": "b",
+            "text": "xby",
             "column_header": false,
             "row_header": false,
             "row_section": false,
@@ -957,7 +987,7 @@
               "end_row_offset_idx": 1,
               "start_col_offset_idx": 1,
               "end_col_offset_idx": 2,
-              "text": "b",
+              "text": "xby",
               "column_header": false,
               "row_header": false,
               "row_section": false,

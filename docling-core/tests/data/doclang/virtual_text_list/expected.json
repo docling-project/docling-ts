@@ -1,6 +1,6 @@
 {
   "schema_name": "DoclingDocument",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "name": "Document",
   "furniture": {
     "self_ref": "#/furniture",
@@ -34,10 +34,10 @@
           "$ref": "#/texts/1"
         },
         {
-          "$ref": "#/texts/5"
+          "$ref": "#/texts/7"
         },
         {
-          "$ref": "#/texts/7"
+          "$ref": "#/texts/9"
         }
       ],
       "content_layer": "body",
@@ -58,6 +58,12 @@
         },
         {
           "$ref": "#/texts/4"
+        },
+        {
+          "$ref": "#/texts/5"
+        },
+        {
+          "$ref": "#/texts/6"
         }
       ],
       "content_layer": "body",
@@ -67,11 +73,11 @@
     {
       "self_ref": "#/groups/2",
       "parent": {
-        "$ref": "#/texts/5"
+        "$ref": "#/texts/7"
       },
       "children": [
         {
-          "$ref": "#/texts/6"
+          "$ref": "#/texts/8"
         }
       ],
       "content_layer": "body",
@@ -163,6 +169,18 @@
       "content_layer": "body",
       "label": "text",
       "prov": [],
+      "orig": " ",
+      "text": " "
+    },
+    {
+      "self_ref": "#/texts/4",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
       "orig": "bold",
       "text": "bold",
       "formatting": {
@@ -174,7 +192,19 @@
       }
     },
     {
-      "self_ref": "#/texts/4",
+      "self_ref": "#/texts/5",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": " ",
+      "text": " "
+    },
+    {
+      "self_ref": "#/texts/6",
       "parent": {
         "$ref": "#/groups/1"
       },
@@ -186,7 +216,7 @@
       "text": " text"
     },
     {
-      "self_ref": "#/texts/5",
+      "self_ref": "#/texts/7",
       "parent": {
         "$ref": "#/groups/0"
       },
@@ -219,7 +249,7 @@
       "marker": ""
     },
     {
-      "self_ref": "#/texts/6",
+      "self_ref": "#/texts/8",
       "parent": {
         "$ref": "#/groups/2"
       },
@@ -248,7 +278,7 @@
       "marker": ""
     },
     {
-      "self_ref": "#/texts/7",
+      "self_ref": "#/texts/9",
       "parent": {
         "$ref": "#/groups/0"
       },
@@ -285,7 +315,7 @@
     {
       "self_ref": "#/pictures/0",
       "parent": {
-        "$ref": "#/texts/7"
+        "$ref": "#/texts/9"
       },
       "children": [],
       "content_layer": "body",
