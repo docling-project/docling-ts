@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.146.0
-at commit `c622bcb`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.147.0
+at commit `e3681a6`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -15,23 +15,24 @@ additional TypeScript capabilities are documented after the parity tables.
 
 ## Client configuration
 
-| Python constructor capability | TypeScript                               | Parity notes                                                                                                  |
-| ----------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Service URL                   | `baseUrl`                                | Both normalize trailing slashes and reject `/v1`, query, and fragment components.                             |
-| API key                       | `apiKey`                                 | HTTP uses `X-Api-Key`; WebSocket uses the query parameter and also the header in Node.                        |
-| Default conversion options    | `options`                                | Deep-copied at construction; per-call merge is shallow.                                                       |
-| Status watcher                | `statusWatcher`                          | `websocket` default or `polling`.                                                                             |
-| WebSocket polling fallback    | `webSocketFallbackToPoll`                | Enabled by default.                                                                                           |
-| Poll server wait              | `pollServerWaitSeconds`                  | Five seconds by default.                                                                                      |
-| Poll client interval          | `pollClientIntervalMs`                   | Defaults to the server-wait duration.                                                                         |
-| Job timeout                   | `jobTimeoutMs`                           | Five minutes by default.                                                                                      |
-| Conversion concurrency        | `maxConcurrency`                         | Eight by default; valid range 1–512.                                                                          |
-| HTTP retries                  | `httpRetries`                            | Three by default.                                                                                             |
-| HTTP timeout                  | `httpTimeoutMs`                          | Fetch has one total per-attempt timeout; Python/httpx exposes distinct connect and read/write/pool timeouts.  |
-| HTTP backoff                  | `httpBackoffBaseMs`                      | One second by default.                                                                                        |
-| Artifact timeout and size     | `artifactDownload.timeoutMs`, `maxBytes` | Same 60-second and 512-MiB defaults.                                                                          |
-| Private artifact override     | `artifactDownload.allowPrivateUrls`      | Public TypeScript option; Python keeps its equivalent internal.                                               |
-| Owned resource cleanup        | `close()`                                | TypeScript close is asynchronous, idempotent, closes an injected transport once, and prevents later requests. |
+| Python constructor capability | TypeScript                                             | Parity notes                                                                                                  |
+| ----------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Service URL                   | `baseUrl`                                              | Both normalize trailing slashes and reject `/v1`, query, and fragment components.                             |
+| API key                       | `apiKey`                                               | HTTP uses `X-Api-Key`; WebSocket uses the query parameter and also the header in Node.                        |
+| Default conversion options    | `options`                                              | Deep-copied at construction; per-call merge is shallow.                                                       |
+| Status watcher                | `statusWatcher`                                        | `websocket` default or `polling`.                                                                             |
+| WebSocket polling fallback    | `webSocketFallbackToPoll`                              | Enabled by default.                                                                                           |
+| Poll server wait              | `pollServerWaitSeconds`                                | Five seconds by default.                                                                                      |
+| Poll client interval          | `pollClientIntervalMs`                                 | Defaults to the server-wait duration.                                                                         |
+| Job timeout                   | `jobTimeoutMs`                                         | Five minutes by default.                                                                                      |
+| Conversion concurrency        | `maxConcurrency`                                       | Eight by default; valid range 1–512.                                                                          |
+| HTTP retries                  | `httpRetries`                                          | Three by default.                                                                                             |
+| HTTP timeout                  | `httpTimeoutMs`                                        | Fetch has one total per-attempt timeout; Python/httpx exposes distinct connect and read/write/pool timeouts.  |
+| HTTP backoff                  | `httpBackoffBaseMs`                                    | One second by default.                                                                                        |
+| Artifact timeout and size     | `artifactDownloadTimeout` / `maxArtifactDownloadBytes` | Direct or `artifactDownload.timeoutMs`, `maxBytes`. Same 60-second and 512-MiB defaults.                      |
+| Private artifact override     | `allowPrivateArtifactUrls`                             | Direct or `artifactDownload.allowPrivateUrls`. Now supported in both Python and TypeScript.                   |
+| Artifact URL allowlist        | `artifactUrlAllowlist`                                 | Direct or `artifactDownload.artifactUrlAllowlist`. Supported in both Python and TypeScript.                   |
+| Owned resource cleanup        | `close()`                                              | TypeScript close is asynchronous, idempotent, closes an injected transport once, and prevents later requests. |
 
 `fetch`, `transport`, `webSocketFactory`, `artifactDownloader`, and artifact
 DNS/fetch injection are TypeScript extensions.
@@ -158,6 +159,24 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Service client changes (v2.147.0)
+
+Python v2.147.0 at commit `e3681a6` formally exposes `artifact_url_allowlist` and `_allow_private_artifact_urls` in `DoclingServiceClient.__init__`:
+
+```
+https://github.com/docling-project/docling/blob/v2.147.0/docling/service_client/client.py#L933
+```
+
+TypeScript fully supports these options:
+
+- `artifactUrlAllowlist` (and nested `artifactDownload.artifactUrlAllowlist`) parses origins to selectively trust internal endpoints.
+- `allowPrivateArtifactUrls` (and nested `artifactDownload.allowPrivateUrls`) completely bypasses public-address checks when desired.
+
+| Python (v2.147.0)              | TypeScript                 | Option Key                 |
+| ------------------------------ | -------------------------- | -------------------------- |
+| `artifact_url_allowlist`       | `artifactUrlAllowlist`     | `artifactUrlAllowlist`     |
+| `_allow_private_artifact_urls` | `allowPrivateArtifactUrls` | `allowPrivateArtifactUrls` |
 
 ## Service client changes (v2.146.0)
 

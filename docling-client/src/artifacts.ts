@@ -14,6 +14,34 @@ import type {
 
 export type ArtifactAddressResolver = (hostname: string) => Promise<string[]>;
 
+export interface ParsedOrigin {
+  protocol: string;
+  hostname: string;
+  port: number;
+}
+
+export function parseArtifactOrigin(value: string): ParsedOrigin {
+  try {
+    const url = new URL(value);
+    const protocol = url.protocol.toLowerCase();
+    if (protocol !== 'http:' && protocol !== 'https:') {
+      throw new Error('Only http and https protocols are supported');
+    }
+    const hostname = url.hostname.toLowerCase();
+    if (!hostname) {
+      throw new Error('Host is required');
+    }
+    const defaultPort = protocol === 'http:' ? 80 : 443;
+    const port = url.port !== '' ? parseInt(url.port, 10) : defaultPort;
+    return { protocol: protocol.slice(0, -1), hostname, port };
+  } catch (error) {
+    throw new DoclingArtifactDownloadError(
+      `Invalid artifactUrlAllowlist entry ${JSON.stringify(value)}: expected an http(s) origin such as 'http://minio.storage.svc.cluster.local:9000'.`,
+      { cause: error }
+    );
+  }
+}
+
 export interface ArtifactDownloaderOptions {
   fetch?: typeof globalThis.fetch;
   resolver?: ArtifactAddressResolver;
@@ -21,6 +49,7 @@ export interface ArtifactDownloaderOptions {
   timeoutMs?: number;
   maxBytes?: number;
   maxRedirects?: number;
+  artifactUrlAllowlist?: string[];
 }
 
 export class ArtifactDownloader {
@@ -30,6 +59,7 @@ export class ArtifactDownloader {
   readonly #timeoutMs: number;
   readonly #maxBytes: number;
   readonly #maxRedirects: number;
+  readonly #artifactUrlAllowlist: ParsedOrigin[];
 
   constructor(options: ArtifactDownloaderOptions = {}) {
     if (options.fetch === undefined && globalThis.fetch === undefined) {
@@ -43,6 +73,8 @@ export class ArtifactDownloader {
     this.#timeoutMs = options.timeoutMs ?? 60_000;
     this.#maxBytes = options.maxBytes ?? 512 * 1024 * 1024;
     this.#maxRedirects = options.maxRedirects ?? 5;
+    const allowlist = options.artifactUrlAllowlist ?? [];
+    this.#artifactUrlAllowlist = allowlist.map(parseArtifactOrigin);
     validateArtifactLimits(this.#timeoutMs, this.#maxBytes, this.#maxRedirects);
   }
 
@@ -124,15 +156,30 @@ export class ArtifactDownloader {
       return;
     }
 
-    const hostname = url.hostname.replace(/^\[|\]$/g, '');
+    const protocol = url.protocol.slice(0, -1).toLowerCase();
+    const hostname = url.hostname.toLowerCase();
+    const defaultPort = protocol === 'http' ? 80 : 443;
+    const port = url.port !== '' ? parseInt(url.port, 10) : defaultPort;
+
+    const isTrusted = this.#artifactUrlAllowlist.some(
+      origin =>
+        origin.protocol === protocol &&
+        origin.hostname === hostname &&
+        origin.port === port
+    );
+    if (isTrusted) {
+      return;
+    }
+
+    const cleanHostname = url.hostname.replace(/^\[|\]$/g, '');
     let addresses: string[];
     try {
-      addresses = ipaddr.isValid(hostname)
-        ? [hostname]
-        : await this.#resolver(hostname);
+      addresses = ipaddr.isValid(cleanHostname)
+        ? [cleanHostname]
+        : await this.#resolver(cleanHostname);
     } catch (error) {
       throw new DoclingArtifactDownloadError(
-        `Could not resolve artifact host ${hostname}`,
+        `Could not resolve artifact host ${cleanHostname}`,
         { cause: error }
       );
     }
