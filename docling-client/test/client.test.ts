@@ -16,6 +16,7 @@ import {
   DoclingTaskError,
   DoclingTaskNotFoundError,
   applyPageLimits,
+  normalizeSourceInput,
   type ConvertSourcesRequest,
   type DoclingBinaryResponse,
   type DoclingTransport,
@@ -2062,6 +2063,55 @@ describe('v2.131.0 new fields', () => {
       'ebcdic',
       'afp',
     ]);
+  });
+});
+
+describe('v2.148.0 calendar input format and VLM response formats', () => {
+  it('accepts the calendar input format in request options', async () => {
+    const transport = new ScriptedTransport(task('calendar-test', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/events.ics',
+      { from_formats: ['calendar'] },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.from_formats).toEqual(['calendar']);
+  });
+
+  it.each(['ics', 'ical', 'icalendar', 'ifb'])(
+    'guesses the calendar input format for .%s files',
+    async extension => {
+      const normalized = await normalizeSourceInput({
+        kind: 'file',
+        base64_string: 'QkVHSU46VkNBTEVOREFS',
+        filename: `events.${extension}`,
+      });
+      expect(normalized.descriptor.format).toBe('calendar');
+    }
+  );
+
+  it.each([
+    'unlimited_ocr2',
+    'lightonocr_markdown',
+    'surya_html',
+    'nemotron_parse_v3_5',
+  ] as const)('accepts the %s VLM response format', responseFormat => {
+    expect(() =>
+      clientWith(new ScriptedTransport(), {
+        options: {
+          vlm_pipeline_model_local: {
+            repo_id: 'model',
+            response_format: responseFormat,
+            inference_framework: 'transformers',
+          },
+        },
+      })
+    ).not.toThrow();
   });
 });
 

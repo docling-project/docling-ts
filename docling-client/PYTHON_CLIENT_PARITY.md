@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.147.0
-at commit `e3681a6`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.148.0
+at commit `0fa0918`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -159,6 +159,50 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Service client changes (v2.148.0)
+
+Python v2.148.0 at commit `0fa0918` adds two service-facing changes since
+v2.147.0. The remaining changes (superscript/subscript detection, backend
+fixes) are server-side or core-library behavior with no service-client or
+service-datamodel surface.
+
+- `InputFormat.CALENDAR` (`"calendar"`) for the new iCalendar backend, with the
+  extensions `ics`, `ical`, `icalendar`, and `ifb` and the `text/calendar` MIME
+  type. `ConvertDocumentsOptions.from_formats` defaults to every `InputFormat`:
+
+  ```
+  https://github.com/docling-project/docling/blob/v2.148.0/docling/datamodel/base_models.py#L136
+  ```
+
+  The TypeScript `InputFormat` union includes `'calendar'`, the `from_formats`
+  validator accepts it, and the source normalizer maps those extensions to it
+  through the same extension table that Python builds in
+  `_build_extension_to_format_map()`:
+
+  ```
+  https://github.com/docling-project/docling/blob/v2.148.0/docling/service_client/client.py#L906
+  ```
+
+- `ResponseFormat` gained `SURYA_HTML` (Surya OCR 2.5), `UNLIMITED_OCR2`,
+  `LIGHTONOCR_MARKDOWN`, and `NEMOTRON_PARSE_V3_5`, used by
+  `VlmModelLocal.response_format` and `VlmModelApi.response_format`:
+
+  ```
+  https://github.com/docling-project/docling/blob/v2.148.0/docling/datamodel/pipeline_options_vlm_model.py#L104
+  ```
+
+  The TypeScript `VlmResponseFormat` (alias `ResponseFormat`) union and the
+  request-option validator accept the new values.
+
+| Python (v2.148.0)                    | TypeScript                                   | Wire key              |
+| ------------------------------------ | -------------------------------------------- | --------------------- |
+| `InputFormat.CALENDAR`               | `InputFormat` / `INPUT_FORMATS`              | `calendar`            |
+| `FormatToExtensions[CALENDAR]`       | `EXTENSION_FORMATS` / `guessMimeType()`      | `ics`, `ifb`, ...     |
+| `ResponseFormat.SURYA_HTML`          | `VlmResponseFormat` / `VLM_RESPONSE_FORMATS` | `surya_html`          |
+| `ResponseFormat.UNLIMITED_OCR2`      | `VlmResponseFormat` / `VLM_RESPONSE_FORMATS` | `unlimited_ocr2`      |
+| `ResponseFormat.LIGHTONOCR_MARKDOWN` | `VlmResponseFormat` / `VLM_RESPONSE_FORMATS` | `lightonocr_markdown` |
+| `ResponseFormat.NEMOTRON_PARSE_V3_5` | `VlmResponseFormat` / `VLM_RESPONSE_FORMATS` | `nemotron_parse_v3_5` |
 
 ## Service client changes (v2.147.0)
 

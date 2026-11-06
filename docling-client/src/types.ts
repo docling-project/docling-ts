@@ -49,7 +49,8 @@ export type InputFormat =
   | 'iwork_keynote'
   | 'iwork_numbers'
   | 'ebcdic'
-  | 'afp';
+  | 'afp'
+  | 'calendar';
 
 export type OutputFormat =
   | 'md'
@@ -84,12 +85,16 @@ export type VlmResponseFormat =
   | 'markdown'
   | 'deepseekocr_markdown'
   | 'unlimited_ocr_markdown'
+  | 'unlimited_ocr2'
+  | 'lightonocr_markdown'
   | 'html'
   | 'otsl'
   | 'plaintext'
   | 'chandra_html'
+  | 'surya_html'
   | 'dots_json'
   | 'nemotron_parse_v2'
+  | 'nemotron_parse_v3_5'
   | 'mineru2';
 export type ResponseFormat = VlmResponseFormat;
 export type VlmInferenceFramework = 'mlx' | 'transformers' | 'vllm';
