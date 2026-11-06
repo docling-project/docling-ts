@@ -184,6 +184,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
       'iwork_numbers',
       'ebcdic',
       'afp',
+      'calendar',
     ],
     to_formats: ['latex'],
   };
@@ -292,6 +293,12 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const tableFormerModeVal: TableFormerMode = 'accurate';
   const imageRefModeVal: ImageRefMode = 'placeholder';
   const responseFormatVal: ResponseFormat = 'doctags';
+  const v2148ResponseFormats: ResponseFormat[] = [
+    'unlimited_ocr2',
+    'lightonocr_markdown',
+    'surya_html',
+    'nemotron_parse_v3_5',
+  ];
   const inferenceFrameworkVal: InferenceFramework = 'transformers';
   const vlmModelTypeVal: VlmModelType = 'granite_docling';
   const statusWatcherKindVal: StatusWatcherKind = StatusWatcherKind.WEBSOCKET;
@@ -442,6 +449,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     tableFormerModeVal,
     imageRefModeVal,
     responseFormatVal,
+    v2148ResponseFormats,
     inferenceFrameworkVal,
     vlmModelTypeVal,
     statusWatcherKindVal,
