@@ -1,6 +1,6 @@
 {
   "schema_name": "DoclingDocument",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "name": "Document",
   "furniture": {
     "self_ref": "#/furniture",
@@ -16,10 +16,10 @@
         "$ref": "#/field_regions/0"
       },
       {
-        "$ref": "#/texts/27"
+        "$ref": "#/texts/32"
       },
       {
-        "$ref": "#/texts/28"
+        "$ref": "#/texts/33"
       }
     ],
     "content_layer": "body",
@@ -58,6 +58,12 @@
         },
         {
           "$ref": "#/texts/13"
+        },
+        {
+          "$ref": "#/texts/14"
+        },
+        {
+          "$ref": "#/texts/15"
         }
       ],
       "content_layer": "body",
@@ -71,16 +77,22 @@
       },
       "children": [
         {
-          "$ref": "#/texts/15"
-        },
-        {
-          "$ref": "#/texts/16"
-        },
-        {
           "$ref": "#/texts/17"
         },
         {
           "$ref": "#/texts/18"
+        },
+        {
+          "$ref": "#/texts/19"
+        },
+        {
+          "$ref": "#/texts/20"
+        },
+        {
+          "$ref": "#/texts/21"
+        },
+        {
+          "$ref": "#/texts/22"
         }
       ],
       "content_layer": "body",
@@ -90,11 +102,11 @@
     {
       "self_ref": "#/groups/3",
       "parent": {
-        "$ref": "#/texts/20"
+        "$ref": "#/texts/24"
       },
       "children": [
         {
-          "$ref": "#/texts/21"
+          "$ref": "#/texts/25"
         }
       ],
       "content_layer": "body",
@@ -104,11 +116,14 @@
     {
       "self_ref": "#/groups/4",
       "parent": {
-        "$ref": "#/texts/22"
+        "$ref": "#/texts/26"
       },
       "children": [
         {
-          "$ref": "#/texts/23"
+          "$ref": "#/texts/27"
+        },
+        {
+          "$ref": "#/texts/28"
         }
       ],
       "content_layer": "body",
@@ -118,11 +133,11 @@
     {
       "self_ref": "#/groups/5",
       "parent": {
-        "$ref": "#/texts/24"
+        "$ref": "#/texts/29"
       },
       "children": [
         {
-          "$ref": "#/texts/25"
+          "$ref": "#/texts/30"
         }
       ],
       "content_layer": "body",
@@ -271,8 +286,8 @@
       "content_layer": "body",
       "label": "checkbox_unselected",
       "prov": [],
-      "orig": "",
-      "text": ""
+      "orig": " ",
+      "text": " "
     },
     {
       "self_ref": "#/texts/11",
@@ -295,6 +310,18 @@
       "content_layer": "body",
       "label": "text",
       "prov": [],
+      "orig": " ",
+      "text": " "
+    },
+    {
+      "self_ref": "#/texts/13",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
       "orig": "Kent",
       "text": "Kent",
       "formatting": {
@@ -306,7 +333,19 @@
       }
     },
     {
-      "self_ref": "#/texts/13",
+      "self_ref": "#/texts/14",
+      "parent": {
+        "$ref": "#/groups/1"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": " ",
+      "text": " "
+    },
+    {
+      "self_ref": "#/texts/15",
       "parent": {
         "$ref": "#/groups/1"
       },
@@ -318,7 +357,7 @@
       "text": "Select this if you are a Superman fan"
     },
     {
-      "self_ref": "#/texts/14",
+      "self_ref": "#/texts/16",
       "parent": {
         "$ref": "#/field_items/2"
       },
@@ -331,7 +370,7 @@
       "kind": "read_only"
     },
     {
-      "self_ref": "#/texts/15",
+      "self_ref": "#/texts/17",
       "parent": {
         "$ref": "#/groups/2"
       },
@@ -343,7 +382,19 @@
       "text": "My first input "
     },
     {
-      "self_ref": "#/texts/16",
+      "self_ref": "#/texts/18",
+      "parent": {
+        "$ref": "#/groups/2"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": " ",
+      "text": " "
+    },
+    {
+      "self_ref": "#/texts/19",
       "parent": {
         "$ref": "#/groups/2"
       },
@@ -356,7 +407,7 @@
       "kind": "fillable"
     },
     {
-      "self_ref": "#/texts/17",
+      "self_ref": "#/texts/20",
       "parent": {
         "$ref": "#/groups/2"
       },
@@ -368,7 +419,19 @@
       "text": " and my second input "
     },
     {
-      "self_ref": "#/texts/18",
+      "self_ref": "#/texts/21",
+      "parent": {
+        "$ref": "#/groups/2"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
+      "orig": " ",
+      "text": " "
+    },
+    {
+      "self_ref": "#/texts/22",
       "parent": {
         "$ref": "#/groups/2"
       },
@@ -381,7 +444,7 @@
       "kind": "fillable"
     },
     {
-      "self_ref": "#/texts/19",
+      "self_ref": "#/texts/23",
       "parent": {
         "$ref": "#/field_items/3"
       },
@@ -393,7 +456,7 @@
       "text": "I am in the country as a: "
     },
     {
-      "self_ref": "#/texts/20",
+      "self_ref": "#/texts/24",
       "parent": {
         "$ref": "#/field_items/3"
       },
@@ -410,7 +473,7 @@
       "kind": "fillable"
     },
     {
-      "self_ref": "#/texts/21",
+      "self_ref": "#/texts/25",
       "parent": {
         "$ref": "#/groups/3"
       },
@@ -418,11 +481,11 @@
       "content_layer": "body",
       "label": "checkbox_unselected",
       "prov": [],
-      "orig": "Visitor",
-      "text": "Visitor"
+      "orig": " Visitor",
+      "text": " Visitor"
     },
     {
-      "self_ref": "#/texts/22",
+      "self_ref": "#/texts/26",
       "parent": {
         "$ref": "#/field_items/3"
       },
@@ -439,7 +502,7 @@
       "kind": "fillable"
     },
     {
-      "self_ref": "#/texts/23",
+      "self_ref": "#/texts/27",
       "parent": {
         "$ref": "#/groups/4"
       },
@@ -447,11 +510,23 @@
       "content_layer": "body",
       "label": "checkbox_unselected",
       "prov": [],
+      "orig": " ",
+      "text": " "
+    },
+    {
+      "self_ref": "#/texts/28",
+      "parent": {
+        "$ref": "#/groups/4"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [],
       "orig": " Student",
       "text": " Student"
     },
     {
-      "self_ref": "#/texts/24",
+      "self_ref": "#/texts/29",
       "parent": {
         "$ref": "#/field_items/3"
       },
@@ -468,7 +543,7 @@
       "kind": "fillable"
     },
     {
-      "self_ref": "#/texts/25",
+      "self_ref": "#/texts/30",
       "parent": {
         "$ref": "#/groups/5"
       },
@@ -476,11 +551,11 @@
       "content_layer": "body",
       "label": "checkbox_unselected",
       "prov": [],
-      "orig": "Other (Specify)",
-      "text": "Other (Specify)"
+      "orig": " Other (Specify)",
+      "text": " Other (Specify)"
     },
     {
-      "self_ref": "#/texts/26",
+      "self_ref": "#/texts/31",
       "parent": {
         "$ref": "#/field_items/3"
       },
@@ -493,7 +568,7 @@
       "kind": "fillable"
     },
     {
-      "self_ref": "#/texts/27",
+      "self_ref": "#/texts/32",
       "parent": {
         "$ref": "#/body"
       },
@@ -505,7 +580,7 @@
       "text": "Some final stuff."
     },
     {
-      "self_ref": "#/texts/28",
+      "self_ref": "#/texts/33",
       "parent": {
         "$ref": "#/body"
       },
@@ -606,7 +681,7 @@
           "$ref": "#/texts/9"
         },
         {
-          "$ref": "#/texts/14"
+          "$ref": "#/texts/16"
         },
         {
           "$ref": "#/groups/2"
@@ -623,19 +698,19 @@
       },
       "children": [
         {
-          "$ref": "#/texts/19"
-        },
-        {
-          "$ref": "#/texts/20"
-        },
-        {
-          "$ref": "#/texts/22"
+          "$ref": "#/texts/23"
         },
         {
           "$ref": "#/texts/24"
         },
         {
           "$ref": "#/texts/26"
+        },
+        {
+          "$ref": "#/texts/29"
+        },
+        {
+          "$ref": "#/texts/31"
         }
       ],
       "content_layer": "body",

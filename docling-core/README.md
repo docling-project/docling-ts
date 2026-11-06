@@ -64,6 +64,13 @@ import { DOMParser } from '@xmldom/xmldom';
 const doc = deserializeDocLang(doclangXml, { DOMParser });
 ```
 
+The options mirror the Python `deserialize_str` keyword arguments:
+
+- `pageNo`: the page of content before the first `<page_break/>` (default 1).
+- `maxXmlBytes`, `maxDepth`, `maxElements`: budgets for untrusted input. Exceeding one throws.
+- `repairUnescapedText`: escape a bare `&`, a `<` that cannot start markup, a stray `]]>` and illegal control characters before parsing. Off by default, so the input must be well-formed XML.
+- `onWarning`: receives warnings (default `console.warn`). `<track>` is not supported yet and is skipped, with all its content, with a warning.
+
 ### Read DCLX archives
 
 `deserializeDclx` reads a DCLX archive from bytes (`Uint8Array`, `ArrayBuffer`, `Blob` or `File`). Images are embedded in the document as base64 data URIs.

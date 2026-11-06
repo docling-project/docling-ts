@@ -28,23 +28,85 @@ export const data = (n: XNode) => n.nodeValue ?? '';
 export const kids = (n: XNode) => Array.from(n.childNodes);
 export const elems = (n: XNode) => kids(n).filter(isEl);
 export const attr = (el: XEl, name: string) => el.getAttribute(name) ?? '';
-export const blank = (n: XNode) => isText(n) && !data(n).trim();
+
+/** XML whitespace (`_XML_WHITESPACE`): unlike `trim()`, never U+00A0 etc. */
+export const strip = (s: string) => s.replace(/^[ \t\r\n]+|[ \t\r\n]+$/g, '');
+export const lstrip = (s: string) => s.replace(/^[ \t\r\n]+/, '');
+export const rstrip = (s: string) => s.replace(/[ \t\r\n]+$/, '');
+/** Does `s` hold anything but XML whitespace? */
+export const hasContent = (s: string) => /[^ \t\r\n]/.test(s);
+/** Is the node a text node holding only XML whitespace? */
+export const blank = (n: XNode) => isText(n) && !hasContent(data(n));
 
 function fail(msg: string): never {
   throw new Error(`Invalid DocLang XML: ${msg}`);
 }
 
-/** Parse XML text into its root element, enforcing depth and size budgets. */
+// Characters that can only be text (see `_repair_unescaped_xml_text`).
+const CDATA_SECTION = /(<!\[CDATA\[[\s\S]*?\]\]>)/;
+// eslint-disable-next-line no-control-regex
+const ILLEGAL_CONTROL = /[\x00-\x08\x0b\x0c\x0e-\x1f]/g;
+const BARE_AMP = /&(?!(?:[A-Za-z][\p{L}\p{N}_.-]*|#[0-9]+|#x[0-9A-Fa-f]+);)/gu;
+const BARE_LT = /<(?![A-Za-z_:/!?])/g;
+// Anything but a predefined or numeric reference is not well-formed.
+const BAD_REFERENCE = /&(?!(?:amp|lt|gt|quot|apos|#[0-9]+|#x[0-9A-Fa-f]+);)/;
+
+/**
+ * Escape characters that can only be text, leaving markup and CDATA untouched.
+ *
+ * Fixes bare `&`, a `<` that cannot start markup, a stray `]]>`, and drops
+ * control characters that XML 1.0 forbids. A `<` followed by a name character
+ * is never touched, so no tag structure is guessed.
+ */
+export function repairUnescapedXmlText(text: string): string {
+  const parts = text.replace(ILLEGAL_CONTROL, '').split(CDATA_SECTION);
+  // Odd indices are the CDATA sections themselves.
+  return parts
+    .map((part, i) =>
+      i % 2
+        ? part
+        : part
+            .replace(BARE_AMP, '&amp;')
+            .replace(BARE_LT, '&lt;')
+            .replaceAll(']]>', ']]&gt;')
+    )
+    .join('');
+}
+
+/**
+ * Reject what a strict parser (expat) does but the lenient DOM parsers accept:
+ * control characters, a bare `&` or unknown entity, and `]]>` in text.
+ */
+function assertWellFormedText(text: string) {
+  const bad = () => fail('not well-formed (invalid token)');
+  if (new RegExp(ILLEGAL_CONTROL.source).test(text)) bad();
+  const parts = text.split(/(<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->)/);
+  for (let i = 0; i < parts.length; i += 2)
+    if (BAD_REFERENCE.test(parts[i]) || parts[i].includes(']]>')) bad();
+}
+
+/** Parse XML text into its root element, enforcing size, depth and element budgets. */
 export function parseXml(
   text: string,
   {
     DOMParser = (globalThis as { DOMParser?: XmlParserCtor }).DOMParser,
+    maxXmlBytes = 128 * 1024 * 1024,
     maxDepth = 128,
     maxElements = 1_000_000,
-  }: { DOMParser?: XmlParserCtor; maxDepth?: number; maxElements?: number } = {}
+  }: {
+    DOMParser?: XmlParserCtor;
+    maxXmlBytes?: number;
+    maxDepth?: number;
+    maxElements?: number;
+  } = {}
 ): XEl {
+  if (maxXmlBytes <= 0)
+    throw new Error(`maxXmlBytes must be positive, got ${maxXmlBytes}`);
+  if (new TextEncoder().encode(text).length > maxXmlBytes)
+    throw new Error(`DocLang XML exceeds size limit of ${maxXmlBytes} bytes`);
   if (!DOMParser)
     fail('no DOMParser available: pass one, e.g. from "@xmldom/xmldom"');
+  assertWellFormedText(text);
   const root = new DOMParser({
     onError: (level, msg) => level !== 'warning' && fail(msg),
   }).parseFromString(text, 'text/xml').documentElement;
@@ -55,34 +117,20 @@ export function parseXml(
   )
     fail('parse error');
 
+  if (maxDepth <= 0)
+    throw new Error(`maxDepth must be positive, got ${maxDepth}`);
+  if (maxElements <= 0)
+    throw new Error(`maxElements must be positive, got ${maxElements}`);
   let count = 0;
   const check = (el: XEl, depth: number): void => {
-    if (++count > maxElements) fail(`more than ${maxElements} elements`);
-    if (depth > maxDepth) fail(`nesting deeper than ${maxDepth}`);
+    if (++count > maxElements)
+      throw new Error(
+        `DocLang XML exceeds element count limit of ${maxElements}`
+      );
+    if (depth > maxDepth)
+      throw new Error(`DocLang XML exceeds nesting depth limit of ${maxDepth}`);
     elems(el).forEach(c => check(c, depth + 1));
   };
   check(root, 1);
   return root;
-}
-
-const esc = (s: string) =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/"/g, '&quot;')
-    .replace(/>/g, '&gt;');
-
-/** Serialize like Python's `minidom.toxml()` (used for odd table-cell text). */
-export function toXml(n: XNode): string {
-  if (isText(n))
-    return n.nodeType === 4 ? `<![CDATA[${data(n)}]]>` : esc(data(n));
-  if (!isEl(n)) return n.nodeType === 8 ? `<!--${data(n)}-->` : '';
-  const attrs = Array.from(
-    n.attributes ?? [],
-    a => ` ${a.name}="${esc(a.value)}"`
-  ).join('');
-  const inner = kids(n).map(toXml).join('');
-  return inner
-    ? `<${n.tagName}${attrs}>${inner}</${n.tagName}>`
-    : `<${n.tagName}${attrs}/>`;
 }
