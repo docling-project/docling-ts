@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.148.0
-at commit `0fa0918`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.149.0
+at commit `8103d81`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -160,6 +160,29 @@ High-level limits match Python:
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
 
+## Service client changes (v2.149.0)
+
+Python v2.149.0 at commit `8103d81` is a release bump over v2.148.0.
+All service-client and service datamodel APIs, options, enums, endpoints,
+watchers, schedulers, and error models remain in full parity:
+
+- `DoclingServiceClient` and `AsyncDoclingServiceClient`:
+  ```
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/client.py#L914
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/_async_client.py#L109
+  ```
+- Service datamodels and options in `docling.datamodel.service`:
+  ```
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/service/options.py#L302
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/service/requests.py#L199
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/service/responses.py#L264
+  ```
+- Task status watchers and jobs:
+  ```
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/watchers.py#L92
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/job.py#L67
+  ```
+
 ## Service client changes (v2.148.0)
 
 Python v2.148.0 at commit `0fa0918` adds two service-facing changes since
@@ -172,7 +195,7 @@ service-datamodel surface.
   type. `ConvertDocumentsOptions.from_formats` defaults to every `InputFormat`:
 
   ```
-  https://github.com/docling-project/docling/blob/v2.148.0/docling/datamodel/base_models.py#L136
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/base_models.py#L136
   ```
 
   The TypeScript `InputFormat` union includes `'calendar'`, the `from_formats`
@@ -181,7 +204,7 @@ service-datamodel surface.
   `_build_extension_to_format_map()`:
 
   ```
-  https://github.com/docling-project/docling/blob/v2.148.0/docling/service_client/client.py#L906
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/client.py#L906
   ```
 
 - `ResponseFormat` gained `SURYA_HTML` (Surya OCR 2.5), `UNLIMITED_OCR2`,
@@ -189,7 +212,7 @@ service-datamodel surface.
   `VlmModelLocal.response_format` and `VlmModelApi.response_format`:
 
   ```
-  https://github.com/docling-project/docling/blob/v2.148.0/docling/datamodel/pipeline_options_vlm_model.py#L104
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/pipeline_options_vlm_model.py#L120
   ```
 
   The TypeScript `VlmResponseFormat` (alias `ResponseFormat`) union and the
@@ -209,7 +232,7 @@ service-datamodel surface.
 Python v2.147.0 at commit `e3681a6` formally exposes `artifact_url_allowlist` and `_allow_private_artifact_urls` in `DoclingServiceClient.__init__`:
 
 ```
-https://github.com/docling-project/docling/blob/v2.147.0/docling/service_client/client.py#L933
+https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/client.py#L933
 ```
 
 TypeScript fully supports these options:
@@ -232,7 +255,7 @@ with no service-client or service-datamodel surface.
 - `ArtifactRef.artifact_type` now allows `"chunks"`:
 
   ```
-  https://github.com/docling-project/docling/blob/v2.146.0/docling/datamodel/service/responses.py#L148
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/service/responses.py#L138
   ```
 
   The TypeScript `ArtifactType` union includes `'chunks'` and the presigned
@@ -246,7 +269,7 @@ with no service-client or service-datamodel surface.
   status and appends the presigned detail:
 
   ```
-  https://github.com/docling-project/docling/blob/v2.146.0/docling/service_client/client.py#L857
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/client.py#L857
   ```
 
   TypeScript `combineInBodyFallbackError()` mirrors this and throws a
@@ -271,7 +294,7 @@ behavior with no service-client or service-datamodel surface.
   download name for the archive:
 
   ```
-  https://github.com/docling-project/docling/blob/v2.145.0/docling/datamodel/service/responses.py#L122
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/service/responses.py#L122
   ```
 
   The TypeScript `ZipArchiveResult` interface exposes `filename?: string | null`.
@@ -283,7 +306,7 @@ behavior with no service-client or service-datamodel surface.
   the effective range differs from the merged options:
 
   ```
-  https://github.com/docling-project/docling/blob/v2.145.0/docling/service_client/client.py#L454
+  https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/client.py#L454
   ```
 
   TypeScript `applyPageLimits()` mirrors this: with no `page_range`, `pageRange`,
@@ -309,7 +332,7 @@ Python v2.141.0 to use an internal `_run_bounded()` helper from
 `docling/service_client/_scheduler.py` for bounded concurrency fan-out:
 
 ```
-https://github.com/docling-project/docling/blob/v2.142.0/docling/service_client/_scheduler.py#L31
+https://github.com/docling-project/docling/blob/v2.149.0/docling/service_client/_scheduler.py#L31
 ```
 
 The TypeScript scheduler already implements equivalent bounded-concurrency
@@ -321,7 +344,7 @@ changes are needed; this is a pure internal refactoring on the Python side.
 `ConfidenceScores` gained a recursive `pages` field in Python v2.139.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.142.0/docling/datamodel/service/responses.py#L45
+https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/service/responses.py#L45
 ```
 
 When present, it maps 1-based page numbers to per-page `ConfidenceScores`
@@ -339,7 +362,7 @@ objects. The TypeScript `ConfidenceScores` interface includes the
 `content` to `document` in Python v2.133.0:
 
 ```
-https://github.com/docling-project/docling/blob/v2.142.0/docling/datamodel/service/responses.py#L84
+https://github.com/docling-project/docling/blob/v2.149.0/docling/datamodel/service/responses.py#L80
 ```
 
 Pydantic continues to serialize the field as `content` on the wire via
