@@ -1,4 +1,3 @@
-import { Unzip, UnzipInflate } from 'fflate';
 import ipaddr from 'ipaddr.js';
 
 import { DoclingArtifactDownloadError } from './errors';
@@ -11,6 +10,7 @@ import type {
   ErrorItem,
   PresignedUrlConvertResponse,
 } from './types';
+import { unzipEntries, unzipEntriesAsync, type ZipLimits } from './zip';
 
 export type ArtifactAddressResolver = (hostname: string) => Promise<string[]>;
 
@@ -222,7 +222,7 @@ export async function materializePresignedResult<TDocument = DoclingDocument>(
     const bytes = await downloader.download(artifact.uri, signal);
     const document =
       artifact.artifact_type === 'resource_bundle'
-        ? documentFromBundle<TDocument>(bytes)
+        ? await documentFromBundleAsync<TDocument>(bytes)
         : documentFromJson<TDocument>(bytes);
     return conversionFromArtifactItem(item, input, response.processing_time, document);
   } catch (error) {
@@ -259,19 +259,53 @@ export function selectDocumentArtifact(item: DocumentArtifactItem): ArtifactRef 
   );
 }
 
+/**
+ * Reconstruct a document from a resource-bundle ZIP.
+ *
+ * Inflates with the platform `DecompressionStream` when available (browsers,
+ * Node >= 20) and with a small bundled decoder otherwise.
+ */
+export async function documentFromBundleAsync<TDocument>(
+  bytes: Uint8Array
+): Promise<TDocument> {
+  let entries: Record<string, Uint8Array>;
+  try {
+    entries = await unzipEntriesAsync(bytes, BUNDLE_LIMITS);
+  } catch (error) {
+    throw invalidBundleError(error);
+  }
+  return documentFromEntries<TDocument>(entries);
+}
+
+/**
+ * @deprecated Use {@link documentFromBundleAsync}. This synchronous variant
+ * cannot use the platform `DecompressionStream`, so it always runs the bundled
+ * JavaScript inflater, which is slower on large bundles. It will be removed in
+ * a future release.
+ */
 export function documentFromBundle<TDocument>(bytes: Uint8Array): TDocument {
   let entries: Record<string, Uint8Array>;
   try {
     entries = unzipBundle(bytes);
   } catch (error) {
-    if (error instanceof DoclingArtifactDownloadError) {
-      throw error;
-    }
-    throw new DoclingArtifactDownloadError(
-      'Downloaded resource bundle is not a valid ZIP',
-      { cause: error }
-    );
+    throw invalidBundleError(error);
   }
+  return documentFromEntries<TDocument>(entries);
+}
+
+function invalidBundleError(error: unknown): DoclingArtifactDownloadError {
+  if (error instanceof DoclingArtifactDownloadError) {
+    return error;
+  }
+  return new DoclingArtifactDownloadError(
+    'Downloaded resource bundle is not a valid ZIP',
+    { cause: error }
+  );
+}
+
+function documentFromEntries<TDocument>(
+  entries: Record<string, Uint8Array>
+): TDocument {
   for (const name of Object.keys(entries)) {
     validateBundlePath(name);
   }
@@ -489,49 +523,14 @@ function startsWith(bytes: Uint8Array, prefix: number[]): boolean {
   );
 }
 
+const BUNDLE_LIMITS: ZipLimits = {
+  maxEntries: 10_000,
+  maxUncompressedBytes: 512 * 1024 * 1024,
+  validateName: validateBundlePath,
+};
+
 function unzipBundle(bytes: Uint8Array): Record<string, Uint8Array> {
-  const entries: Record<string, Uint8Array> = {};
-  const maxEntries = 10_000;
-  const maxUncompressedBytes = 512 * 1024 * 1024;
-  let entryCount = 0;
-  let total = 0;
-  const archive = new Unzip(file => {
-    entryCount += 1;
-    if (entryCount > maxEntries) {
-      throw new DoclingArtifactDownloadError(
-        `Resource bundle exceeds ${maxEntries} entries`
-      );
-    }
-    validateBundlePath(file.name);
-    const chunks: Uint8Array[] = [];
-    file.ondata = (error, chunk, final) => {
-      if (error !== null) {
-        throw error;
-      }
-      total += chunk.byteLength;
-      if (total > maxUncompressedBytes) {
-        throw new DoclingArtifactDownloadError(
-          `Resource bundle exceeds ${maxUncompressedBytes} uncompressed bytes`
-        );
-      }
-      chunks.push(chunk);
-      if (final) {
-        const content = new Uint8Array(
-          chunks.reduce((sum, value) => sum + value.byteLength, 0)
-        );
-        let offset = 0;
-        for (const value of chunks) {
-          content.set(value, offset);
-          offset += value.byteLength;
-        }
-        entries[file.name] = content;
-      }
-    };
-    file.start();
-  });
-  archive.register(UnzipInflate);
-  archive.push(bytes, true);
-  return entries;
+  return unzipEntries(bytes, BUNDLE_LIMITS);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

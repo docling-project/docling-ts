@@ -58,7 +58,6 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "fflate": "^0.8.2",
     "ipaddr.js": "^2.2.0",
     "isomorphic-ws": "^5.0.0"
   },

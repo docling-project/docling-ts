@@ -1,4 +1,3 @@
-import { strToU8, zipSync } from 'fflate';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -9,6 +8,7 @@ import {
   selectDocumentArtifact,
   type PresignedUrlConvertResponse,
 } from '../src';
+import { utf8 as strToU8, zip as zipSync } from './zip-fixture';
 
 const INPUT = {
   filename: 'manual.pdf',
