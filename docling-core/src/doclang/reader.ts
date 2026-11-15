@@ -1,6 +1,6 @@
 /**
  * DocLang -> DoclingDocument. A port of docling-core's `DocLangDocDeserializer`
- * (v2.106.0) that works directly on DOM nodes.
+ * (v2.107.0) that works directly on DOM nodes.
  *
  * Method names follow the Python ones (`_parse_text_like` -> `parseTextLike`)
  * so the two stay easy to compare.
@@ -221,6 +221,43 @@ const firstChild = (el: XEl, tag: string) =>
   elems(el).find(c => c.tagName === tag);
 
 const firstNonWhitespace = (nodes: XNode[]) => nodes.find(n => !blank(n));
+
+/** Python's `str(Path(s))` for a POSIX relative target or fragment. */
+const normalizePath = (s: string) =>
+  (s.startsWith('/') ? '/' : '') +
+    s
+      .split('/')
+      .filter(p => p && p !== '.')
+      .join('/') || '.';
+
+/** A target as the model stores it: an absolute URL, else a normalized path. */
+function linkTarget(uri: string): string {
+  try {
+    return new URL(uri).href;
+  } catch {
+    return normalizePath(uri);
+  }
+}
+
+/**
+ * Read the nearest element-head `<href>`, including one on an enclosing
+ * element. An href applies to all content of its element, so runs inherit it.
+ * Only immediate head nodes are inspected at each level.
+ */
+function extractHyperlink(el?: XNode | null): string | undefined {
+  let current = el;
+  while (isEl(current)) {
+    for (const n of kids(current)) {
+      if (!(blank(n) || (isEl(n) && isHead(n)))) break; // end of the element head
+      if (isEl(n) && n.tagName === 'href') {
+        const uri = attr(n, 'uri');
+        return uri ? linkTarget(uri) : undefined;
+      }
+    }
+    current = current.parentNode;
+  }
+  return undefined;
+}
 
 // ------------- Formatting -------------
 
@@ -588,6 +625,7 @@ export class Reader {
         parent,
         prov: provFor(codeText, provs),
         layer,
+        hyperlink: extractHyperlink(el),
         ...floating(),
         code_language,
       });
@@ -601,6 +639,7 @@ export class Reader {
         parent,
         prov: provFor(text, provs),
         formatting: formatting0,
+        hyperlink: extractHyperlink(el),
       });
       this.registerThread(threadId, nm, item);
       this.applyMeta(item, el);
@@ -618,6 +657,7 @@ export class Reader {
         parent,
         prov: provFor(text, provs),
         formatting,
+        hyperlink: extractHyperlink(el),
         layer,
       });
       this.registerThread(threadId, nm, item);
@@ -631,6 +671,16 @@ export class Reader {
     const layer = this.extractLayer(el);
     const text = getText(el);
     if (!text) return;
+    // Flattening a heading with linked runs discards each run's target. The
+    // runs then carry the links, including the heading's own.
+    const body = split(el)[1];
+    const hasLinkedRuns =
+      !field &&
+      simpleTextBlock(el) === null &&
+      body.some(n => isEl(n) && n.getElementsByTagName('href').length > 0);
+    const headingText = hasLinkedRuns ? '' : text;
+    const headingLink =
+      hasLinkedRuns || field ? undefined : extractHyperlink(el);
     const host = el.tagName;
     const threadId = threadIdOf(split(el)[0]);
     const existing = this.threadItem<TextItemLike>(threadId, host);
@@ -638,14 +688,16 @@ export class Reader {
     // Level 1 maps to a title, level > 1 to a section header of level - 1.
     const item = this.doc.text(
       field ? 'field_heading' : level === 1 ? 'title' : 'section_header',
-      text,
+      headingText,
       {
         parent,
         layer,
-        prov: provFor(text, provs),
+        prov: provFor(headingText, provs),
+        hyperlink: headingLink,
         ...(field ? { level } : level === 1 ? {} : { level: level - 1 }),
       }
     );
+    if (hasLinkedRuns) this.parseInlineGroup(item, body);
     this.registerThread(threadId, host, item);
     if (!field) this.applyMeta(item, el);
   }
@@ -756,10 +808,15 @@ export class Reader {
       const content = all.slice(from, next);
       const els = actual.slice(start + 1, end).filter(n => !isHead(n));
 
-      const add = (text: string, prov: ProvenanceItem[] = []) =>
+      const add = (
+        text: string,
+        prov: ProvenanceItem[] = [],
+        hyperlink?: string
+      ) =>
         this.doc.text('list_item', text, {
           parent: group,
           prov,
+          hyperlink,
           enumerated: ordered,
           marker,
         });
@@ -768,7 +825,11 @@ export class Reader {
         elems(t).filter(c => !isLocationOrLayer(c)).length <= 1 &&
         simpleTextBlock(t) !== null;
       const plainItem = (t: XEl) =>
-        add(getText(t), this.extractProvenance(t).slice(0, 1));
+        add(
+          getText(t),
+          this.extractProvenance(t).slice(0, 1),
+          extractHyperlink(t)
+        );
       const nest = (li: NodeItem, xs: XEl[]) =>
         xs.forEach(x => this.dispatch(x, li));
 
@@ -791,7 +852,11 @@ export class Reader {
 
   /** Parse a list-item body emitted as virtual `<text>` after `<ldiv>`. */
   private parseListItemVirtualText(
-    add: (text: string, prov?: ProvenanceItem[]) => TextItemLike,
+    add: (
+      text: string,
+      prov?: ProvenanceItem[],
+      hyperlink?: string
+    ) => TextItemLike,
     content: XNode[]
   ) {
     const provs = this.provenanceFromLocations(content);
@@ -828,7 +893,11 @@ export class Reader {
       const n = runs[idx];
       if (!isEl(n)) {
         // Already read per the whitespace rules: a run owns its boundary space.
-        this.doc.text(label, data(n), { parent, formatting });
+        this.doc.text(label, data(n), {
+          parent,
+          formatting,
+          hyperlink: extractHyperlink(n.parentNode),
+        });
       } else if (isCheckbox(n)) {
         const next = idx + 1 < runs.length ? plainRunText(runs[idx + 1]) : null;
         if (next !== null) idx++;
@@ -837,7 +906,12 @@ export class Reader {
         // The explicit whitespace-preserving wrapper is a run, not a nested
         // item, so it inherits the formatting accumulated on the way in.
         const text = collectText(n);
-        if (text) this.doc.text(label, text, { parent, formatting });
+        if (text)
+          this.doc.text(label, text, {
+            parent,
+            formatting,
+            hyperlink: extractHyperlink(n),
+          });
       } else if (isFormatting(n)) {
         // Accumulate this tag's style and keep descending.
         this.parseInlineRuns(
@@ -1041,6 +1115,7 @@ export class Reader {
     return this.doc.text('caption', text, {
       prov: this.extractProvenance(capEl),
       layer: this.extractLayer(capEl),
+      hyperlink: extractHyperlink(capEl),
     });
   }
 

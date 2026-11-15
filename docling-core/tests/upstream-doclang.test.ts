@@ -27,7 +27,7 @@ const options = (kwargs: Case['kwargs'] = {}) => ({
   onWarning: () => {},
 });
 
-// Fresh `export_to_dict()` of the Python DocLangDocDeserializer (v2.106.0) for
+// Fresh `export_to_dict()` of the Python DocLangDocDeserializer (v2.107.0) for
 // the input of every upstream DocLang test. Regenerate with the capture plugin
 // described in the PR body.
 describe('upstream DocLang test inputs', () => {

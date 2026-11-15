@@ -233,3 +233,104 @@ describe('doclang models', () => {
     expect(doc.texts?.[0].text).toBe('abcd');
   });
 });
+
+describe('doclang hyperlinks', () => {
+  const read = (xml: string) =>
+    deserializeDocLang(`<doclang version="0.9">${xml}</doclang>`, {
+      DOMParser,
+    });
+  const runs = (xml: string) =>
+    read(xml)
+      .texts?.filter(t => t.text)
+      .map(t => [t.text, t.hyperlink ?? null]);
+
+  it('reads an href as the target of the whole element', () => {
+    expect(
+      runs(
+        '<text><href uri="https://example.com/?a=1&amp;b=2#part"/>linked</text>'
+      )
+    ).toEqual([['linked', 'https://example.com/?a=1&b=2#part']]);
+  });
+  it('lets runs inherit the href of their enclosing element', () => {
+    expect(
+      runs(
+        '<text><href uri="https://example.com/"/>before <bold>linked</bold> after</text>'
+      )
+    ).toEqual([
+      ['before ', 'https://example.com/'],
+      ['linked', 'https://example.com/'],
+      [' after', 'https://example.com/'],
+    ]);
+  });
+  it('prefers the nearest href', () => {
+    expect(
+      runs(
+        '<text><href uri="https://example.com/outer"/>before <text><href uri="https://example.com/inner"/>inner</text> after</text>'
+      )
+    ).toEqual([
+      ['before ', 'https://example.com/outer'],
+      ['inner', 'https://example.com/inner'],
+      [' after', 'https://example.com/outer'],
+    ]);
+  });
+  it('does not link the runs around a linked nested element', () => {
+    expect(
+      runs(
+        '<text>before <text><href uri="https://example.com/"/>linked</text> after</text>'
+      )
+    ).toEqual([
+      ['before ', null],
+      ['linked', 'https://example.com/'],
+      [' after', null],
+    ]);
+  });
+  it('keeps relative targets and fragments as paths', () => {
+    expect(runs('<text><href uri="../guide.md#example"/>a</text>')).toEqual([
+      ['a', '../guide.md#example'],
+    ]);
+    expect(runs('<text><href uri="#details"/>a</text>')).toEqual([
+      ['a', '#details'],
+    ]);
+    expect(
+      runs('<text><href uri="mailto:maintainer@example.com"/>a</text>')
+    ).toEqual([['a', 'mailto:maintainer@example.com']]);
+  });
+  it('links code, formulas, list items and captions', () => {
+    const doc = read(
+      '<code><href uri="https://example.com/c"/>x = 1</code>' +
+        '<formula><href uri="https://example.com/f"/>E=mc^2</formula>' +
+        '<list><ldiv/><text><href uri="https://example.com/l"/>item</text></list>' +
+        '<picture><caption><href uri="https://example.com/p"/>cap</caption></picture>'
+    );
+    expect(doc.texts?.map(t => [t.label, t.hyperlink])).toEqual([
+      ['code', 'https://example.com/c'],
+      ['formula', 'https://example.com/f'],
+      ['list_item', 'https://example.com/l'],
+      ['caption', 'https://example.com/p'],
+    ]);
+  });
+  it('keeps a flattened heading link on the heading alone', () => {
+    const doc = read(
+      '<heading level="2"><href uri="https://example.com/"/>a <formula>x</formula></heading>'
+    );
+    expect(doc.texts?.map(t => [t.label, t.text, t.hyperlink])).toEqual([
+      ['section_header', 'a x', 'https://example.com/'],
+    ]);
+  });
+  it('moves a heading with linked runs into those runs', () => {
+    const doc = read(
+      '<heading level="1"><text><href uri="https://example.com/a"/>a </text><text><href uri="https://example.com/b"/>b</text></heading>'
+    );
+    const [title, ...rest] = doc.texts ?? [];
+    expect([title.label, title.text, title.hyperlink]).toEqual([
+      'title',
+      '',
+      undefined,
+    ]);
+    expect(rest.map(t => [t.text, t.hyperlink])).toEqual([
+      ['a ', 'https://example.com/a'],
+      ['b', 'https://example.com/b'],
+    ]);
+    expect(doc.groups?.[0].parent?.$ref).toBe(title.self_ref);
+  });
+});
