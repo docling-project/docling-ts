@@ -647,11 +647,12 @@ export class Reader {
       const formatting = isFormatting(el)
         ? mergeFormattingTag(nm, formatting0)
         : formatting0;
-      const label = elementChildren.some(c => c.tagName === 'handwriting')
-        ? 'handwritten_text'
-        : checkbox
-          ? checkboxLabel(checkbox[0])
-          : TEXT_LABEL[nm];
+      const label =
+        nm === 'text' && elementChildren.some(c => c.tagName === 'handwriting')
+          ? 'handwritten_text'
+          : checkbox
+            ? checkboxLabel(checkbox[0])
+            : TEXT_LABEL[nm];
       if (existing) return this.mergeThreadedTextItem(existing, text, provs);
       const item = this.doc.text(label, text, {
         parent,

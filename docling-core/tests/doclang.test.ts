@@ -185,6 +185,30 @@ describe('inline whitespace contract', () => {
       ['checkbox_selected', ' yes'],
     ]);
   });
+  it('labels handwriting runs within text, matching Python', () => {
+    const doc = read('<text>Check <handwriting>out</handwriting> these</text>');
+    expect(doc.texts?.filter(t => t.text).map(t => [t.text, t.label])).toEqual([
+      ['Check ', 'text'],
+      ['out', 'handwritten_text'],
+      [' these', 'text'],
+    ]);
+  });
+  it('keeps handwriting host labels except for <text>', () => {
+    const doc = read(
+      '<text><handwriting>a</handwriting></text>' +
+        '<footnote><handwriting>a</handwriting></footnote>' +
+        '<caption><handwriting>a</handwriting></caption>' +
+        '<page_header><handwriting>a</handwriting></page_header>' +
+        '<page_footer><handwriting>a</handwriting></page_footer>'
+    );
+    expect(doc.texts?.map(t => t.label)).toEqual([
+      'handwritten_text',
+      'footnote',
+      'caption',
+      'page_header',
+      'page_footer',
+    ]);
+  });
   it('yields an empty item for an empty text-like element', () => {
     const doc = read('<text/><formula/><code/>');
     expect(doc.texts?.map(t => [t.label, t.text])).toEqual([
