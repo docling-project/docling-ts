@@ -206,12 +206,14 @@ export class Doc {
       prov = [],
       layer,
       formatting,
+      hyperlink,
       ...extra
     }: {
       parent?: NodeItem;
       prov?: ProvenanceItem[];
       layer?: ContentLayer;
       formatting?: Formatting;
+      hyperlink?: string;
     } & TextExtra = {}
   ): TextItemLike {
     return this.add<TextFields>(
@@ -223,7 +225,7 @@ export class Doc {
         orig: text,
         text,
         formatting,
-        hyperlink: undefined,
+        hyperlink,
         ...extra,
       },
       parent,

@@ -1,10 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { iterateDocumentItems, resolveDocumentItem } from '../src/index';
+import {
+  getMinPageSize,
+  getMinPageSizes,
+  iterateDocumentItems,
+  resolveDocumentItem,
+} from '../src/index';
 import {
   type DoclingDocument,
   type FormItem,
+  type BoundingBox,
+  type ProvenanceItem,
   type KeyValueItem,
   type ListItem,
   type SectionHeaderItem,
@@ -368,5 +375,109 @@ describe('iterateDocumentItems (test-document.json)', () => {
     };
     expect(isDocling.DocItem(kv)).toBe(true);
     expect(isDocling.DocItem(form)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getMinPageSizes / getMinPageSize
+// ---------------------------------------------------------------------------
+
+describe('getMinPageSizes', () => {
+  const prov = (
+    page_no: number,
+    l: number,
+    t: number,
+    r: number,
+    b: number
+  ): ProvenanceItem => ({
+    page_no,
+    bbox: { l, t, r, b, coord_origin: 'TOPLEFT' } as BoundingBox,
+    charspan: [0, 1],
+  });
+  const text = (
+    ref: string,
+    p: ProvenanceItem,
+    content_layer: TextItem['content_layer'] = 'body'
+  ): TextItem => ({
+    self_ref: ref,
+    label: 'text',
+    orig: 'a',
+    text: 'a',
+    prov: [p],
+    content_layer,
+  });
+  const cell = (r: number, b: number) => ({
+    text: 'cell',
+    start_row_offset_idx: 0,
+    end_row_offset_idx: 1,
+    start_col_offset_idx: 0,
+    end_col_offset_idx: 1,
+    bbox: { l: 0, t: 0, r, b } as BoundingBox,
+  });
+  const table = (
+    ref: string,
+    provs: ProvenanceItem[],
+    c: ReturnType<typeof cell>
+  ) => ({
+    self_ref: ref,
+    label: 'table' as const,
+    prov: provs,
+    data: { table_cells: [c], num_rows: 1, num_cols: 1, grid: [[c]] },
+  });
+
+  it('is empty for a document without bounding boxes', () => {
+    const doc: DoclingDocument = { name: 'test' };
+    expect(getMinPageSizes(doc).size).toBe(0);
+    expect(getMinPageSize(doc, 1)).toEqual({ width: 0, height: 0 });
+  });
+
+  it('covers provenances, table cells and graph cells of every layer', () => {
+    const doc: DoclingDocument = {
+      name: 'test',
+      texts: [
+        text('#/texts/0', prov(1, 1, 1, 3, 2)),
+        // the furniture layer is included
+        text('#/texts/1', prov(1, 0, 8, 2, 10), 'furniture'),
+        // other pages are measured on their own
+        text('#/texts/2', prov(2, 0, 0, 50, 60)),
+      ],
+      tables: [
+        // table cell bboxes count as well
+        table('#/tables/0', [prov(1, 0, 0, 5, 4)], cell(7, 4)),
+        // cell bboxes of multi-page tables are not anchored on a page
+        table(
+          '#/tables/1',
+          [prov(2, 0, 0, 1, 1), prov(3, 0, 0, 1, 1)],
+          cell(99, 99)
+        ),
+      ],
+      key_value_items: [
+        {
+          self_ref: '#/key_value_items/0',
+          label: 'key_value_region',
+          graph: {
+            cells: [
+              {
+                label: 'key',
+                cell_id: 0,
+                text: 'k',
+                orig: 'k',
+                prov: prov(3, 0, 0, 20, 30),
+              },
+            ],
+            links: [],
+          },
+        },
+      ],
+    };
+
+    const sizes = getMinPageSizes(doc);
+    expect([...sizes]).toEqual([
+      [1, { width: 7, height: 10 }],
+      [2, { width: 50, height: 60 }],
+      [3, { width: 20, height: 30 }],
+    ]);
+    expect(getMinPageSize(doc, 1)).toEqual(sizes.get(1));
+    expect(getMinPageSize(doc, 4)).toEqual({ width: 0, height: 0 });
   });
 });

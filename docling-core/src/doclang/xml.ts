@@ -6,6 +6,7 @@ export interface XNode {
   nodeType: number;
   nodeValue: string | null;
   childNodes: ArrayLike<XNode>;
+  parentNode?: XNode | null;
   attributes?: ArrayLike<{ name: string; value: string }>;
   tagName?: string;
 }

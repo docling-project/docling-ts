@@ -363,6 +363,11 @@ export type Script = 'baseline' | 'sub' | 'super';
 export type Orientation = 'rot_0' | 'rot_90' | 'rot_180' | 'rot_270';
 export type ImageRefMode = 'placeholder' | 'embedded' | 'referenced';
 export type CaptionPlacement = 'standard' | 'layout';
+/**
+ * How to render formatting that has no Markdown syntax (underline,
+ * subscript, superscript): drop it (`none`) or fall back to HTML tags (`html`).
+ */
+export type FormattingFallbackMode = 'none' | 'html';
 export type CollectionType = 'Document' | 'Record';
 
 export interface BoundingBox {

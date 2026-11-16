@@ -1,5 +1,13 @@
 import { DEFAULT_CONTENT_LAYERS, isDocling } from './types';
-import { ContentLayer, DoclingDocument, NodeItem, RefItem } from './types';
+import {
+  BoundingBox,
+  ContentLayer,
+  DocItem,
+  DoclingDocument,
+  NodeItem,
+  RefItem,
+  Size,
+} from './types';
 
 export * from './types';
 
@@ -70,6 +78,86 @@ export function* iterateDocumentItems(
       }
     }
   }
+}
+
+/**
+ * Generates `[pageNo, bbox]` for every bounding box anchored on a page: item
+ * provenances, table cell bboxes of single-page tables, and key-value/form
+ * graph cell provenances. Groups carry no provenance and are not visited.
+ */
+function* iteratePageBBoxes(
+  doc: DoclingDocument
+): Generator<[number, BoundingBox]> {
+  const itemLists: DocItem[][] = [
+    doc.texts ?? [],
+    doc.pictures ?? [],
+    doc.tables ?? [],
+    doc.key_value_items ?? [],
+    doc.form_items ?? [],
+    doc.field_regions ?? [],
+    doc.field_items ?? [],
+  ];
+
+  for (const item of itemLists.flat()) {
+    const prov = item.prov ?? [];
+    for (const p of prov) yield [p.page_no, p.bbox];
+  }
+
+  for (const table of doc.tables ?? []) {
+    // Cell bboxes belong to a page only for single-page tables.
+    const pageNos = new Set((table.prov ?? []).map(p => p.page_no));
+    if (pageNos.size !== 1) continue;
+    const [pageNo] = pageNos;
+    for (const cell of table.data.table_cells ?? [])
+      if (cell.bbox) yield [pageNo, cell.bbox];
+  }
+
+  for (const item of [
+    ...(doc.key_value_items ?? []),
+    ...(doc.form_items ?? []),
+  ])
+    for (const cell of item.graph.cells)
+      if (cell.prov) yield [cell.prov.page_no, cell.prov.bbox];
+}
+
+/**
+ * Get the smallest page size that contains all content, for every page with content.
+ *
+ * The size of a page is the largest horizontal and vertical coordinate over all
+ * bounding boxes anchored on it: item provenances, table cell bboxes and
+ * key-value/form graph cell provenances, in every content layer. Coordinates are
+ * measured from `0`; negative coordinates are not accounted for.
+ *
+ * @returns A mapping from 1-based page number to minimum page size, for each page
+ * that has at least one bounding box.
+ */
+export function getMinPageSizes(
+  doc: DoclingDocument
+): Map<number, Required<Size>> {
+  const sizes = new Map<number, Required<Size>>();
+  for (const [pageNo, bbox] of iteratePageBBoxes(doc)) {
+    const size = sizes.get(pageNo) ?? { width: 0, height: 0 };
+    size.width = Math.max(size.width, bbox.l, bbox.r);
+    size.height = Math.max(size.height, bbox.t, bbox.b);
+    sizes.set(pageNo, size);
+  }
+  return sizes;
+}
+
+/**
+ * Get the smallest page size that contains all content of a page.
+ *
+ * See `getMinPageSizes`, which computes all pages in one pass.
+ *
+ * @param pageNo 1-based page number to measure.
+ * @returns The minimum page size, `{ width: 0, height: 0 }` if the page has no
+ * bounding boxes.
+ */
+export function getMinPageSize(
+  doc: DoclingDocument,
+  pageNo: number
+): Required<Size> {
+  return getMinPageSizes(doc).get(pageNo) ?? { width: 0, height: 0 };
 }
 
 /**

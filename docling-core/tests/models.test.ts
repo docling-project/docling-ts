@@ -16,6 +16,7 @@ import {
   type FieldRegionItem,
   type FieldValueItem,
   type FormItem,
+  type FormattingFallbackMode,
   type FormulaItem,
   type InlineGroup,
   type KeyValueItem,
@@ -536,5 +537,10 @@ describe('New Models and Interfaces', () => {
     };
     expect(desc.kind).toBe('description');
     expect(misc.kind).toBe('misc');
+  });
+
+  it('declares the FormattingFallbackMode values', () => {
+    const modes: FormattingFallbackMode[] = ['none', 'html'];
+    expect(modes).toEqual(['none', 'html']);
   });
 });
