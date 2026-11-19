@@ -66,13 +66,13 @@
     "@eslint/js": "10.0.1",
     "@types/node": "^26.5.1",
     "@types/ws": "^8.18.1",
-    "eslint": "10.14.0",
+    "eslint": "10.15.0",
     "globals": "17.14.0",
-    "prettier": "3.9.10",
+    "prettier": "3.10.1",
     "publint": "^0.3.24",
     "tsup": "9.0.0",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.72.1",
+    "typescript-eslint": "8.72.2",
     "vitest": "5.1.0"
   },
   "engines": {
