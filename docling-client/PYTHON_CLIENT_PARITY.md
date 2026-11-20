@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.150.0
-at commit `6852c27`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.151.1
+at commit `56d39ff`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -159,6 +159,28 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Service client changes (v2.151.1)
+
+Python v2.151.1 at commit `56d39ff` (including v2.151.0 and v2.150.1) changes
+two service-client behaviors and one service-datamodel description. The remaining
+changes (backend, CLI, and pipeline fixes) are server-side or core-library
+behavior with no service-client or service-datamodel surface.
+
+| Python change                                                                | TypeScript                          | Notes                                                                                                  |
+| ---------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| WebSocket poll fallback stays within the original timeout (#5121)            | `watchTask()`                       | The fallback polls with the time left; exhausted or expired budgets raise the caller's timeout.        |
+| Input iterator errors propagate from batch scheduling (#5013)                | `boundedOutcomes()`, `convertAll()` | Already matched: iterator failures reject the generator and cancel active work. Regression test added. |
+| Chart extraction preset examples list `granite_vision_v4_mlx` and `..._v3_3` | `ConvertDocumentsOptions`           | Documentation comment on `chart_extraction_preset` updated; the field remains `string \| null`.        |
+
+References:
+
+```
+https://github.com/docling-project/docling/blob/v2.151.1/docling/service_client/watchers.py#L98
+https://github.com/docling-project/docling/blob/v2.151.1/docling/service_client/watchers.py#L184
+https://github.com/docling-project/docling/blob/v2.151.1/docling/service_client/_scheduler.py#L86
+https://github.com/docling-project/docling/blob/v2.151.1/docling/datamodel/service/options.py#L650
+```
 
 ## Service client changes (v2.150.0)
 

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   DoclingTaskNotFoundError,
+  DoclingTimeoutError,
   watchTask,
   type TaskStatusResponse,
   type WebSocketLike,
@@ -190,6 +191,40 @@ describe('Docling WebSocket watcher', () => {
     expect(poll).toHaveBeenCalledTimes(1);
     expect(factory).toHaveBeenCalledTimes(1);
     expect(sockets[0]?.closed).toBe(true);
+  });
+
+  it('keeps the poll fallback within the original timeout', async () => {
+    const poll = vi.fn(async () => task('pending'));
+    const timeoutMs = 120;
+    const started = Date.now();
+    const watcher = watchTask({
+      taskId: 'fallback-timeout',
+      baseUrl: 'http://docling.example.test',
+      watcher: 'websocket',
+      fallbackToPoll: true,
+      connectTimeoutMs: 100,
+      webSocketFactory: () =>
+        new FakeSocket(socket => {
+          setTimeout(() => {
+            socket.message({ message: 'error', error: 'Server is busy' });
+          }, 60);
+        }),
+      poll,
+      parseStatus,
+      timeoutMs,
+      pollIntervalMs: 10,
+      serverWaitSeconds: 0,
+    });
+
+    const error = await collect(watcher).then(
+      () => undefined,
+      (caught: unknown) => caught
+    );
+    expect(error).toBeInstanceOf(DoclingTimeoutError);
+    // The caller's timeout is reported, not the part left for polling.
+    expect((error as DoclingTimeoutError).timeoutMs).toBe(timeoutMs);
+    expect(poll).toHaveBeenCalled();
+    expect(Date.now() - started).toBeLessThan(timeoutMs + 100);
   });
 
   it('reconnects after an abnormal close using exponential delays', async () => {

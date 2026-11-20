@@ -1562,6 +1562,17 @@ describe('parity edge cases', () => {
     ).rejects.toBeInstanceOf(DoclingProtocolError);
   });
 
+  it('propagates input iterator errors from convertAll', async () => {
+    const client = clientWith(new ScriptedTransport());
+    const failure = new Error('input iterator failed');
+    async function* sources(): AsyncGenerator<string> {
+      yield 'ftp://example.test/unsupported.pdf';
+      throw failure;
+    }
+
+    await expect(collectAsync(client.convertAll(sources()))).rejects.toBe(failure);
+  });
+
   it('propagates pre-aborted convertAll cancellation and isolates malformed URLs', async () => {
     const client = clientWith(new ScriptedTransport());
     const controller = new AbortController();

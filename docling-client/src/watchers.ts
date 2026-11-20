@@ -78,11 +78,26 @@ export async function* watchTask(
     yield* pollUpdates(options);
     return;
   }
+  const timeoutMs = options.timeoutMs ?? 300_000;
+  const deadline = Date.now() + timeoutMs;
   try {
     yield* webSocketUpdates(options);
   } catch (error) {
     if (error instanceof DoclingServiceUnavailableError && options.fallbackToPoll) {
-      yield* pollUpdates(options);
+      // The fallback shares the caller's timeout instead of restarting it.
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        throw new DoclingTimeoutError(options.taskId, timeoutMs);
+      }
+      try {
+        yield* pollUpdates({ ...options, timeoutMs: remaining });
+      } catch (pollError) {
+        // Report the caller's timeout, not the part left for polling.
+        if (pollError instanceof DoclingTimeoutError) {
+          throw new DoclingTimeoutError(options.taskId, timeoutMs);
+        }
+        throw pollError;
+      }
       return;
     }
     throw error;

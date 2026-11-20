@@ -286,7 +286,8 @@ export interface ConvertDocumentsOptions {
   do_picture_description?: boolean;
   do_chart_extraction?: boolean;
   /**
-   * Preset ID for chart extraction (e.g. "default", "granite_vision_v4", "granite_vision").
+   * Preset ID for chart extraction (e.g. "default", "granite_vision_v4",
+   * "granite_vision_v4_mlx", "granite_vision_v3_3").
    * Mutually exclusive with chart_extraction_custom_config.
    */
   chart_extraction_preset?: string | null;
