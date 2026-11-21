@@ -17,7 +17,7 @@ const words = (s: string) => new Set(s.split(' '));
 
 /** Tags that precede the body of any element (`_ELEMENT_HEAD_TAGS`). */
 export const isHead = tags(
-  'label layer href location caption description summary custom thread xref hour minute second centisecond'
+  'label layer href location caption description summary custom thread xref'
 );
 
 /** Formatting tags, which can themselves hold mixed content (`_FORMATTING_TAGS`). */
@@ -27,8 +27,7 @@ export const isFormatting = tags(FORMATTING);
 
 /**
  * Elements whose body allows raw text; a text block spans nested ones
- * (`_RAW_TEXT_TAGS`). `chapter` and `voice` are `<track>` elements, which are
- * not in the vocabulary yet.
+ * (`_RAW_TEXT_TAGS`). `chapter` and `voice` are `<track>` elements.
  */
 export const isRawText = tags(
   `text heading caption description summary footnote page_header page_footer formula code key value field_heading hint marker handwriting rtl content chapter voice ${FORMATTING}`
@@ -42,7 +41,7 @@ export const isVirtualInline = tags(
 /** Semantic elements inline within a virtual `<text>` (`_VIRTUAL_TEXT_SEMANTIC_TAGS`). */
 export const isVirtualSemantic = tags('code formula');
 
-/** Left as written by the whitespace rules (`_WHITESPACE_OPAQUE_TAGS`). */
+/** Left as written by the whitespace rules (`_WHITESPACE_OPAQUE_TAGS`): foreign markup and tracks. */
 export const isWhitespaceOpaque = tags('custom track');
 
 /** Inline markup in a field's `<key>` or `<value>` body (`_FIELD_INLINE_BODY_TAGS`). */

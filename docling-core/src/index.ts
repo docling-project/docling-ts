@@ -16,6 +16,9 @@ export * from './types';
  *
  * Only items in the `includedContentLayers` are yielded (default: `DEFAULT_CONTENT_LAYERS`,
  * i.e. `body`). Items without an explicit `content_layer` are considered to be in the `body` layer.
+ *
+ * With `pageNo`, only items located on that page are yielded. The cues of a track have no
+ * location of their own, so they are all yielded when their track is on the page.
  */
 export function* iterateDocumentItems(
   doc?: DoclingDocument,
@@ -32,29 +35,31 @@ export function* iterateDocumentItems(
   );
 
   if (doc) {
-    yield* traverse(options.root ?? doc.body!);
+    yield* traverse(options.root ?? doc.body!, options.pageNo);
   }
 
   function* traverse(
     item: NodeItem,
+    pageNo: number | undefined,
     level: number = 0
   ): Generator<[NodeItem, number]> {
+    const onPage =
+      !isDocling.DocItem(item) ||
+      pageNo === undefined ||
+      !!item.prov?.some(prov => prov.page_no === pageNo);
+
     // Yield non-group items, and group items if withGroups, within the included content layers.
     if (
       (!isDocling.GroupItem(item) || options.withGroups) &&
+      onPage &&
       includedLayers.has(item.content_layer ?? 'body')
     ) {
-      if (isDocling.DocItem(item)) {
-        if (
-          options.pageNo === undefined ||
-          item.prov?.some(prov => prov.page_no === options.pageNo)
-        ) {
-          yield [item, level];
-        }
-      } else {
-        yield [item, level];
-      }
+      yield [item, level];
     }
+
+    // The cues of a track have no location of their own: they are on the pages of the track.
+    const childPageNo =
+      isDocling.TrackItem(item) && onPage ? undefined : pageNo;
 
     const rootIsPicture = isDocling.PictureItem(item);
     const allowedPicRefs = new Set(
@@ -74,7 +79,7 @@ export function* iterateDocumentItems(
       const child = resolveDocumentItem(doc!, childRef);
 
       if (isDocling.NodeItem(child)) {
-        yield* traverse(child, level + 1);
+        yield* traverse(child, childPageNo, level + 1);
       }
     }
   }
@@ -96,6 +101,7 @@ function* iteratePageBBoxes(
     doc.form_items ?? [],
     doc.field_regions ?? [],
     doc.field_items ?? [],
+    doc.tracks ?? [],
   ];
 
   for (const item of itemLists.flat()) {
