@@ -28,13 +28,15 @@ export interface DeserializeDocLangOptions {
    */
   repairUnescapedText?: boolean;
   /**
-   * Receives warnings, e.g. for the unsupported `<track>`, which is skipped
-   * with all its content. Default: `console.warn`.
+   * Receives warnings, e.g. for the unsupported `<chapter>` and `<audio>`
+   * parts of a `<track>`, which are skipped, or for a cue block with an
+   * invalid timestamp. Default: `console.warn`.
    */
   onWarning?: (message: string) => void;
   /**
-   * Resolves the `uri` of a picture's `<src>` element. Without it, picture
-   * sources are ignored.
+   * Resolves the `uri` of a picture's `<src>` element, and of the
+   * `<frame>`/`<cover>` image of a `<track>`. Without it, these images are
+   * ignored.
    */
   resolveImage?: (uri: string) => ImageRef;
 }

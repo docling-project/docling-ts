@@ -6,6 +6,7 @@ import {
   DOCUMENT_TOKENS_EXPORT_LABELS,
   FIRST_SUPPORTED_MINOR,
   INLINE_WHITESPACE_CONTRACT_VERSION,
+  MEDIA_EXTENSIONS,
   SCHEMA_VERSION_HISTORY,
   type BaseSource,
   type CodeItem,
@@ -19,6 +20,7 @@ import {
   type FormattingFallbackMode,
   type FormulaItem,
   type InlineGroup,
+  type MediaRef,
   type KeyValueItem,
   type ListGroup,
   type ListItem,
@@ -40,24 +42,38 @@ import {
   type TableItem,
   type TextItem,
   type TitleItem,
+  type TrackItem,
   type TrackSource,
   type UnorderedList,
   isDocling,
   isDoclingAnnotation,
   isDoclingDocItem,
+  mediaTypeOf,
 } from '../src/types';
 
 describe('Constants', () => {
-  it('exports CURRENT_VERSION as 1.11.0', () => {
-    expect(CURRENT_VERSION).toBe('1.11.0');
+  it('exports CURRENT_VERSION as 1.12.0', () => {
+    expect(CURRENT_VERSION).toBe('1.12.0');
   });
 
-  it('exports INLINE_WHITESPACE_CONTRACT_VERSION as the current version', () => {
+  it('exports INLINE_WHITESPACE_CONTRACT_VERSION as the 1.11.0 schema version', () => {
     expect(INLINE_WHITESPACE_CONTRACT_VERSION).toBe('1.11.0');
-    expect(SCHEMA_VERSION_HISTORY.at(-1)).toEqual({
+    expect(
+      SCHEMA_VERSION_HISTORY.find(
+        e => e.schema === INLINE_WHITESPACE_CONTRACT_VERSION
+      )
+    ).toEqual({
       schema: '1.11.0',
       library_version: 'v2.106.0',
       note: 'InlineGroup runs carry their own significant whitespace',
+    });
+  });
+
+  it('records the 1.12.0 TrackItem schema version last in the history', () => {
+    expect(SCHEMA_VERSION_HISTORY.at(-1)).toEqual({
+      schema: '1.12.0',
+      library_version: 'v2.108.0',
+      note: 'TrackItem with audio and video, tracks list, DocItemLabel.TRACK, TrackSource instants',
     });
   });
 
@@ -69,12 +85,17 @@ describe('Constants', () => {
     expect(DEFAULT_CONTENT_LAYERS).toEqual(['body']);
   });
 
-  it('exports DEFAULT_EXPORT_LABELS with 25 labels', () => {
+  it('exports DEFAULT_EXPORT_LABELS with 26 labels', () => {
     expect(DEFAULT_EXPORT_LABELS).toContain('title');
     expect(DEFAULT_EXPORT_LABELS).toContain('marker');
     expect(DEFAULT_EXPORT_LABELS).toContain('field_key');
     expect(DEFAULT_EXPORT_LABELS).toContain('handwritten_text');
-    expect(DEFAULT_EXPORT_LABELS.length).toBe(25);
+    expect(DEFAULT_EXPORT_LABELS).toContain('track');
+    expect(DEFAULT_EXPORT_LABELS.length).toBe(26);
+  });
+
+  it('inherits track in DOCUMENT_TOKENS_EXPORT_LABELS', () => {
+    expect(DOCUMENT_TOKENS_EXPORT_LABELS).toContain('track');
   });
 
   it('exports field_region and field_item in DEFAULT_EXPORT_LABELS', () => {
@@ -361,6 +382,16 @@ describe('isDoclingDocItem', () => {
       { self_ref: '#/texts/0', label: 'field_value' } as FieldValueItem,
       true,
     ],
+    [
+      'TrackItem',
+      { self_ref: '#/tracks/0', label: 'track' } as TrackItem,
+      true,
+    ],
+    [
+      'TrackItem rejects non-track',
+      { self_ref: '#/tracks/0', label: 'text' } as TextItem,
+      false,
+    ],
   ];
 
   it.each(cases)('%s', (_name, item, expected) => {
@@ -525,6 +556,34 @@ describe('New Models and Interfaces', () => {
     expect(src.start_time).toBe(1.0);
   });
 
+  it('creates a TrackSource instant with equal start and end times', () => {
+    const instant: TrackSource = {
+      kind: 'track',
+      start_time: 3,
+      end_time: 3,
+    };
+    expect(instant.end_time).toBe(instant.start_time);
+  });
+
+  it('creates a TrackItem carrying audio and video MediaRefs', () => {
+    const audio: MediaRef = { mimetype: 'audio/mpeg', uri: 'talk.mp3' };
+    const track: TrackItem = {
+      self_ref: '#/tracks/0',
+      label: 'track',
+      children: [{ $ref: '#/texts/0' }],
+      audio,
+      video: null,
+    };
+    const doc: DoclingDocument = {
+      schema_name: 'DoclingDocument',
+      version: CURRENT_VERSION,
+      name: 'Test',
+      tracks: [track],
+    };
+    expect(isDocling.TrackItem(doc.tracks![0])).toBe(true);
+    expect(doc.tracks![0].audio?.mimetype).toBe('audio/mpeg');
+  });
+
   it('creates DescriptionAnnotation and MiscAnnotation', () => {
     const desc: DescriptionAnnotation = {
       kind: 'description',
@@ -542,5 +601,30 @@ describe('New Models and Interfaces', () => {
   it('declares the FormattingFallbackMode values', () => {
     const modes: FormattingFallbackMode[] = ['none', 'html'];
     expect(modes).toEqual(['none', 'html']);
+  });
+});
+
+describe('mediaTypeOf', () => {
+  it('maps every MEDIA_EXTENSIONS entry back from its extension', () => {
+    for (const [mimetype, ext] of Object.entries(MEDIA_EXTENSIONS)) {
+      expect(mediaTypeOf(`recording.${ext}`)).toBe(mimetype);
+    }
+  });
+
+  it('is case-insensitive and accepts paths', () => {
+    expect(mediaTypeOf('audio/1.MP3')).toBe('audio/mpeg');
+    expect(mediaTypeOf('video/2.WebM')).toBe('video/webm');
+  });
+
+  it('accepts the aliases opus, aif and mpeg', () => {
+    expect(mediaTypeOf('a.opus')).toBe('audio/ogg');
+    expect(mediaTypeOf('a.aif')).toBe('audio/x-aiff');
+    expect(mediaTypeOf('a.mpeg')).toBe('video/mpeg');
+  });
+
+  it('returns undefined for unknown or missing extensions', () => {
+    expect(mediaTypeOf('a.png')).toBeUndefined();
+    expect(mediaTypeOf('noextension')).toBeUndefined();
+    expect(mediaTypeOf('.mp3')).toBeUndefined();
   });
 });

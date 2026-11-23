@@ -132,17 +132,191 @@ describe('repairUnescapedText', () => {
   });
 });
 
-describe('doclang warnings', () => {
-  it('skips <track> with all its content, with a warning', () => {
-    const seen: string[] = [];
-    const doc = deserializeDocLang(
-      '<doclang><text>a</text><track><voice>v</voice><text>b</text></track><text>c</text></doclang>',
-      { DOMParser, onWarning: m => seen.push(m) }
+describe('doclang <track>', () => {
+  const read = (xml: string, extra: Record<string, unknown> = {}) => {
+    const warnings: string[] = [];
+    const doc = deserializeDocLang(`<doclang>${xml}</doclang>`, {
+      DOMParser,
+      onWarning: m => warnings.push(m),
+      ...extra,
+    });
+    return { doc, warnings };
+  };
+  type Node = { self_ref: string; text?: string; source?: unknown[] };
+  /** The cues of a track as Python's `_cues`: (kind, text, start, end, voice). */
+  const cues = (
+    doc: ReturnType<typeof deserializeDocLang>,
+    index = 0
+  ): [string, string, number, number, string | undefined][] => {
+    const all: Node[] = [...(doc.texts ?? []), ...(doc.pictures ?? [])];
+    return (doc.tracks?.[index].children ?? []).map(({ $ref }) => {
+      const item = all.find(n => n.self_ref === $ref)!;
+      const src = item.source![0] as {
+        start_time: number;
+        end_time: number;
+        voice?: string;
+      };
+      return [
+        $ref.startsWith('#/pictures') ? 'PictureItem' : 'TextItem',
+        item.text ?? '',
+        src.start_time,
+        src.end_time,
+        src.voice,
+      ];
+    });
+  };
+
+  it('reads timestamp runs, instants, voices and an empty voice', () => {
+    const { doc, warnings } = read(
+      '<track>' +
+        "<bdiv/><seconds value='2'/>Hello, and welcome." +
+        "<bdiv/><minutes value='0'/><seconds value='2'/><msecs value='500'/><minutes value='0'/><seconds value='7'/>" +
+        '<voice>John</voice>Hi Mary!<voice><italic>Mary</italic></voice><bold>Hello</bold> John!' +
+        "<bdiv/><minutes value='59'/><seconds value='58'/><msecs value='450'/>" +
+        "<hours value='1'/><minutes value='0'/><seconds value='1'/><msecs value='210'/>" +
+        '<voice>Narrator</voice>The results.<voice/>laughter' +
+        '</track>'
     );
-    expect(doc.texts?.map(t => t.text)).toEqual(['a', 'c']);
-    expect(seen).toEqual([
-      '<track> is not supported yet; skipped with all its content',
+    expect(warnings).toEqual([]);
+    expect(doc.tracks).toHaveLength(1);
+    expect(doc.tracks?.[0].label).toBe('track');
+    expect(cues(doc)).toEqual([
+      ['TextItem', 'Hello, and welcome.', 2, 2, undefined],
+      ['TextItem', 'Hi Mary!', 2.5, 7, 'John'],
+      ['TextItem', 'Hello John!', 2.5, 7, 'Mary'],
+      ['TextItem', 'The results.', 3598.45, 3601.21, 'Narrator'],
+      ['TextItem', 'laughter', 3598.45, 3601.21, undefined],
     ]);
+    expect(doc.texts?.[0].source?.[0]).toEqual({
+      kind: 'track',
+      start_time: 2,
+      end_time: 2,
+    });
+  });
+
+  it('adds the track to the body and parents its cues to the track', () => {
+    const { doc } = read(
+      "<text>a</text><track><bdiv/><seconds value='1'/>cue</track>"
+    );
+    expect(doc.body.children.map(c => c.$ref)).toEqual([
+      '#/texts/0',
+      '#/tracks/0',
+    ]);
+    expect(doc.texts?.[1].parent?.$ref).toBe('#/tracks/0');
+  });
+
+  it('skips <chapter> and <audio> with a warning and keeps the cue', () => {
+    const { doc, warnings } = read(
+      "<track><bdiv/><seconds value='0'/><seconds value='5'/><chapter>Introduction</chapter>" +
+        '<frame/><audio/>Welcome.</track>'
+    );
+    expect([...warnings].sort()).toEqual([
+      '<audio> in <track> is not supported yet; skipped',
+      '<chapter> in <track> is not supported yet; skipped',
+    ]);
+    expect(cues(doc)).toEqual([
+      ['PictureItem', '', 0, 0, undefined],
+      ['TextItem', 'Welcome.', 0, 5, undefined],
+    ]);
+  });
+
+  it('keeps turns without text: empty block, bare voice, empty voice', () => {
+    const { doc } = read(
+      "<track><bdiv/><seconds value='1'/>" +
+        "<bdiv/><seconds value='2'/><voice>Host</voice>" +
+        "<bdiv/><seconds value='3'/>Hi<voice/></track>"
+    );
+    expect(cues(doc)).toEqual([
+      ['TextItem', '', 1, 1, undefined],
+      ['TextItem', '', 2, 2, 'Host'],
+      ['TextItem', 'Hi', 3, 3, undefined],
+      ['TextItem', '', 3, 3, undefined],
+    ]);
+  });
+
+  it('gives the cues the layer of their track', () => {
+    const { doc } = read(
+      "<track><layer value='furniture'/><bdiv/><seconds value='0'/>hi</track>"
+    );
+    expect(doc.tracks?.[0].content_layer).toBe('furniture');
+    expect(doc.texts?.[0].content_layer).toBe('furniture');
+  });
+
+  it.each(['x', '-5', '1.5'])(
+    'skips only the cue block with the invalid timestamp %j',
+    value => {
+      const { doc, warnings } = read(
+        `<track><bdiv/><seconds value="${value}"/>bad` +
+          '<bdiv/><seconds value="2"/>good</track>'
+      );
+      expect(doc.texts?.map(t => t.text)).toEqual(['good']);
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0]).toContain('invalid <seconds> value');
+    }
+  );
+
+  it('warns about a block without a start time and reads an end before the start as an instant', () => {
+    const { doc, warnings } = read(
+      '<track><bdiv/>no time' +
+        "<bdiv/><seconds value='5'/><seconds value='2'/>back</track>"
+    );
+    expect(warnings).toEqual([
+      '<track> cue block without a start time; skipped',
+      '<track> cue block ends before it starts; read as an instant',
+    ]);
+    expect(cues(doc)).toEqual([['TextItem', 'back', 5, 5, undefined]]);
+  });
+
+  it('reads non-ASCII digit values like Python', () => {
+    const { doc, warnings } = read(
+      "<track><bdiv/><seconds value='٣'/>arabic-indic</track>"
+    );
+    expect(warnings).toEqual([]);
+    expect(cues(doc)).toEqual([['TextItem', 'arabic-indic', 3, 3, undefined]]);
+  });
+
+  it('reads the frame and cover images through resolveImage', () => {
+    const img = (uri: string) => ({
+      mimetype: 'image/png',
+      dpi: 72,
+      size: { width: 16, height: 9 },
+      uri,
+    });
+    const { doc } = read(
+      '<track><cover><src uri="poster.png"/></cover>' +
+        '<bdiv/><seconds value="0"/><frame><src uri="frame_0.png"/></frame>Hi</track>',
+      { resolveImage: img }
+    );
+    expect(doc.tracks?.[0].image).toEqual(img('poster.png'));
+    expect(doc.pictures?.[0].image).toEqual(img('frame_0.png'));
+    expect(doc.pictures?.[0].source).toEqual([
+      { kind: 'track', start_time: 0, end_time: 0 },
+    ]);
+    expect(doc.pictures?.[0].parent?.$ref).toBe('#/tracks/0');
+  });
+
+  it('ignores the frame and cover images without resolveImage', () => {
+    const { doc } = read(
+      '<track><cover><src uri="poster.png"/></cover>' +
+        '<bdiv/><seconds value="0"/><frame><src uri="frame_0.png"/></frame></track>'
+    );
+    expect(doc.tracks?.[0].image).toBeUndefined();
+    expect(doc.pictures?.[0].image).toBeUndefined();
+  });
+
+  it('reads the location and the caption of a track', () => {
+    const { doc } = read(
+      '<page_break/><track><caption>Talk title</caption>' +
+        '<location value="1"/><location value="2"/><location value="3"/><location value="4"/>' +
+        '<bdiv/><seconds value="1"/>cue</track>'
+    );
+    const track = doc.tracks?.[0];
+    expect(track?.prov).toHaveLength(1);
+    expect(track?.prov?.[0].page_no).toBe(2);
+    expect(track?.captions).toHaveLength(1);
+    expect(doc.texts?.find(t => t.label === 'caption')?.text).toBe(
+      'Talk title'
+    );
   });
 });
 

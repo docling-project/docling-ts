@@ -32,6 +32,7 @@ import {
   TableItem,
   TextItem,
   TitleItem,
+  TrackItem,
   UnorderedList,
 } from './models';
 
@@ -80,6 +81,7 @@ export const isDoclingDocItem = {
     'text'
   ),
   TitleItem: isItemByLabel<TitleItem>('title'),
+  TrackItem: isItemByLabel<TrackItem>('track'),
 };
 
 type PictureAnnotation = NonNullable<PictureItem['annotations']>[number];

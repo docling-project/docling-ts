@@ -13,6 +13,7 @@ import type {
   Formatting,
   GroupItem,
   GroupLabel,
+  ImageRef,
   NodeItem,
   PageItem,
   PictureItem,
@@ -23,11 +24,19 @@ import type {
   TableData,
   TableItem,
   TextItem,
+  TrackItem,
+  TrackSource,
 } from '../types';
 import { CURRENT_VERSION } from '../types';
 
 export type Kind =
-  'groups' | 'texts' | 'pictures' | 'tables' | 'field_regions' | 'field_items';
+  | 'groups'
+  | 'texts'
+  | 'pictures'
+  | 'tables'
+  | 'field_regions'
+  | 'field_items'
+  | 'tracks';
 
 /** The item type stored in one of the document's collections. */
 type ItemOf<K extends Kind> = NonNullable<DoclingDocument[K]>[number];
@@ -174,6 +183,7 @@ export class Doc {
   tables: TableItem[] = [];
   field_regions: ItemOf<'field_regions'>[] = [];
   field_items: ItemOf<'field_items'>[] = [];
+  tracks: TrackItem[] = [];
   pages: Record<string, PageItem> = {};
 
   /** Allocate `#/<kind>/<n>`, link it under `parent` (default: body). */
@@ -207,6 +217,7 @@ export class Doc {
       layer,
       formatting,
       hyperlink,
+      source,
       ...extra
     }: {
       parent?: NodeItem;
@@ -214,6 +225,7 @@ export class Doc {
       layer?: ContentLayer;
       formatting?: Formatting;
       hyperlink?: string;
+      source?: TrackSource[];
     } & TextExtra = {}
   ): TextItemLike {
     return this.add<TextFields>(
@@ -222,6 +234,7 @@ export class Doc {
         meta: undefined,
         label,
         prov,
+        source,
         orig: text,
         text,
         formatting,
@@ -289,20 +302,46 @@ export class Doc {
     parent,
     layer,
     prov = [],
+    image,
+    source,
   }: {
     caption?: NodeItem;
+    parent?: NodeItem;
+    layer?: ContentLayer;
+    prov?: ProvenanceItem[];
+    image?: ImageRef;
+    source?: TrackSource[];
+  }) {
+    const fields = {
+      meta: undefined,
+      label: 'picture' as const,
+      prov,
+      source,
+      ...floating(caption),
+      image,
+      annotations: [],
+    };
+    return this.add<PictureItem>('pictures', fields, parent, layer);
+  }
+
+  track({
+    parent,
+    layer,
+    prov = [],
+  }: {
     parent?: NodeItem;
     layer?: ContentLayer;
     prov?: ProvenanceItem[];
   }) {
     const fields = {
       meta: undefined,
-      label: 'picture' as const,
+      label: 'track' as const,
       prov,
-      ...floating(caption),
-      annotations: [],
+      ...floating(),
+      audio: undefined,
+      video: undefined,
     };
-    return this.add<PictureItem>('pictures', fields, parent, layer);
+    return this.add<TrackItem>('tracks', fields, parent, layer);
   }
 
   toJSON(): DoclingDocument {
@@ -322,6 +361,7 @@ export class Doc {
         ? { field_regions: this.field_regions }
         : {}),
       ...(this.field_items.length ? { field_items: this.field_items } : {}),
+      ...(this.tracks.length ? { tracks: this.tracks } : {}),
       pages: this.pages,
     };
   }

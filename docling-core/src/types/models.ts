@@ -103,7 +103,8 @@ export type DocItemLabel =
   | 'field_key'
   | 'field_value'
   | 'field_hint'
-  | 'marker';
+  | 'marker'
+  | 'track';
 export type GroupLabel =
   | 'unspecified'
   | 'list'
@@ -402,6 +403,14 @@ export interface ImageRef {
   size: Size;
   uri: string;
 }
+/**
+ * A reference to an audio or video recording. The `mimetype` is one of the
+ * keys of `MEDIA_EXTENSIONS`; a `data:` URI is not allowed.
+ */
+export interface MediaRef {
+  mimetype: string;
+  uri: string;
+}
 export interface DocumentOrigin {
   mimetype: string;
   binary_hash: Uint64;
@@ -497,7 +506,9 @@ export interface BaseSource {
 }
 export interface TrackSource extends BaseSource {
   kind: 'track';
+  /** Start time offset of the track cue in seconds. */
   start_time: number;
+  /** End time offset in seconds, equal to the start time for an instant. */
   end_time: number;
   identifier?: string | null;
   voice?: string | null;
@@ -839,6 +850,22 @@ export interface FieldValueItem extends TextItem {
   kind?: 'read_only' | 'fillable';
 }
 
+// ---------------------------------------------------------------------------
+// Track item
+// ---------------------------------------------------------------------------
+
+/**
+ * A time-aligned media transcript, e.g. the speech of an audio or video
+ * recording. Its children are the cues: items whose `source` is a
+ * `TrackSource`. The `image` is the cover of the track. The `audio` or `video`
+ * is the recording the times refer to; a video covers its own sound.
+ */
+export interface TrackItem extends FloatingItem {
+  label?: 'track';
+  audio?: MediaRef | null;
+  video?: MediaRef | null;
+}
+
 export type ContentItem =
   | TextItem
   | TitleItem
@@ -850,7 +877,8 @@ export type ContentItem =
   | TableItem
   | KeyValueItem
   | FieldRegionItem
-  | FieldItem;
+  | FieldItem
+  | TrackItem;
 
 // ---------------------------------------------------------------------------
 // Page item
@@ -866,7 +894,7 @@ export interface PageItem {
 // Constants & Version history
 // ---------------------------------------------------------------------------
 
-export const CURRENT_VERSION = '1.11.0';
+export const CURRENT_VERSION = '1.12.0';
 export const FIRST_SUPPORTED_MINOR = 5;
 
 /**
@@ -911,6 +939,11 @@ export const SCHEMA_VERSION_HISTORY: ReadonlyArray<{
     library_version: 'v2.106.0',
     note: 'InlineGroup runs carry their own significant whitespace',
   },
+  {
+    schema: '1.12.0',
+    library_version: 'v2.108.0',
+    note: 'TrackItem with audio and video, tracks list, DocItemLabel.TRACK, TrackSource instants',
+  },
 ];
 
 /**
@@ -919,6 +952,48 @@ export const SCHEMA_VERSION_HISTORY: ReadonlyArray<{
  * below this have runs stored without boundary whitespace.
  */
 export const INLINE_WHITESPACE_CONTRACT_VERSION = '1.11.0';
+
+/**
+ * Media types allowed for track media (`MediaRef.mimetype`), with the archive
+ * file extension of each.
+ */
+export const MEDIA_EXTENSIONS: Readonly<Record<string, string>> = {
+  'audio/mpeg': 'mp3',
+  'audio/mp4': 'm4a',
+  'audio/aac': 'aac',
+  'audio/ogg': 'ogg',
+  'audio/wav': 'wav',
+  'audio/flac': 'flac',
+  'audio/x-ms-wma': 'wma',
+  'audio/x-aiff': 'aiff',
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'video/x-matroska': 'mkv',
+  'video/quicktime': 'mov',
+  'video/x-m4v': 'm4v',
+  'video/x-ms-wmv': 'wmv',
+  'video/x-ms-asf': 'asf',
+  'video/x-msvideo': 'avi',
+  'video/mpeg': 'mpg',
+  'video/x-flv': 'flv',
+};
+
+const MEDIA_TYPES_BY_EXTENSION: ReadonlyMap<string, string> = new Map([
+  ...Object.entries(MEDIA_EXTENSIONS).map(
+    ([mimetype, ext]): [string, string] => [ext, mimetype]
+  ),
+  ['opus', 'audio/ogg'],
+  ['aif', 'audio/x-aiff'],
+  ['mpeg', 'video/mpeg'],
+]);
+
+/** The allowed media type for a file name's extension, if any. */
+export function mediaTypeOf(name: string): string | undefined {
+  const dot = name.lastIndexOf('.');
+  return dot > 0
+    ? MEDIA_TYPES_BY_EXTENSION.get(name.slice(dot + 1).toLowerCase())
+    : undefined;
+}
 export const DEFAULT_CONTENT_LAYERS: ContentLayer[] = ['body'];
 export const DEFAULT_EXPORT_LABELS: DocItemLabel[] = [
   'title',
@@ -946,6 +1021,7 @@ export const DEFAULT_EXPORT_LABELS: DocItemLabel[] = [
   'field_hint',
   'marker',
   'handwritten_text',
+  'track',
 ];
 export const DOCUMENT_TOKENS_EXPORT_LABELS: DocItemLabel[] = [
   ...DEFAULT_EXPORT_LABELS,
@@ -982,5 +1058,6 @@ export interface DoclingDocument {
   form_items?: FormItem[];
   field_regions?: FieldRegionItem[];
   field_items?: FieldItem[];
+  tracks?: TrackItem[];
   pages?: Record<string | number, PageItem>;
 }

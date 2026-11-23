@@ -212,3 +212,58 @@ describe('doclang archive', () => {
     ).rejects.toThrow('exceeds size limit');
   });
 });
+
+describe('deserializeDclx track media', () => {
+  const tracks =
+    "<track><bdiv/><seconds value='1'/>a</track>" +
+    "<track><bdiv/><seconds value='2'/>b</track>";
+
+  it('sets the audio and video of the N-th track from audio/N.* and video/N.*', async () => {
+    const warnings: string[] = [];
+    const doc = await deserializeDclx(
+      zip({
+        'document.xml': doclang(tracks),
+        'audio/1.mp3': 'mp3',
+        'video/2.WEBM': 'webm',
+      }),
+      { ...opts, onWarning: m => warnings.push(m) }
+    );
+    expect(warnings).toEqual([]);
+    expect(doc.tracks?.[0].audio).toEqual({
+      mimetype: 'audio/mpeg',
+      uri: 'audio/1.mp3',
+    });
+    expect(doc.tracks?.[0].video).toBeUndefined();
+    expect(doc.tracks?.[1].video).toEqual({
+      mimetype: 'video/webm',
+      uri: 'video/2.WEBM',
+    });
+  });
+
+  it('ignores media without a track, of another kind, or already set, with a warning', async () => {
+    const warnings: string[] = [];
+    const doc = await deserializeDclx(
+      zip({
+        'document.xml': doclang(tracks),
+        'audio/1.mp3': 'a',
+        'audio/1.wav': 'b',
+        'audio/3.mp3': 'c',
+        'audio/0.mp3': 'd',
+        'audio/x.mp3': 'e',
+        'audio/2.mp4': 'f',
+        'video/1.png': 'g',
+      }),
+      { ...opts, onWarning: m => warnings.push(m) }
+    );
+    expect(doc.tracks?.[0].audio?.uri).toBe('audio/1.mp3');
+    expect(doc.tracks?.[1].audio).toBeUndefined();
+    expect(warnings).toEqual([
+      'Ignoring audio/0.mp3: no track with this number',
+      'Ignoring audio/1.wav: the track has audio already',
+      'Ignoring audio/2.mp4: unsupported media type',
+      'Ignoring audio/3.mp3: no track with this number',
+      'Ignoring audio/x.mp3: no track with this number',
+      'Ignoring video/1.png: unsupported media type',
+    ]);
+  });
+});

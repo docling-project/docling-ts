@@ -16,6 +16,7 @@ import {
   type ListItem,
   type SectionHeaderItem,
   type TextItem,
+  type TrackItem,
   isDocling,
   isDoclingDocItem,
 } from '../src/types';
@@ -212,6 +213,77 @@ describe('iterateDocumentItems (minimal document)', () => {
     );
     expect(page2Refs).not.toContain('#/texts/0');
     expect(page2Refs).toContain('#/texts/1');
+  });
+
+  describe('tracks', () => {
+    const bbox = { l: 0, t: 0, r: 10, b: 10 } as BoundingBox;
+    const cue = (n: number): TextItem => ({
+      self_ref: `#/texts/${n}`,
+      parent: { $ref: '#/tracks/0' },
+      label: 'text',
+      orig: 'cue',
+      text: 'cue',
+      source: [{ kind: 'track', start_time: n, end_time: n + 1 }],
+    });
+    const trackDocument = (prov?: ProvenanceItem[]): DoclingDocument => ({
+      name: 'test',
+      body: {
+        self_ref: '#/body',
+        label: 'unspecified',
+        children: [{ $ref: '#/tracks/0' }],
+      },
+      tracks: [
+        {
+          self_ref: '#/tracks/0',
+          parent: { $ref: '#/body' },
+          label: 'track',
+          children: [{ $ref: '#/texts/0' }, { $ref: '#/texts/1' }],
+          ...(prov && { prov }),
+        } as TrackItem,
+      ],
+      texts: [cue(0), cue(1)],
+    });
+    const refs = (doc: DoclingDocument, pageNo?: number) =>
+      [...iterateDocumentItems(doc, { pageNo })].map(([item]) => item.self_ref);
+
+    it('yields the track and its cues in order', () => {
+      expect(refs(trackDocument())).toEqual([
+        '#/tracks/0',
+        '#/texts/0',
+        '#/texts/1',
+      ]);
+      expect(
+        [...iterateDocumentItems(trackDocument())].map(([, level]) => level)
+      ).toEqual([1, 2, 2]);
+    });
+
+    it('yields the cues of a track on the requested page', () => {
+      const doc = trackDocument([{ page_no: 1, bbox, charspan: [0, 0] }]);
+      expect(refs(doc, 1)).toEqual(['#/tracks/0', '#/texts/0', '#/texts/1']);
+    });
+
+    it('yields neither the track nor its cues on another page', () => {
+      const doc = trackDocument([{ page_no: 1, bbox, charspan: [0, 0] }]);
+      expect(refs(doc, 2)).toEqual([]);
+    });
+
+    it('drops a track without location when a page is requested', () => {
+      expect(refs(trackDocument(), 1)).toEqual([]);
+    });
+
+    it('recognizes the track and not its cues as TrackItem', () => {
+      const doc = trackDocument();
+      expect(isDocling.TrackItem(doc.tracks![0])).toBe(true);
+      expect(isDocling.TrackItem(doc.texts![0])).toBe(false);
+      expect(isDoclingDocItem.TrackItem(doc.tracks![0])).toBe(true);
+    });
+
+    it('resolves #/tracks references', () => {
+      const doc = trackDocument();
+      expect(resolveDocumentItem(doc, { $ref: '#/tracks/0' })).toBe(
+        doc.tracks![0]
+      );
+    });
   });
 
   it('allows iterating from a custom root', () => {
@@ -479,5 +551,19 @@ describe('getMinPageSizes', () => {
     ]);
     expect(getMinPageSize(doc, 1)).toEqual(sizes.get(1));
     expect(getMinPageSize(doc, 4)).toEqual({ width: 0, height: 0 });
+  });
+
+  it('covers the provenance of tracks', () => {
+    const doc: DoclingDocument = {
+      name: 'test',
+      tracks: [
+        {
+          self_ref: '#/tracks/0',
+          label: 'track',
+          prov: [prov(1, 0, 0, 40, 30)],
+        } as TrackItem,
+      ],
+    };
+    expect(getMinPageSize(doc, 1)).toEqual({ width: 40, height: 30 });
   });
 });

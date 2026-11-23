@@ -1,4 +1,4 @@
-import type { DoclingDocument, ImageRef } from '../types';
+import { type DoclingDocument, type ImageRef, mediaTypeOf } from '../types';
 import { type DeserializeDocLangOptions, deserializeDocLang } from './doclang';
 
 const MiB = 1024 * 1024;
@@ -220,6 +220,7 @@ export async function deserializeDclx(
     maxTotalSize = 2048 * MiB,
     maxXmlBytes = 128 * MiB,
     maxImageBytes = 20 * MiB,
+    onWarning = m => console.warn(m),
     ...options
   }: DeserializeDclxOptions = {}
 ): Promise<DoclingDocument> {
@@ -241,6 +242,7 @@ export async function deserializeDclx(
     );
   let declared = 0;
   let total = 0;
+  const mediaMembers: string[] = [];
   const files: Record<string, Uint8Array> = {};
   for (const entry of zipEntries(zip)) {
     const { name: member, size } = entry;
@@ -249,6 +251,8 @@ export async function deserializeDclx(
     if (size > maxMemberSize) throw tooBig(member);
     declared += size;
     if (declared > maxTotalSize) throw tooMuch();
+    // Track media is referenced by its member path; its bytes are not read.
+    if (/^(audio|video)\/[^/]+$/.test(member)) mediaMembers.push(member);
     if (member !== 'document.xml' && !/^(assets|pages)\//.test(member))
       continue;
 
@@ -291,6 +295,7 @@ export async function deserializeDclx(
 
   const doc = deserializeDocLang(new TextDecoder().decode(xml), {
     ...options,
+    onWarning,
     resolveImage,
   });
   if (name !== undefined) doc.name = name;
@@ -300,6 +305,26 @@ export async function deserializeDclx(
     const m = /^pages\/(\d+)\.[^/]+$/.exec(member);
     const page = m && doc.pages?.[String(Number(m[1]))];
     if (page) page.image = imageRef(bytes, maxImageBytes, 'Archive page image');
+  }
+
+  // Track media: `audio/<N>.<ext>` and `video/<N>.<ext>` for the N-th track (1-based).
+  for (const member of mediaMembers.sort()) {
+    const [kind, file] = member.split('/') as ['audio' | 'video', string];
+    const dot = file.lastIndexOf('.');
+    const stem = dot > 0 ? file.slice(0, dot) : file;
+    const mimetype = mediaTypeOf(file);
+    const track = /^\d+$/.test(stem)
+      ? doc.tracks?.[Number(stem) - 1]
+      : undefined;
+    if (!track) {
+      onWarning(`Ignoring ${member}: no track with this number`);
+    } else if (!mimetype?.startsWith(`${kind}/`)) {
+      onWarning(`Ignoring ${member}: unsupported media type`);
+    } else if (track[kind]) {
+      onWarning(`Ignoring ${member}: the track has ${kind} already`);
+    } else {
+      track[kind] = { mimetype, uri: member };
+    }
   }
   return doc;
 }

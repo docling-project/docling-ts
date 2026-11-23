@@ -1,6 +1,6 @@
 /**
  * DocLang -> DoclingDocument. A port of docling-core's `DocLangDocDeserializer`
- * (v2.107.0) that works directly on DOM nodes.
+ * (v2.108.0) that works directly on DOM nodes.
  *
  * Method names follow the Python ones (`_parse_text_like` -> `parseTextLike`)
  * so the two stay easy to compare.
@@ -17,6 +17,7 @@ import {
   type ProvenanceItem,
   type RefItem,
   type TableItem,
+  type TrackItem,
   isDocling,
 } from '../types';
 import {
@@ -98,6 +99,14 @@ const isSatelliteInline = tags(
   'bold italic underline strikethrough subscript superscript br content'
 );
 
+/** Milliseconds per timestamp unit of a `<track>` cue block (`_TIMESTAMP_UNIT_MSECS`). */
+const TIMESTAMP_UNIT_MSECS: Record<string, number> = {
+  hours: 3_600_000,
+  minutes: 60_000,
+  seconds: 1000,
+  msecs: 1,
+};
+
 const len = (s: string) => [...s].length; // Python counts code points
 const ref = (item: NodeItem): RefItem => ({ $ref: item.self_ref });
 const textNode = (s: string): XNode => ({
@@ -111,6 +120,33 @@ const pyInt = (s: string): number | undefined =>
   /^\s*[+-]?\d+(?:_\d+)*\s*$/.test(s)
     ? Number(s.replaceAll('_', '').trim())
     : undefined;
+
+/** Value of a decimal digit of any script, as Python's `int()` reads it. */
+function digitValue(ch: string): number {
+  // Decimal digits come in runs of ten, each starting at its zero.
+  const isDigit = (cp: number) => /^\p{Nd}$/u.test(String.fromCodePoint(cp));
+  const cp = ch.codePointAt(0)!;
+  let zero = cp;
+  while (zero > 0 && isDigit(zero - 1)) zero--;
+  return (cp - zero) % 10;
+}
+
+/** Python's `int(s)` for a string that `s.isdecimal()`, else `undefined`. */
+const pyDecimal = (s: string): number | undefined =>
+  /^\p{Nd}+$/u.test(s) ? Number([...s].map(digitValue).join('')) : undefined;
+
+/** Python's `repr(s)` for a string. */
+function pyRepr(s: string): string {
+  const quote = s.includes("'") && !s.includes('"') ? '"' : "'";
+  const escaped = s
+    .replaceAll('\\', '\\\\')
+    .replaceAll('\n', '\\n')
+    .replaceAll('\r', '\\r')
+    .replaceAll('\t', '\\t');
+  return (
+    quote + (quote === "'" ? escaped.replaceAll("'", "\\'") : escaped) + quote
+  );
+}
 
 const bboxOf = ([a, b, c, d]: number[]) => ({
   l: Math.min(a, c),
@@ -518,9 +554,8 @@ export class Reader {
 
   private dispatch(el: XEl, parent: P): void {
     const name = el.tagName;
-    if (name === 'track') {
-      this.warn(`<${name}> is not supported yet; skipped with all its content`);
-    } else if (isTextLike(el)) this.parseTextLike(el, parent);
+    if (name === 'track') this.parseTrack(el, parent);
+    else if (isTextLike(el)) this.parseTextLike(el, parent);
     else if (name === 'page_break') {
       this.page++;
       this.ensurePage();
@@ -1097,6 +1132,168 @@ export class Reader {
       .slice(before)
       .find((t): t is CodeItem => t.label === 'code');
     if (code) this.attach(code, captions, footnotes);
+  }
+
+  // ------------- Tracks -------------
+
+  /** Parse `<track>` into a `TrackItem` with a cue item per frame and transcript turn. */
+  private parseTrack(el: XEl, parent: P) {
+    const captions = this.extractCaptions(el);
+    const track = this.doc.track({
+      parent,
+      prov: this.extractProvenance(el),
+      layer: this.extractLayer(el),
+    });
+    this.attach(track, captions, []);
+    this.applyMeta(track, el);
+
+    let block: XNode[] | undefined;
+    for (const node of split(el)[1]) {
+      if (isEl(node) && node.tagName === 'bdiv') {
+        if (block) this.parseTrackCueBlock(track, block);
+        block = [node];
+      } else if (block) block.push(node);
+      else if (isEl(node) && node.tagName === 'cover')
+        track.image = this.trackMediaImage(node);
+    }
+    if (block) this.parseTrackCueBlock(track, block);
+  }
+
+  /** Parse one cue block (`<bdiv/>` and what follows it) into cue items of the track. */
+  private parseTrackCueBlock(track: TrackItem, nodes: XNode[]) {
+    const runs: number[] = [];
+    let run: Record<string, number> = {};
+    const content: XNode[] = [];
+
+    const endRun = () => {
+      const units = Object.entries(run);
+      if (!units.length) return;
+      runs.push(
+        units.reduce((sum, [k, v]) => sum + TIMESTAMP_UNIT_MSECS[k] * v, 0)
+      );
+      run = {};
+    };
+
+    for (const node of nodes.slice(1)) {
+      if (!isEl(node) && !isText(node)) continue; // comments and processing instructions do not count
+      const name = isEl(node) ? node.tagName : undefined;
+      if (
+        !content.length &&
+        name !== undefined &&
+        own(TIMESTAMP_UNIT_MSECS, name) !== undefined
+      ) {
+        // <seconds> anchors a run: a later unit than it, or a new <seconds>, starts the next one
+        if (Object.hasOwn(run, 'seconds') && name !== 'msecs') endRun();
+        const value = attr(node as XEl, 'value') || '0';
+        const parsed = pyDecimal(value);
+        if (parsed === undefined) {
+          this.warn(
+            `<track> cue block with an invalid <${name}> value ${pyRepr(value)}; skipped`
+          );
+          return;
+        }
+        run[name] = parsed;
+      } else if (!content.length && !(isText(node) && !data(node).trim())) {
+        endRun();
+        content.push(node);
+      } else if (content.length) content.push(node);
+    }
+    endRun();
+    if (!runs.length) {
+      this.warn('<track> cue block without a start time; skipped');
+      return;
+    }
+    const start = runs[0];
+    let end = runs.length > 1 ? runs[1] : start; // without an end time, the block is an instant
+    if (end < start) {
+      this.warn('<track> cue block ends before it starts; read as an instant');
+      end = start;
+    }
+
+    let voice: string | undefined;
+    let turn: XNode[] = [];
+    let inTurn = false; // a <voice> starts a turn, even one without text
+    let hasItems = false;
+
+    const addTurn = () => {
+      const text = this.trackTurnText(turn);
+      if (!text && !inTurn) return;
+      this.doc.text('text', text, {
+        parent: track,
+        layer: track.content_layer,
+        source: [
+          {
+            kind: 'track',
+            start_time: start / 1000,
+            end_time: end / 1000,
+            ...(voice !== undefined && { voice }),
+          },
+        ],
+      });
+      hasItems = true;
+    };
+
+    for (const node of content) {
+      const name = isEl(node) ? node.tagName : undefined;
+      if (name === 'frame') {
+        const frameEl = node as XEl;
+        const captions = this.extractCaptions(frameEl);
+        const frame = this.doc.picture({
+          parent: track,
+          image: this.trackMediaImage(frameEl),
+          prov: this.extractProvenance(frameEl),
+          layer: this.extractLayer(frameEl) ?? track.content_layer,
+          // a frame is the still at the start of its block
+          source: [
+            { kind: 'track', start_time: start / 1000, end_time: start / 1000 },
+          ],
+        });
+        this.attach(frame, captions, []);
+        this.applyMeta(frame, frameEl);
+        hasItems = true;
+      } else if (name === 'chapter' || name === 'audio') {
+        this.warn(`<${name}> in <track> is not supported yet; skipped`);
+      } else if (name === 'voice') {
+        addTurn();
+        voice = getText(node as XEl).trim() || undefined;
+        turn = [];
+        inTurn = true;
+      } else turn.push(node);
+    }
+    // a block without a turn or a frame keeps its time as an empty turn
+    inTurn = inTurn || !hasItems;
+    addTurn();
+  }
+
+  /** The text of a transcript turn: whitespace collapsed, except inside `<content>`. */
+  private trackTurnText(nodes: XNode[]): string {
+    const segments: [string, boolean][] = []; // (text, preserved)
+    for (const node of nodes) {
+      if (isText(node)) segments.push([data(node).replace(/\s+/g, ' '), false]);
+      else if (isEl(node))
+        segments.push([getText(node), node.tagName === 'content']);
+    }
+    // strip the edges, but not into preserved text
+    for (const fromStart of [true, false]) {
+      const order = segments.map((_, i) => i);
+      if (!fromStart) order.reverse();
+      for (const i of order) {
+        const [text, preserved] = segments[i];
+        if (preserved) break;
+        const stripped = fromStart ? text.trimStart() : text.trimEnd();
+        segments[i] = [stripped, preserved];
+        if (stripped) break;
+      }
+    }
+    return segments.map(([text]) => text).join('');
+  }
+
+  /** The image of a `<cover>` or `<frame>`, restored like the image of a picture. */
+  private trackMediaImage(el: XEl): ImageRef | undefined {
+    if (!this.resolveImage) return undefined;
+    const src = firstChild(el, 'src');
+    const uri = src && attr(src, 'uri');
+    return uri ? this.resolveImage(uri) : undefined;
   }
 
   // ------------- Captions and satellites -------------
