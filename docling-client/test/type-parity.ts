@@ -125,6 +125,8 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     use_font_style: true,
     style_size_tolerance: 0.05,
     numbering_schemes: ['arabic', 'roman_u'],
+    numbering_keywords: { chapter: ['rozdział'], article: ['art.', 'artykuł'] },
+    numbering_number_words: ['premier', 'deuxième'],
     max_level: 4,
     bookmark_match_threshold: 0.8,
   };

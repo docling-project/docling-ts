@@ -1881,6 +1881,8 @@ describe('v2.131.0 new fields', () => {
           use_font_style: true,
           style_size_tolerance: 0.1,
           numbering_schemes: ['arabic'],
+          numbering_keywords: { chapter: ['rozdział'], article: ['art.', 'artykuł'] },
+          numbering_number_words: ['premier', 'deuxième'],
           max_level: 3,
           bookmark_match_threshold: 0.75,
         },
@@ -1898,9 +1900,30 @@ describe('v2.131.0 new fields', () => {
       use_font_style: true,
       style_size_tolerance: 0.1,
       numbering_schemes: ['arabic'],
+      numbering_keywords: { chapter: ['rozdział'], article: ['art.', 'artykuł'] },
+      numbering_number_words: ['premier', 'deuxième'],
       max_level: 3,
       bookmark_match_threshold: 0.75,
     });
+  });
+
+  it('allows pipeline option to be null or optional', async () => {
+    const transport = new ScriptedTransport(task('pipeline-null', 'pending'));
+    const client = clientWith(transport, { options: { pipeline: 'standard' } });
+
+    // pipeline: null should clear the default pipeline option (omitted from body.options)
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      {
+        pipeline: null,
+      },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.pipeline).toBeUndefined();
   });
 
   it('rejects do_pdf_heading_hierarchy with a non-boolean value', async () => {
