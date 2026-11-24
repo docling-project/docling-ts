@@ -902,11 +902,11 @@ const JSON_STRING_CONFIG_OPTIONS = [
 ] as const;
 
 function validateStringEnum<T extends string>(
-  value: T | undefined,
+  value: T | null | undefined,
   allowed: ReadonlySet<string>,
   name: string
 ): void {
-  if (value !== undefined && !allowed.has(value)) {
+  if (value !== undefined && value !== null && !allowed.has(value)) {
     throw new DoclingProtocolError(`${name} contains an unsupported value`);
   }
 }

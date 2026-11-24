@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.151.1
-at commit `56d39ff`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.152.0
+at commit `311b683`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -159,6 +159,27 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Service client changes (v2.152.0)
+
+Python v2.152.0 at commit `311b683` introduces options for customizing heading numbering and changes the default pipeline behavior on the wire.
+
+- In `ConvertDocumentsOptions`, `pipeline` is now an optional `ProcessingPipeline` and defaults to `None`/`null` on the wire. This allows the server to select its configured default pipeline (normally `standard` unless overridden by an administrator) rather than forcing `standard` from the client.
+- In `HeadingHierarchyOptions` (nested fine-tuning under `pdf_heading_hierarchy_options`), two new options have been introduced: `numbering_keywords` (a mapping of numeral scheme families to non-English keyword arrays) and `numbering_number_words` (extra number words for enumerators).
+
+| Python change (v2.152.0)                         | TypeScript                                              | Option/Wire key          | Notes                                                             |
+| ------------------------------------------------ | ------------------------------------------------------- | ------------------------ | ----------------------------------------------------------------- |
+| `ConvertDocumentsOptions.pipeline` is optional   | `pipeline?: ProcessingPipeline \| null`                 | `pipeline`               | Defaults to `null` so the server can choose its default pipeline. |
+| `HeadingHierarchyOptions.numbering_keywords`     | `numbering_keywords?: Record<string, string[]> \| null` | `numbering_keywords`     | Mapping for non-English numbering keyword families.               |
+| `HeadingHierarchyOptions.numbering_number_words` | `numbering_number_words?: string[] \| null`             | `numbering_number_words` | Extra number words for matching enumerators.                      |
+
+References:
+
+```
+https://github.com/docling-project/docling/blob/v2.152.0/docling/datamodel/service/options.py#L459
+https://github.com/docling-project/docling/blob/v2.152.0/docling/datamodel/pipeline_options.py#L2201
+https://github.com/docling-project/docling/blob/v2.152.0/docling/datamodel/pipeline_options.py#L2219
+```
 
 ## Service client changes (v2.151.1)
 

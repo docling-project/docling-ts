@@ -234,6 +234,16 @@ export interface HeadingHierarchyOptions {
   style_size_tolerance?: number;
   /** Optional override of numbering-scheme precedence (highest level first). Default: null. */
   numbering_schemes?: string[] | null;
+  /**
+   * Extra keyword markers for the numbering signal, as a mapping from a scheme
+   * family to its words, for documents that are not in English. Empty by default.
+   */
+  numbering_keywords?: Record<string, string[]> | null;
+  /**
+   * Extra number words that count as the enumerator after a keyword marker, in
+   * addition to the English ones ('one', 'first', ...). Empty by default.
+   */
+  numbering_number_words?: string[] | null;
   /** Maximum inferred heading depth. Default: 6. */
   max_level?: number;
   /** Minimum normalized title-similarity (0..1) for bookmark matches. Default: 0.8. */
@@ -250,7 +260,12 @@ export interface ConvertDocumentsOptions {
   [key: string]: unknown;
   from_formats?: InputFormat[];
   to_formats?: OutputFormat[];
-  pipeline?: ProcessingPipeline;
+  /**
+   * Choose the pipeline to process PDF or image files.
+   * If not set (or null), the server uses its default pipeline
+   * (`standard` unless the administrator configured another one).
+   */
+  pipeline?: ProcessingPipeline | null;
   /**
    * Only convert a range of pages (1-based, inclusive). The service default
    * is the whole document, which the client never sends explicitly.
