@@ -126,6 +126,15 @@ export class DoclingTaskNotFoundError extends DoclingError {
   }
 }
 
+export class DoclingTaskCancelledError extends DoclingError {
+  readonly taskId: string;
+
+  constructor(taskId: string) {
+    super(`Docling task ${taskId} was cancelled`);
+    this.taskId = taskId;
+  }
+}
+
 export class DoclingResultNotReadyError extends DoclingError {
   readonly taskId: string;
 
