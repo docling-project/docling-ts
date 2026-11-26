@@ -44,7 +44,9 @@ const client = new DoclingClient({
 
 The base URL is the service root, without `/v1`, a query, or a fragment.
 `X-Api-Key` is sent when `apiKey` is set. Per-call service headers override
-constructor headers.
+constructor headers. Set `acceptDocumentVersion` (for example to `CURRENT_VERSION`
+from `@docling/docling-core`) to send `Accept-Docling-Document-Version` so the
+service can down-project documents to a schema your application reads.
 
 ## Convert
 
