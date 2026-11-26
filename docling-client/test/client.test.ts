@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import {
+  ACCEPT_DOCLING_DOCUMENT_VERSION_HEADER,
   ArtifactDownloader,
   DoclingClient,
   DoclingConversionError,
@@ -2304,5 +2305,60 @@ describe('v2.145.0 service client changes', () => {
       'page_range'
     );
     expect(applyPageLimits({}, [2, 4]).page_range).toEqual([2, 4]);
+  });
+});
+
+describe('v2.153.0 Accept-Docling-Document-Version header', () => {
+  it('does not send the header unless acceptDocumentVersion is configured', async () => {
+    const transport = new ScriptedTransport({ status: 'ok' });
+    const client = clientWith(transport);
+
+    await client.health();
+
+    expect(transport.requests[0]?.headers).not.toHaveProperty(
+      'accept-docling-document-version'
+    );
+  });
+
+  it('stamps the configured document version on every HTTP request', async () => {
+    const transport = new ScriptedTransport(
+      { status: 'ok' },
+      task('convert-version', 'pending')
+    );
+    const client = clientWith(transport, {
+      apiKey: 'base-key',
+      acceptDocumentVersion: '1.12.0',
+    });
+
+    await client.health();
+    await client.submitUrl(
+      'https://files.example.test/manual.pdf',
+      {},
+      { target: { kind: 'inbody' } }
+    );
+
+    expect(ACCEPT_DOCLING_DOCUMENT_VERSION_HEADER).toBe(
+      'Accept-Docling-Document-Version'
+    );
+    for (const request of transport.requests) {
+      expect(request.headers).toMatchObject({
+        accept: 'application/json',
+        'accept-docling-document-version': '1.12.0',
+        'x-api-key': 'base-key',
+      });
+    }
+  });
+
+  it('rejects an empty or non-ASCII document version', () => {
+    for (const value of ['', ' 1.12.0', '1.12.0\r\nx-injected: 1', '１.12.0']) {
+      expect(
+        () =>
+          new DoclingClient({
+            baseUrl: 'https://docling.example.test',
+            transport: new ScriptedTransport(),
+            acceptDocumentVersion: value,
+          })
+      ).toThrow(DoclingProtocolError);
+    }
   });
 });

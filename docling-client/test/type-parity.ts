@@ -1,4 +1,5 @@
 import {
+  ACCEPT_DOCLING_DOCUMENT_VERSION_HEADER,
   type ArtifactType,
   type AutoSubmitResult,
   type BaseProgress,
@@ -12,6 +13,7 @@ import {
   type ConvertDocumentErrorResponse,
   type ConvertDocumentsOptions,
   DoclingClient,
+  type DoclingClientOptions,
   type DoclingComponentType,
   type DoclingJob,
   type DoclingTaskResult,
@@ -307,6 +309,16 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const chunkerKindVal: ChunkerKind = ChunkerKind.HYBRID;
   const chunkerTypeVal: ChunkerType = ChunkerType.HIERARCHICAL;
 
+  // v2.153.0 parity: Python stamps the newest readable DoclingDocument version on
+  // every HTTP request; TypeScript exposes the same header as an opt-in option.
+  // https://github.com/docling-project/docling/blob/v2.153.0/docling/service_client/client.py#L969
+  const clientOptionsV2153: DoclingClientOptions = {
+    baseUrl: 'https://docling.example.test',
+    acceptDocumentVersion: '1.12.0',
+  };
+  const acceptVersionHeader: 'Accept-Docling-Document-Version' =
+    ACCEPT_DOCLING_DOCUMENT_VERSION_HEADER;
+
   // v2.150.0 parity: verify all ConvertDocumentsOptions fields from
   // https://github.com/docling-project/docling/blob/v2.150.0/docling/datamodel/service/options.py#L302
   const fullOptionsV2150: ConvertDocumentsOptions = {
@@ -458,5 +470,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkerKindVal,
     chunkerTypeVal,
     fullOptionsV2150,
+    clientOptionsV2153,
+    acceptVersionHeader,
   ];
 }

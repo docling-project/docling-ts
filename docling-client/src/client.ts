@@ -82,11 +82,20 @@ import { watchTask, type StatusWatcherKind, type WebSocketFactory } from './watc
 const DEFAULT_JOB_TIMEOUT_MS = 300_000;
 export const DEFAULT_MAX_CONCURRENCY = 8;
 export const MAX_CONCURRENCY_LIMIT = 512;
+export const ACCEPT_DOCLING_DOCUMENT_VERSION_HEADER = 'Accept-Docling-Document-Version';
 
 export interface DoclingClientOptions {
   baseUrl: string;
   apiKey?: string;
   headers?: Record<string, string>;
+  /**
+   * Newest DoclingDocument schema version this application can read, for
+   * example `CURRENT_VERSION` from `@docling/docling-core`. When set, it is sent
+   * on every HTTP request as `Accept-Docling-Document-Version` so the service
+   * can down-project newer documents. Python always sends its installed
+   * docling-core version; this client stays schema-neutral, so it is opt-in.
+   */
+  acceptDocumentVersion?: string;
   transport?: DoclingTransport;
   fetch?: FetchLike;
   httpRetries?: number;
@@ -170,6 +179,12 @@ export class DoclingClient<TDocument = DoclingDocument> {
     this.#headers = {
       accept: 'application/json',
       ...normalizeHeaders(options.headers),
+      ...(options.acceptDocumentVersion === undefined
+        ? {}
+        : {
+            [ACCEPT_DOCLING_DOCUMENT_VERSION_HEADER.toLowerCase()]:
+              validateDocumentVersion(options.acceptDocumentVersion),
+          }),
       ...(this.#apiKey === '' ? {} : { 'x-api-key': this.#apiKey }),
     };
     if (
@@ -2639,6 +2654,15 @@ function normalizeHeaders(
   return Object.fromEntries(
     Object.entries(headers ?? {}).map(([name, value]) => [name.toLowerCase(), value])
   );
+}
+
+function validateDocumentVersion(value: string): string {
+  if (typeof value !== 'string' || !/^[!-~]+$/.test(value)) {
+    throw new DoclingProtocolError(
+      'acceptDocumentVersion must be a non-empty visible ASCII string'
+    );
+  }
+  return value;
 }
 
 function positiveNumber(value: number, name: string): number {

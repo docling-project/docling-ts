@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.152.0
-at commit `311b683`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.153.0
+at commit `33f33aa`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -19,6 +19,7 @@ additional TypeScript capabilities are documented after the parity tables.
 | ----------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
 | Service URL                   | `baseUrl`                                              | Both normalize trailing slashes and reject `/v1`, query, and fragment components.                             |
 | API key                       | `apiKey`                                               | HTTP uses `X-Api-Key`; WebSocket uses the query parameter and also the header in Node.                        |
+| Document-version header       | `acceptDocumentVersion`                                | Python always sends `Accept-Docling-Document-Version`; TypeScript sends it on HTTP requests when configured.  |
 | Default conversion options    | `options`                                              | Deep-copied at construction; per-call merge is shallow.                                                       |
 | Status watcher                | `statusWatcher`                                        | `websocket` default or `polling`.                                                                             |
 | WebSocket polling fallback    | `webSocketFallbackToPoll`                              | Enabled by default.                                                                                           |
@@ -159,6 +160,41 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Service client changes (v2.153.0)
+
+Python v2.153.0 at commit `33f33aa` adds one service-client behavior. The
+service datamodels (`options.py`, `requests.py`, `responses.py`, `sources.py`,
+`targets.py`, `callbacks.py`, `chunking.py`, `tasks.py`) and the watcher,
+scheduler, job, and exception modules were re-checked field by field and
+already match the TypeScript contracts, so no other TypeScript type or option
+changed.
+
+- Both `DoclingServiceClient` and `AsyncDoclingServiceClient` now stamp an
+  `Accept-Docling-Document-Version` header on every HTTP request. Its value is
+  the newest DoclingDocument schema version (`CURRENT_VERSION`) the installed
+  docling-core can read, so the service can down-project newer documents. The
+  WebSocket status stream does not carry the header.
+- TypeScript keeps the remote client schema-neutral and does not depend on
+  `@docling/docling-core`, so it cannot know which schema version the
+  application reads. The header is therefore opt-in through
+  `acceptDocumentVersion`; pass `CURRENT_VERSION` from
+  `@docling/docling-core` to match Python. The dedicated option overrides a
+  same-named entry in `headers`, mirrors Python's client-level (not per-call)
+  placement, and rejects empty or non-visible-ASCII values. Artifact downloads
+  never receive it, like `X-Api-Key`.
+
+| Python change (v2.153.0)                        | TypeScript                                   | Wire key                          | Notes                                                        |
+| ----------------------------------------------- | -------------------------------------------- | --------------------------------- | ------------------------------------------------------------ |
+| Client stamps `Accept-Docling-Document-Version` | `DoclingClientOptions.acceptDocumentVersion` | `Accept-Docling-Document-Version` | Opt-in; client-level header on every HTTP request.           |
+| Header name used by both sync and async clients | `ACCEPT_DOCLING_DOCUMENT_VERSION_HEADER`     | `Accept-Docling-Document-Version` | Exported constant; stored lowercase like other HTTP headers. |
+
+References:
+
+```
+https://github.com/docling-project/docling/blob/v2.153.0/docling/service_client/client.py#L969
+https://github.com/docling-project/docling/blob/v2.153.0/docling/service_client/_async_client.py#L155
+```
 
 ## Service client changes (v2.152.0)
 
