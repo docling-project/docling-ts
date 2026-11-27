@@ -1,7 +1,7 @@
 # Python client parity
 
-This document compares `@docling/docling-client` with Docling Python 2.153.0
-at commit `33f33aa`, specifically:
+This document compares `@docling/docling-client` with Docling Python 2.154.0
+at commit `6b5ab0d`, specifically:
 
 - `DoclingServiceClient`
 - `AsyncDoclingServiceClient`
@@ -160,6 +160,46 @@ High-level limits match Python:
 
 TypeScript restricts limit values to safe integers, which is stricter than
 Python's unbounded integer type.
+
+## Service client changes (v2.154.0)
+
+Python v2.154.0 at commit `6b5ab0d` adds no service-client or service-datamodel
+API surface. `DoclingServiceClient`, `AsyncDoclingServiceClient`, the watcher,
+scheduler, job, and exception modules, and the `docling.datamodel.service`
+models (`options.py`, `requests.py`, `responses.py`, `sources.py`, `targets.py`,
+`callbacks.py`, `chunking.py`, `tasks.py`) were re-checked field by field and
+match the TypeScript contracts, so no TypeScript type, option, or runtime
+behavior changed. `ConvertDocumentsOptions`, `HeadingHierarchyOptions`, and the
+`InputFormat`, `OutputFormat`, `ResponseFormat`, `PdfBackend`, and
+`ProcessingPipeline` enums are unchanged, and the TypeScript extension table
+still equals the table Python builds in `_build_extension_to_format_map()`.
+
+The release's changes are server-side or core-library behavior:
+
+- iWork backend: Pages and Keynote tables now read number, date, and checkbox
+  cells. The input formats (`iwork_pages`, `iwork_keynote`, `iwork_numbers`) and
+  their `pages`, `key`, and `numbers` extensions already exist in TypeScript.
+  Regression tests now cover them.
+- Generic ZIP inputs have a default expansion limit, the Tesseract CLI DPI hint
+  is optional, and the Unlimited-OCR VLM presets default to a local server.
+  These act on the server pipeline and are not exposed as service options.
+- The remaining fixes (email, mets, pptx, docx, latex, xlsx, epub, nemotron-parse,
+  and the `convert-remote` CLI `.env` handling) have no service-client surface.
+
+| Python (v2.154.0)                                                 | TypeScript                                   | Wire key                                        | Notes                                |
+| ----------------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------- | ------------------------------------ |
+| `InputFormat.IWORK_PAGES/KEYNOTE/NUMBERS`                         | `InputFormat` / `INPUT_FORMATS`              | `iwork_pages`, `iwork_keynote`, `iwork_numbers` | Unchanged; tests added.              |
+| `FormatToExtensions[IWORK_*]`                                     | `EXTENSION_FORMATS`                          | `pages`, `key`, `numbers`                       | Unchanged; extension guessing tests. |
+| `DoclingServiceClient.__init__` `Accept-Docling-Document-Version` | `DoclingClientOptions.acceptDocumentVersion` | `Accept-Docling-Document-Version`               | Unchanged since v2.153.0.            |
+
+References:
+
+```
+https://github.com/docling-project/docling/blob/v2.154.0/docling/datamodel/base_models.py#L131
+https://github.com/docling-project/docling/blob/v2.154.0/docling/datamodel/base_models.py#L186
+https://github.com/docling-project/docling/blob/v2.154.0/docling/service_client/client.py#L915
+https://github.com/docling-project/docling/blob/v2.154.0/docling/datamodel/service/options.py#L302
+```
 
 ## Service client changes (v2.153.0)
 
