@@ -2362,3 +2362,38 @@ describe('v2.153.0 Accept-Docling-Document-Version header', () => {
     }
   });
 });
+
+describe('v2.154.0 iWork input formats', () => {
+  it.each([
+    ['pages', 'iwork_pages'],
+    ['key', 'iwork_keynote'],
+    ['numbers', 'iwork_numbers'],
+  ])('guesses the iWork input format for .%s files', async (extension, format) => {
+    const normalized = await normalizeSourceInput({
+      kind: 'file',
+      base64_string: 'aVdvcmsgYXJjaGl2ZQ==',
+      filename: `document.${extension}`,
+    });
+    expect(normalized.descriptor.format).toBe(format);
+  });
+
+  it('accepts every iWork input format in request options', async () => {
+    const transport = new ScriptedTransport(task('iwork-test', 'pending'));
+    const client = clientWith(transport);
+
+    await client.submitUrl(
+      'https://files.example.test/budget.numbers',
+      { from_formats: ['iwork_pages', 'iwork_keynote', 'iwork_numbers'] },
+      { target: { kind: 'inbody' } }
+    );
+
+    const body = transport.requests[0]?.body as {
+      options: Record<string, unknown>;
+    };
+    expect(body.options.from_formats).toEqual([
+      'iwork_pages',
+      'iwork_keynote',
+      'iwork_numbers',
+    ]);
+  });
+});

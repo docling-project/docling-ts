@@ -319,6 +319,15 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
   const acceptVersionHeader: 'Accept-Docling-Document-Version' =
     ACCEPT_DOCLING_DOCUMENT_VERSION_HEADER;
 
+  // v2.154.0 parity: the iWork input formats (Pages, Keynote, Numbers) remain part
+  // of the InputFormat enum, and v2.154.0 reads number, date and checkbox cells in them.
+  // https://github.com/docling-project/docling/blob/v2.154.0/docling/datamodel/base_models.py#L131
+  const v2154IworkFormats: InputFormat[] = [
+    'iwork_pages',
+    'iwork_keynote',
+    'iwork_numbers',
+  ];
+
   // v2.150.0 parity: verify all ConvertDocumentsOptions fields from
   // https://github.com/docling-project/docling/blob/v2.150.0/docling/datamodel/service/options.py#L302
   const fullOptionsV2150: ConvertDocumentsOptions = {
@@ -471,6 +480,7 @@ export function compileTimeParity(client: DoclingClient): unknown[] {
     chunkerTypeVal,
     fullOptionsV2150,
     clientOptionsV2153,
+    v2154IworkFormats,
     acceptVersionHeader,
   ];
 }
